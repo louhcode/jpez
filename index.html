@@ -1,0 +1,700 @@
+    <!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kosakata N5 - Monokrom Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        jp: ['Noto Sans JP', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'solid': '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'solid-sm': '2px 2px 0px 0px rgba(0,0,0,1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        
+        /* Hide scrollbar for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-black selection:text-white">
+
+    <!-- Top Header -->
+    <header class="fixed top-0 w-full z-40 bg-white border-b-2 border-black h-[60px] flex items-center">
+        <div class="w-full px-4 md:px-6 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-black uppercase tracking-widest">N5 KOTOBA</h1>
+            <div class="text-xs font-bold border-2 border-black px-2 py-1 bg-white shadow-solid-sm">
+                <span id="item-count">0</span> KATA
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN KOTOBA VIEW -->
+    <div id="view-kotoba" class="page-view block pt-[60px] pb-28">
+        
+        <!-- Category Nav (Sticky below header) -->
+        <div class="sticky top-[60px] w-full z-30 bg-white border-b-2 border-black py-2 shadow-sm">
+            <div id="category-nav" class="flex overflow-x-auto no-scrollbar gap-2 px-4 scroll-smooth items-center h-full">
+                <!-- Category Buttons Injected by JS -->
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="px-4 md:px-6 pt-6 max-w-7xl mx-auto">
+            <h2 id="current-category-title" class="text-2xl md:text-3xl font-black mb-4 uppercase border-b-4 border-black inline-block pb-1">
+                Kategori
+            </h2>
+            
+            <div id="vocab-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                <!-- Vocab cards injected by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- MAIN SOON VIEW (Home, Bunpou, Settings) -->
+    <div id="view-soon" class="page-view hidden pt-[60px] pb-28 min-h-screen flex items-center justify-center px-4">
+        <div class="border-4 border-black p-8 bg-white shadow-solid text-center max-w-md w-full">
+            <h2 id="soon-title" class="text-3xl font-black mb-4 uppercase">Feature</h2>
+            <div class="border-t-4 border-black w-16 mx-auto mb-4"></div>
+            <p class="text-lg font-bold">Sedang dalam tahap pengembangan.</p>
+            <p class="text-sm mt-2 font-medium">Coming Soon!</p>
+        </div>
+    </div>
+
+    <!-- Floating Bottom Navbar -->
+    <div class="fixed bottom-6 left-0 w-full z-50 pointer-events-none flex justify-center px-4">
+        <nav class="pointer-events-auto bg-white border-2 border-black rounded-full px-2 py-2 flex items-center gap-1 shadow-solid">
+            
+            <button onclick="switchView('Home')" id="nav-Home" class="nav-btn px-4 py-2 rounded-full font-bold text-sm transition-colors hover:bg-black hover:text-white">
+                Home
+            </button>
+            
+            <button onclick="switchView('Kotoba')" id="nav-Kotoba" class="nav-btn px-4 py-2 rounded-full font-bold text-sm bg-black text-white transition-colors hover:bg-black hover:text-white">
+                Kotoba
+            </button>
+            
+            <button onclick="switchView('Bunpou')" id="nav-Bunpou" class="nav-btn px-4 py-2 rounded-full font-bold text-sm transition-colors hover:bg-black hover:text-white">
+                Bunpou
+            </button>
+            
+            <button onclick="switchView('Settings')" id="nav-Settings" class="nav-btn px-4 py-2 rounded-full font-bold text-sm transition-colors hover:bg-black hover:text-white">
+                Settings
+            </button>
+
+        </nav>
+    </div>
+
+    <script>
+        // Data Vocabulary lengkap bab 1 - 40 dengan penjelasan aturan penggunaan/makna ganda
+        const vocabData = [
+            { id: 1, title: "01 ANGKA", items: [
+                { j: "番号", r: "ban'gou", m: "nomor" }, 
+                { j: "零、ゼロ", r: "rei, zero", m: "nol", note: "rei: formal/tulisan, zero: lisan sehari-hari" }, 
+                { j: "一", r: "ichi", m: "satu" },
+                { j: "二", r: "ni", m: "dua" }, 
+                { j: "三", r: "san", m: "tiga" }, 
+                { j: "四", r: "shi, yon", m: "empat", note: "'yon' umum dipakai. 'shi' dihindari krn homofon dengan kata mati." },
+                { j: "五", r: "go", m: "lima" }, 
+                { j: "六", r: "roku", m: "enam" }, 
+                { j: "七", r: "shichi, nana", m: "tujuh", note: "'nana' lebih umum dipakai untuk menghindari kemiripan bunyi." },
+                { j: "八", r: "hachi", m: "delapan" }, 
+                { j: "九", r: "kyuu, ku", m: "sembilan", note: "'ku' khusus jam (kuji) atau bulan tertentu" }, 
+                { j: "十", r: "jyuu", m: "sepuluh" },
+                { j: "百", r: "hyaku", m: "ratus" }, 
+                { j: "千", r: "sen", m: "seribu" }, 
+                { j: "万", r: "man", m: "sepuluh ribu" },
+                { j: "十万", r: "jyuu man", m: "seratus ribu" }, 
+                { j: "百万", r: "hyaku man", m: "sejuta" }, 
+                { j: "一つ", r: "hitotsu", m: "satu (benda)", note: "Digunakan untuk menghitung benda satuan umum" },
+                { j: "二つ", r: "futatsu", m: "dua (benda)" }, 
+                { j: "三つ", r: "mittsu", m: "tiga (benda)" }, 
+                { j: "四つ", r: "yottsu", m: "empat (benda)" },
+                { j: "五つ", r: "itsutsu", m: "lima (benda)" }, 
+                { j: "六つ", r: "muttsu", m: "enam (benda)" }, 
+                { j: "七つ", r: "nanatsu", m: "tujuh (benda)" },
+                { j: "八つ", r: "yattsu", m: "delapan (benda)" }, 
+                { j: "九つ", r: "kokonotsu", m: "sembilan (benda)" }, 
+                { j: "十", r: "too", m: "sepuluh (benda)" },
+                { j: "二十歳", r: "hatachi", m: "usia 20 th", note: "Pengecualian khusus, tidak dibaca ni jyuu sai." }
+            ]},
+            { id: 2, title: "02 HARI", items: [
+                { j: "曜日", r: "youbi", m: "hari" }, 
+                { j: "月曜日", r: "getsuyoubi", m: "Senin" }, 
+                { j: "火曜日", r: "kayoubi", m: "Selasa" },
+                { j: "水曜日", r: "suiyoubi", m: "Rabu" }, 
+                { j: "木曜日", r: "mokuyoubi", m: "Kamis" }, 
+                { j: "金曜日", r: "kin'youbi", m: "Jumat" },
+                { j: "土曜日", r: "doyoubi", m: "Sabtu" }, 
+                { j: "日曜日", r: "nichiyoubi", m: "Minggu" }
+            ]},
+            { id: 3, title: "03 TGL & HARI", items: [
+                { j: "日", r: "nichi", m: "tanggal, hari" }, 
+                { j: "一日", r: "tsuitachi", m: "tanggal 1", note: "Pengecualian khusus untuk tanggal 1" }, 
+                { j: "二日", r: "futsuka", m: "tanggal 2" },
+                { j: "三日", r: "mikka", m: "tanggal 3" }, 
+                { j: "四日", r: "yokka", m: "tanggal 4" }, 
+                { j: "五日", r: "itsuka", m: "tanggal 5" },
+                { j: "六日", r: "muika", m: "tanggal 6" }, 
+                { j: "七日", r: "nanoka", m: "tanggal 7" }, 
+                { j: "八日", r: "youka", m: "tanggal 8" },
+                { j: "九日", r: "kokonoka", m: "tanggal 9" }, 
+                { j: "十日", r: "tooka", m: "tanggal 10" }, 
+                { j: "十四日", r: "jyuu yokka", m: "tanggal 14" },
+                { j: "二十日", r: "hatsuka", m: "tanggal 20", note: "Pengecualian khusus untuk tanggal 20" }, 
+                { j: "二十四日", r: "ni jyuu yokka", m: "tgl 24" }, 
+                { j: "十一日", r: "jyuu ichi nichi", m: "tgl 11" },
+                { j: "一日", r: "ichinichi", m: "1 hari", note: "Dibaca ichinichi jika menyatakan durasi 1 hari" }, 
+                { j: "二日間", r: "futsukakan", m: "durasi 2 hari" }, 
+                { j: "三日間", r: "mikkakan", m: "durasi 3 hari" },
+                { j: "一週間", r: "isshuukan", m: "1 minggu" }, 
+                { j: "一か月", r: "ikkagetsu", m: "1 bulan" }, 
+                { j: "一年間", r: "ichinenkan", m: "durasi 1 tahun" }
+            ]},
+            { id: 4, title: "04 BULAN", items: [
+                { j: "月", r: "gatsu", m: "bulan" }, 
+                { j: "一月", r: "ichi gatsu", m: "Januari" }, 
+                { j: "二月", r: "ni gatsu", m: "Februari" },
+                { j: "三月", r: "san gatsu", m: "Maret" }, 
+                { j: "四月", r: "shi gatsu", m: "April", note: "Bulan 4 dibaca shigatsu" }, 
+                { j: "五月", r: "go gatsu", m: "Mei" },
+                { j: "六月", r: "roku gatsu", m: "Juni" }, 
+                { j: "七月", r: "shichi gatsu", m: "Juli", note: "Bulan 7 dibaca shichigatsu" }, 
+                { j: "八月", r: "hachi gatsu", m: "Agustus" },
+                { j: "九月", r: "ku gatsu", m: "September", note: "Bulan 9 dibaca kugatsu, bukan kyuugatsu" }, 
+                { j: "十月", r: "jyuu gatsu", m: "Oktober" }, 
+                { j: "十一月", r: "jyuu ichi gatsu", m: "November" },
+                { j: "十二月", r: "jyuu ni gatsu", m: "Desember" }
+            ]},
+            { id: 5, title: "05 JAM", items: [
+                { j: "時", r: "ji", m: "jam (waktu)" }, 
+                { j: "一時", r: "ichi ji", m: "jam 1" }, 
+                { j: "二時", r: "ni ji", m: "jam 2" },
+                { j: "三時", r: "san ji", m: "jam 3" }, 
+                { j: "四時", r: "yo ji", m: "jam 4", note: "Pengecualian: jam 4 dibaca yoji, bukan yonji" }, 
+                { j: "五時", r: "go ji", m: "jam 5" },
+                { j: "六時", r: "roku ji", m: "jam 6" }, 
+                { j: "七時", r: "shichi ji", m: "jam 7" }, 
+                { j: "八時", r: "hachi ji", m: "jam 8" },
+                { j: "九時", r: "ku ji", m: "jam 9", note: "Pengecualian: jam 9 dibaca kuji, bukan kyuuji" }, 
+                { j: "十時", r: "jyuu ji", m: "jam 10" }, 
+                { j: "分", r: "fun, pun", m: "menit" }, 
+                { j: "時間", r: "jikan", m: "durasi jam" }, 
+                { j: "半", r: "han", m: "setengah (30mnt)" }
+            ]},
+            { id: 6, title: "06 KETERANGAN WAKTU", items: [
+                { j: "時間", r: "jikan", m: "waktu" }, 
+                { j: "午前", r: "gozen", m: "pagi, a.m." }, 
+                { j: "午後", r: "gogo", m: "sore, p.m." },
+                { j: "今", r: "ima", m: "sekarang" }, 
+                { j: "朝", r: "asa", m: "pagi" }, 
+                { j: "昼", r: "hiru", m: "siang" }, 
+                { j: "夕方", r: "yuugata", m: "senja" },
+                { j: "夜、晩", r: "yoru, ban", m: "malam", note: "yoru: malam secara umum, ban: malam hari/petang" }, 
+                { j: "毎日", r: "mainichi", m: "tiap hari" }, 
+                { j: "昨日", r: "kinou", m: "kemarin" }, 
+                { j: "今日", r: "kyou", m: "hari ini" }, 
+                { j: "明日", r: "ashita", m: "besok" }, 
+                { j: "先週", r: "senshuu", m: "minggu lalu" }, 
+                { j: "今週", r: "konshuu", m: "minggu ini" }, 
+                { j: "来週", r: "raishuu", m: "minggu depan" }, 
+                { j: "先月", r: "sen'getsu", m: "bulan lalu" }, 
+                { j: "今月", r: "kon'getsu", m: "bulan ini" }, 
+                { j: "来月", r: "raigetsu", m: "bulan depan" }, 
+                { j: "去年", r: "kyonen", m: "tahun lalu" }, 
+                { j: "今年", r: "kotoshi", m: "tahun ini" }, 
+                { j: "来年", r: "rainen", m: "tahun depan" }
+            ]},
+            { id: 7, title: "07 WARNA", items: [
+                { j: "色", r: "iro", m: "warna" }, 
+                { j: "青、青い", r: "ao, aoi", m: "biru", note: "ao: kata benda (biru), aoi: kata sifat -i (berwarna biru)" }, 
+                { j: "赤、赤い", r: "aka, akai", m: "merah", note: "aka: kata benda, akai: kata sifat -i" },
+                { j: "黄色、黄色い", r: "kiiro, kiiroi", m: "kuning" }, 
+                { j: "黒、黒い", r: "kuro, kuroi", m: "hitam" }, 
+                { j: "白、白い", r: "shiro, shiroi", m: "putih" },
+                { j: "茶色", r: "cha'iro", m: "coklat" }, 
+                { j: "緑", r: "midori", m: "hijau" }, 
+                { j: "紫", r: "murasaki", m: "ungu" }
+            ]},
+            { id: 8, title: "08 SATUAN", items: [
+                { j: "キログラム", r: "kiro", m: "kg" }, 
+                { j: "メートル", r: "mētoru", m: "meter" }, 
+                { j: "まい", r: "mai", m: "lembar (kertas/baju)" }, 
+                { j: "さつ", r: "satsu", m: "jilid (buku)" }, 
+                { j: "秒", r: "byou", m: "detik" }, 
+                { j: "番", r: "ban", m: "nomor" }, 
+                { j: "人", r: "nin", m: "orang" },
+                { j: "一人", r: "hitori", m: "1 orang", note: "Pengecualian khusus, tidak memakai hitonin" }, 
+                { j: "二人", r: "futari", m: "2 orang", note: "Pengecualian khusus, tidak memakai nininn" },
+                { j: "本", r: "hon", m: "batang (pensil/botol)" }, 
+                { j: "匹", r: "hiki", m: "ekor (hewan kecil)" },
+                { j: "杯", r: "hai", m: "gelas/mangkok (takaran)" }, 
+                { j: "個", r: "ko", m: "butir/buah (benda kecil)" }
+            ]},
+            { id: 9, title: "09 KATA GANTI", items: [
+                { j: "私", r: "watashi", m: "saya", note: "Sopan, netral digunakan pria maupun wanita." }, 
+                { j: "あなた", r: "anata", m: "kamu, anda", note: "Sopan, tetapi di Jepang sebaiknya hindari memanggil orang dengan 'anata' jika sudah kenal. Gunakan Nama + san." }, 
+                { j: "君", r: "kimi", m: "kamu", note: "Informal, biasa dipakai pria kepada teman dekat atau status sosial di bawahnya." },
+                { j: "僕", r: "boku", m: "saya (lk)", note: "Informal, sering dipakai anak laki-laki atau pria dewasa dalam suasana santai." }, 
+                { j: "彼", r: "kare", m: "dia (lk) / pacar pria" }, 
+                { j: "彼女", r: "kanojyo", m: "dia (pr) / pacar wanita" },
+                { j: "私たち", r: "watashitachi", m: "kami / kita" }, 
+                { j: "彼ら", r: "karera", m: "mereka (laki-laki/campuran)" },
+                { j: "自分", r: "jibun", m: "diri sendiri" }
+            ]},
+            { id: 10, title: "10 MANUSIA", items: [
+                { j: "人", r: "hito", m: "orang" }, 
+                { j: "人間", r: "ningen", m: "manusia" }, 
+                { j: "男", r: "otoko", m: "laki-laki" }, 
+                { j: "女", r: "onna", m: "perempuan" },
+                { j: "子供", r: "kodomo", m: "anak-anak" }, 
+                { j: "体", r: "karada", m: "tubuh" }, 
+                { j: "頭", r: "atama", m: "kepala" },
+                { j: "髪", r: "kami", m: "rambut" }, 
+                { j: "目", r: "me", m: "mata" }, 
+                { j: "鼻", r: "hana", m: "hidung" }, 
+                { j: "口", r: "kuchi", m: "mulut" }, 
+                { j: "歯", r: "ha", m: "gigi" }, 
+                { j: "耳", r: "mimi", m: "telinga" }, 
+                { j: "手", r: "te", m: "tangan" }, 
+                { j: "足", r: "ashi", m: "kaki" }
+            ]},
+            { id: 11, title: "11 KELUARGA", items: [
+                { j: "家族", r: "kazoku", m: "keluarga" }, 
+                { j: "祖父", r: "sofu", m: "kakek sendiri", note: "Gunakan 'sofu' saat membicarakan kakek sendiri kepada orang lain." }, 
+                { j: "おじいさん", r: "ojiisan", m: "kakek (org lain / sapaan)", note: "Gunakan 'ojiisan' untuk menyapa kakek secara langsung atau membicarakan kakek orang lain." }, 
+                { j: "祖母", r: "sobo", m: "nenek sendiri", note: "Gunakan 'sobo' saat merujuk nenek sendiri." }, 
+                { j: "おばあさん", r: "obaasan", m: "nenek (org lain)", note: "Gunakan 'obaasan' untuk menyapa nenek." }, 
+                { j: "父", r: "chichi", m: "ayah sendiri", note: "Bentuk sopan untuk ayah kandung sendiri." }, 
+                { j: "お父さん", r: "otousan", m: "ayah (org lain)", note: "Sapaan langsung ke ayah atau ayah orang lain." }, 
+                { j: "母", r: "haha", m: "ibu sendiri" }, 
+                { j: "お母さん", r: "okaasan", m: "ibu (org lain)" }, 
+                { j: "兄", r: "ani", m: "kakak lk sendiri" }, 
+                { j: "お兄さん", r: "oniisan", m: "kakak lk (org lain)" },
+                { j: "姉", r: "ane", m: "kakak pr sendiri" }, 
+                { j: "お姉さん", r: "oneesan", m: "kakak pr (org lain)" },
+                { j: "両親", r: "ryoushin", m: "orang tua" }, 
+                { j: "兄弟", r: "kyoudai", m: "saudara" }
+            ]},
+            { id: 12, title: "12 ALAM", items: [
+                { j: "天気", r: "tenki", m: "cuaca" }, 
+                { j: "空", r: "sora", m: "langit" }, 
+                { j: "晴れ", r: "hare", m: "cerah" },
+                { j: "曇り", r: "kumori", m: "mendung" }, 
+                { j: "風", r: "kaze", m: "angin" }, 
+                { j: "雨", r: "ame", m: "hujan" },
+                { j: "雪", r: "yuki", m: "salju" }, 
+                { j: "水", r: "mizu", m: "air" }, 
+                { j: "海", r: "umi", m: "laut" }, 
+                { j: "川", r: "kawa", m: "sungai" },
+                { j: "山", r: "yama", m: "gunung" }, 
+                { j: "木", r: "ki", m: "pohon" }, 
+                { j: "森", r: "mori", m: "hutan" }, 
+                { j: "花", r: "hana", m: "bunga" }
+            ]},
+            { id: 13, title: "13 MUSIM", items: [
+                { j: "季節", r: "kisetsu", m: "musim" }, 
+                { j: "春", r: "haru", m: "musim semi" }, 
+                { j: "夏", r: "natsu", m: "musim panas" },
+                { j: "秋", r: "aki", m: "musim gugur" }, 
+                { j: "冬", r: "fuyu", m: "musim dingin" }, 
+                { j: "乾季", r: "kanki", m: "musim kemarau" }, 
+                { j: "雨季", r: "uki", m: "musim hujan" }
+            ]},
+            { id: 14, title: "14 BINATANG", items: [
+                { j: "動物", r: "doubutsu", m: "binatang" }, 
+                { j: "犬", r: "inu", m: "anjing" }, 
+                { j: "猫", r: "neko", m: "kucing" },
+                { j: "鳥", r: "tori", m: "burung" }, 
+                { j: "にわとり", r: "niwatori", m: "ayam" }, 
+                { j: "魚", r: "sakana", m: "ikan" }, 
+                { j: "馬", r: "uma", m: "kuda" }
+            ]},
+            { id: 15, title: "15 BENDA", items: [
+                { j: "物", r: "mono", m: "barang" }, 
+                { j: "帽子", r: "boushi", m: "topi" }, 
+                { j: "傘", r: "kasa", m: "payung" }, 
+                { j: "眼鏡", r: "megane", m: "kacamata" },
+                { j: "財布", r: "saifu", m: "dompet" }, 
+                { j: "お金", r: "okane", m: "uang" }, 
+                { j: "靴", r: "kutsu", m: "sepatu" }, 
+                { j: "荷物", r: "nimotsu", m: "barang bawaan" },
+                { j: "かばん", r: "kaban", m: "tas" }, 
+                { j: "薬", r: "kusuri", m: "obat" }, 
+                { j: "鍵", r: "kagi", m: "kunci" }, 
+                { j: "雑誌", r: "zasshi", m: "majalah" }
+            ]},
+            { id: 16, title: "16 PAKAIAN", items: [
+                { j: "服", r: "fuku", m: "pakaian" }, 
+                { j: "コート", r: "kōto", m: "mantel" }, 
+                { j: "上着", r: "uwagi", m: "jaket / baju luar" },
+                { j: "シャツ", r: "shatsu", m: "kemeja" }, 
+                { j: "スカート", r: "sukāto", m: "rok" }, 
+                { j: "ズボン", r: "zubon", m: "celana panjang" }
+            ]},
+            { id: 17, title: "17 MAKANAN", items: [
+                { j: "食べ物", r: "tabemono", m: "makanan" }, 
+                { j: "飲み物", r: "nomimono", m: "minuman" }, 
+                { j: "御飯", r: "gohan", m: "nasi / makanan" },
+                { j: "朝御飯", r: "asagohan", m: "makan pagi" }, 
+                { j: "昼御飯", r: "hirugohan", m: "makan siang" }, 
+                { j: "晩御飯", r: "ban'gohan", m: "makan malam" },
+                { j: "肉", r: "niku", m: "daging" }, 
+                { j: "野菜", r: "yasai", m: "sayur" }, 
+                { j: "果物", r: "kudamono", m: "buah" },
+                { j: "卵", r: "tamago", m: "telur" }, 
+                { j: "牛乳", r: "gyuunyuu", m: "susu sapi" }, 
+                { j: "お茶", r: "ocha", m: "teh hijau" }, 
+                { j: "水", r: "mizu", m: "air" }
+            ]},
+            { id: 18, title: "18 HOBI", items: [
+                { j: "音楽", r: "on'gaku", m: "musik" }, 
+                { j: "歌", r: "uta", m: "lagu" }, 
+                { j: "映画", r: "eiga", m: "film" },
+                { j: "旅行", r: "ryokou", m: "wisata" }, 
+                { j: "写真", r: "shashin", m: "foto" }, 
+                { j: "スポーツ", r: "supōtsu", m: "olahraga" }
+            ]},
+            { id: 19, title: "19 KOTA", items: [
+                { j: "町", r: "machi", m: "kota" }, 
+                { j: "道", r: "michi", m: "jalan" }, 
+                { j: "交差点", r: "kousaten", m: "persimpangan" },
+                { j: "橋", r: "hashi", m: "jembatan" }, 
+                { j: "公園", r: "kouen", m: "taman" }, 
+                { j: "地図", r: "chizu", m: "peta" }
+            ]},
+            { id: 20, title: "20 KENDARAAN", items: [
+                { j: "車", r: "kuruma", m: "mobil" }, 
+                { j: "自転車", r: "jitensha", m: "sepeda" }, 
+                { j: "バイク", r: "baiku", m: "motor" },
+                { j: "バス", r: "basu", m: "bus" }, 
+                { j: "船", r: "fune", m: "kapal laut" }, 
+                { j: "電車", r: "densha", m: "kereta" },
+                { j: "飛行機", r: "hikouki", m: "pesawat" }, 
+                { j: "切符", r: "kippu", m: "tiket" }
+            ]},
+            { id: 21, title: "21 SEKOLAH", items: [
+                { j: "学校", r: "gakkou", m: "sekolah" }, 
+                { j: "大学", r: "daigaku", m: "universitas" }, 
+                { j: "教室", r: "kyoushitsu", m: "kelas" },
+                { j: "言葉", r: "kotoba", m: "kata, bahasa" }, 
+                { j: "英語", r: "eigo", m: "b. Inggris" }, 
+                { j: "漢字", r: "kanji", m: "kanji" },
+                { j: "辞書", r: "jisho", m: "kamus" }, 
+                { j: "意味", r: "imi", m: "arti" }, 
+                { j: "宿題", r: "shukudai", m: "PR" }, 
+                { j: "テスト", r: "tesuto", m: "ujian/tes" }
+            ]},
+            { id: 22, title: "22 BANGUNAN", items: [
+                { j: "建物", r: "tatemono", m: "bangunan" }, 
+                { j: "家", r: "ie", m: "rumah" }, 
+                { j: "駅", r: "eki", m: "stasiun" },
+                { j: "病院", r: "byouin", m: "Rumah Sakit" }, 
+                { j: "銀行", r: "ginkou", m: "bank" }, 
+                { j: "会社", r: "kaisha", m: "kantor" },
+                { j: "店", r: "mise", m: "toko" }, 
+                { j: "階段", r: "kaidan", m: "tangga" }, 
+                { j: "入口", r: "iriguchi", m: "pintu masuk" }, 
+                { j: "出口", r: "deguchi", m: "pintu keluar" }
+            ]},
+            { id: 23, title: "23 RUMAH", items: [
+                { j: "ドア", r: "doa", m: "pintu" }, 
+                { j: "窓", r: "mado", m: "jendela" }, 
+                { j: "台所", r: "daidokoro", m: "dapur" },
+                { j: "部屋", r: "heya", m: "kamar" }, 
+                { j: "お手洗い", r: "otearai", m: "toilet", note: "Bentuk sopan untuk menyebut kamar kecil/toilet." }, 
+                { j: "電気", r: "denki", m: "listrik / lampu" }
+            ]},
+            { id: 24, title: "24 PERALATAN RUMAH TANGGA", items: [
+                { j: "机", r: "tsukue", m: "meja belajar/tulis" },
+                { j: "椅子", r: "isu", m: "kursi" },
+                { j: "本棚", r: "hondana", m: "rak buku" },
+                { j: "冷蔵庫", r: "reizouko", m: "kulkas" },
+                { j: "テレビ", r: "terebi", m: "televisi" }
+            ]},
+            { id: 25, title: "25 PERALATAN MAKAN", items: [
+                { j: "皿", r: "sara", m: "piring" },
+                { j: "茶碗", r: "chawan", m: "mangkok nasi" },
+                { j: "箸", r: "hashi", m: "sumpit" },
+                { j: "コップ", r: "koppu", m: "gelas" },
+                { j: "スプーン", r: "supuun", m: "sendok" }
+            ]},
+            { id: 26, title: "26 BUMBU DAPUR", items: [
+                { j: "砂糖", r: "satou", m: "gula pasir" },
+                { j: "塩", r: "shio", m: "garam" },
+                { j: "醤油", r: "shouyu", m: "kecap asin" },
+                { j: "胡椒", r: "koshou", m: "lada / merica" }
+            ]},
+            { id: 27, title: "27 ALAT TULIS", items: [
+                { j: "鉛筆", r: "enpitsu", m: "pensil" },
+                { j: "ペン", r: "pen", m: "pena / bolpoin" },
+                { j: "ノート", r: "noto", m: "buku tulis" },
+                { j: "手紙", r: "tegami", m: "surat" },
+                { j: "切手", r: "kitte", m: "perangko" }
+            ]},
+            { id: 28, title: "28 PEKERJAAN", items: [
+                { j: "仕事", r: "shigoto", m: "pekerjaan" }, 
+                { j: "医者", r: "isha", m: "dokter" }, 
+                { j: "警官", r: "keikan", m: "polisi" },
+                { j: "先生", r: "sensei", m: "guru / pengajar", note: "Digunakan sebagai sebutan profesi atau panggilan terhormat untuk pengajar/dokter." }, 
+                { j: "学生", r: "gakusei", m: "mahasiswa / pelajar" }
+            ]},
+            { id: 29, title: "29 ARAH", items: [
+                { j: "上", r: "ue", m: "atas" }, 
+                { j: "下", r: "shita", m: "bawah" }, 
+                { j: "前", r: "mae", m: "depan" },
+                { j: "後", r: "ushiro", m: "belakang" }, 
+                { j: "外", r: "soto", m: "luar" }, 
+                { j: "中", r: "naka", m: "dalam" },
+                { j: "右", r: "migi", m: "kanan" }, 
+                { j: "左", r: "hidari", m: "kiri" }, 
+                { j: "隣", r: "tonari", m: "sebelah / tetangga" },
+                { j: "東", r: "higashi", m: "timur" }, 
+                { j: "西", r: "nishi", m: "barat" }, 
+                { j: "北", r: "kita", m: "utara" }, 
+                { j: "南", r: "minami", m: "selatan" }
+            ]},
+            { id: 30, title: "30 PENUNJUK", items: [
+                { j: "これ", r: "kore", m: "ini", note: "Kata ganti benda dekat pembicara" }, 
+                { j: "それ", r: "sore", m: "itu", note: "Kata ganti benda dekat pendengar" }, 
+                { j: "あれ", r: "are", m: "itu (jauh)", note: "Kata ganti benda jauh dari keduanya" },
+                { j: "この", r: "kono", m: "benda ini + ...", note: "Harus diikuti kata benda" }, 
+                { j: "その", r: "sono", m: "benda itu + ..." }, 
+                { j: "あの", r: "ano", m: "benda itu (jauh) + ..." },
+                { j: "ここ", r: "koko", m: "di sini" }, 
+                { j: "そこ", r: "soko", m: "di situ" }, 
+                { j: "あそこ", r: "asoko", m: "di sana" }
+            ]},
+            { id: 31, title: "31 KATA TANYA", items: [
+                { j: "何", r: "nan, nani", m: "apa" }, 
+                { j: "誰", r: "dare", m: "siapa" }, 
+                { j: "どうして", r: "doushite", m: "mengapa" },
+                { j: "どこ", r: "doko", m: "(di) mana" }, 
+                { j: "どれ", r: "dore", m: "yang mana (pilihan >=3)" }, 
+                { j: "いつ", r: "itsu", m: "kapan" }, 
+                { j: "いくら", r: "ikura", m: "berapa (harga)" }
+            ]},
+            { id: 32, title: "32 KATA SAMBUNG", items: [
+                { j: "そして", r: "soshite", m: "dan / lalu" }, 
+                { j: "それから", r: "sorekara", m: "kemudian / setelah itu" }, 
+                { j: "でも", r: "demo", m: "tetapi / namun" },
+                { j: "しかし", r: "shikashi", m: "tetapi", note: "Lebih formal dibanding demo" }
+            ]},
+            { id: 33, title: "33 KETERANGAN", items: [
+                { j: "いちばん", r: "ichiban", m: "paling / nomor satu" }, 
+                { j: "同じ", r: "onaji", m: "sama" }, 
+                { j: "たくさん", r: "takusan", m: "banyak" },
+                { j: "とても", r: "totemo", m: "sangat" }, 
+                { j: "少し", r: "sukoshi", m: "sedikit" }, 
+                { j: "全部", r: "zenbu", m: "seluruhnya / semua" },
+                { j: "いつも", r: "itsumo", m: "selalu" }, 
+                { j: "時々", r: "tokidoki", m: "kadang-kadang" }
+            ]},
+            { id: 34, title: "34 KATA SIFAT -I", items: [
+                { j: "新しい", r: "atarashii", m: "baru" }, 
+                { j: "古い", r: "furui", m: "kuno / tua (benda)" },
+                { j: "暑い", r: "atsui", m: "panas (cuaca)" }, 
+                { j: "寒い", r: "samui", m: "dingin (cuaca)" },
+                { j: "熱い", r: "atsui", m: "panas (suhu benda)", note: "Kanji berbeda dengan atsui cuaca" },
+                { j: "冷たい", r: "tsumetai", m: "dingin (suhu benda/sentuhan)", note: "Digunakan untuk benda atau permukaan, bukan cuaca" },
+                { j: "大きい", r: "ookii", m: "besar" }, 
+                { j: "小さい", r: "chiisai", m: "kecil" },
+                { j: "高い", r: "takai", m: "tinggi / mahal", note: "Memiliki dua arti konteks: harga mahal atau posisi tinggi" }, 
+                { j: "安い", r: "yasui", m: "murah" },
+                { j: "いい、よい", r: "ii, yoi", m: "baik / bagus" }, 
+                { j: "悪い", r: "warui", m: "jelek / buruk" },
+                { j: "難しい", r: "muzukashii", m: "sulit" }, 
+                { j: "おいしい", r: "oishii", m: "enak" },
+                { j: "忙しい", r: "isogashii", m: "sibuk" }, 
+                { j: "楽しい", r: "tanoshii", m: "menyenangkan" }
+            ]},
+            { id: 35, title: "35 KATA SIFAT NON-I", items: [
+                { j: "元気", r: "genki", m: "sehat / bersemangat" }, 
+                { j: "きれい", r: "kirei", m: "cantik / bersih", note: "Meskipun berakhiran -i, kata ini termasuk Na-Keiyoushi (kata sifat non-i)" }, 
+                { j: "静か", r: "shizuka", m: "tenang / sunyi" }, 
+                { j: "好き", r: "suki", m: "suka" },
+                { j: "便利", r: "benri", m: "praktis" }, 
+                { j: "有名", r: "yuumei", m: "terkenal" }, 
+                { j: "親切", r: "shinsetsu", m: "ramah / baik hati" }, 
+                { j: "暇", r: "hima", m: "senggang / waktu luang" }
+            ]},
+            { id: 36, title: "36 KERJA GOL I", items: [
+                { j: "行きます", r: "ikimasu", m: "pergi" }, 
+                { j: "聞きます", r: "kikimasu", m: "mendengar / bertanya" },
+                { j: "飲みます", r: "nomimasu", m: "minum" }, 
+                { j: "読みます", r: "yomimasu", m: "membaca" },
+                { j: "会います", r: "aimasu", m: "bertemu" }, 
+                { j: "買います", r: "kaimasu", m: "membeli" },
+                { j: "待ちます", r: "machimasu", m: "menunggu" }, 
+                { j: "帰ります", r: "kaerimasu", m: "pulang" },
+                { j: "話します", r: "hanashimasu", m: "berbicara" }, 
+                { j: "作ります", r: "tsukurimasu", m: "membuat" }
+            ]},
+            { id: 37, title: "37 KERJA GOL II", items: [
+                { j: "見ます", r: "mimasu", m: "melihat / menonton" }, 
+                { j: "起きます", r: "okimasu", m: "bangun tidur" },
+                { j: "食べます", r: "tabemasu", m: "makan" }, 
+                { j: "寝ます", r: "nemasu", m: "tidur" },
+                { j: "借ります", r: "karimasu", m: "meminjam" }, 
+                { j: "います", r: "imasu", m: "ada (makhluk hidup)" }
+            ]},
+            { id: 38, title: "38 KERJA GOL III", items: [
+                { j: "出かけます", r: "dekakemasu", m: "keluar rumah" }, 
+                { j: "開けます", r: "akemasu", m: "membuka (pintu/jendela)" },
+                { j: "教えます", r: "oshiemasu", m: "mengajarkan / memberitahu" }, 
+                { j: "忘れます", r: "wasuremasu", m: "lupa" }
+            ]},
+            { id: 39, title: "39 KERJA GOL IV", items: [
+                { j: "来ます", r: "kimasu", m: "datang", note: "Kata kerja golongan khusus (irrregular)" }
+            ]},
+            { id: 40, title: "40 KERJA GOL V", items: [
+                { j: "します", r: "shimasu", m: "melakukan" }, 
+                { j: "勉強します", r: "benkyou shimasu", m: "belajar" },
+                { j: "旅行します", r: "ryokou shimasu", m: "berwisata" }, 
+                { j: "散歩します", r: "sanpo shimasu", m: "jalan-jalan" }
+            ]}
+        ];
+
+        const categoryNav = document.getElementById('category-nav');
+        const vocabGrid = document.getElementById('vocab-grid');
+        const currentCategoryTitle = document.getElementById('current-category-title');
+        const itemCount = document.getElementById('item-count');
+        
+        let currentCategoryId = 1;
+        let currentView = 'Kotoba';
+
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Update Navigation active state
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                if (btn.id === `nav-${viewName}`) {
+                    btn.classList.add('bg-black', 'text-white');
+                } else {
+                    btn.classList.remove('bg-black', 'text-white');
+                }
+            });
+
+            // Toggle Main Views
+            if (viewName === 'Kotoba') {
+                document.getElementById('view-kotoba').classList.remove('hidden');
+                document.getElementById('view-kotoba').classList.add('block');
+                document.getElementById('view-soon').classList.remove('flex');
+                document.getElementById('view-soon').classList.add('hidden');
+            } else {
+                document.getElementById('view-kotoba').classList.remove('block');
+                document.getElementById('view-kotoba').classList.add('hidden');
+                document.getElementById('view-soon').classList.remove('hidden');
+                document.getElementById('view-soon').classList.add('flex');
+                document.getElementById('soon-title').textContent = viewName;
+            }
+        }
+
+        function renderCategories() {
+            categoryNav.innerHTML = '';
+            vocabData.forEach(cat => {
+                const btn = document.createElement('button');
+                const isActive = cat.id === currentCategoryId;
+                
+                btn.className = `flex-shrink-0 px-3 py-1.5 border-2 border-black font-bold text-sm transition-colors ${
+                    isActive 
+                    ? 'bg-black text-white' 
+                    : 'bg-white text-black hover:bg-gray-100'
+                }`;
+                btn.textContent = cat.title;
+                
+                btn.onclick = () => {
+                    selectCategory(cat.id);
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                };
+                
+                categoryNav.appendChild(btn);
+            });
+        }
+
+        function renderVocab(categoryId) {
+            const category = vocabData.find(c => c.id === categoryId);
+            if (!category) return;
+
+            currentCategoryTitle.textContent = category.title.replace(/[0-9]/g, '').trim(); 
+            itemCount.textContent = category.items.length;
+            
+            vocabGrid.innerHTML = '';
+
+            category.items.forEach((item) => {
+                const card = document.createElement('div');
+                
+                // Compact Neo-brutalism Card Style
+                card.className = 'border-2 border-black p-3 bg-white flex flex-col h-full hover:shadow-solid hover:-translate-y-1 transition-all';
+                
+                let noteHtml = '';
+                if (item.note) {
+                    noteHtml = `
+                        <div class="mt-2 pt-2 border-t-2 border-dashed border-gray-300">
+                            <label class="cursor-pointer text-[10px] font-bold text-gray-500 uppercase tracking-wider block hover:text-black transition-colors">
+                                <input type="checkbox" class="peer hidden note-toggle">
+                                <span>[+] Aturan Penggunaan</span>
+                                <div class="hidden peer-checked:block note-content mt-1 p-1.5 bg-gray-100 border border-black text-[11px] font-medium text-black normal-case leading-tight">
+                                    ${item.note}
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    <div class="text-2xl md:text-3xl font-jp font-normal text-center mb-1 text-black">
+                        ${item.j}
+                    </div>
+                    <div class="text-[11px] md:text-xs text-center text-gray-500 font-mono tracking-tighter mb-2">
+                        ${item.r}
+                    </div>
+                    <div class="border-t-2 border-black pt-2 text-sm md:text-base font-bold text-center mt-auto leading-tight">
+                        ${item.m}
+                    </div>
+                    ${noteHtml}
+                `;
+                vocabGrid.appendChild(card);
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectCategory(id) {
+            currentCategoryId = id;
+            renderCategories();
+            renderVocab(id);
+        }
+
+        // Initialize
+        renderCategories();
+        renderVocab(currentCategoryId);
+
+    </script>
+</body>
+</html>
