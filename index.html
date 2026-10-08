@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>N5 Kotoba & Bunpou - Complete Monokrom</title>
+    <title>[FREE] N5 Kotoba & Bunpou - Complete Monokrom</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -124,6 +124,7 @@
                     </div>
                     <div class="w-full h-3 border-2 border-black bg-white"><div id="km-total-bar" class="h-full bg-black transition-all duration-500" style="width:0%"></div></div>
                 </div>
+                <button id="km-free-note" onclick="openPremiumModal()" class="hidden w-full text-left border-2 border-black bg-black text-white p-3 mb-5 text-xs font-bold uppercase">&#128274; Versi gratis: hanya Bab 01 yang terbuka. Ketuk untuk membuka semua bab &rarr;</button>
                 <div id="kotoba-map"></div>
             </div>
         </div>
@@ -196,6 +197,13 @@
                 <div id="jp-clock" class="font-mono text-3xl md:text-4xl font-black tracking-widest mt-1"></div>
             </section>
 
+            <!-- Banner versi gratis -->
+            <section id="home-premium-banner" class="hidden border-2 border-black p-4 bg-white shadow-solid">
+                <div class="font-black text-sm uppercase">&#128274; Versi Gratis</div>
+                <p class="text-xs font-bold text-gray-700 mt-1">Kamu bisa membuka 1 bab dari tiap materi (Kotoba, Bunpou, dan Partikel). Masukkan kode premium untuk membuka semuanya.</p>
+                <button onclick="openPremiumModal()" class="w-full mt-3 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Masukkan Kode Premium</button>
+            </section>
+
             <!-- Lanjutkan Pelajaran -->
             <section class="border-2 border-black p-4 bg-black text-white">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-gray-300">Lanjutkan pelajaranmu di sini</div>
@@ -242,6 +250,18 @@
             <h2 class="text-2xl md:text-3xl font-black mb-4 uppercase text-center">Settings</h2>
             <div class="border-t-4 border-black w-12 mx-auto mb-6"></div>
             
+            <div class="mb-6">
+                <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Akun</h3>
+                <div id="st-status" class="font-black text-sm mb-3"></div>
+                <div id="st-free-box">
+                    <input id="st-code" type="text" placeholder="Kode premium" autocapitalize="characters" spellcheck="false" class="w-full border-2 border-black px-3 py-2 font-bold text-sm tracking-widest uppercase outline-none">
+                    <p id="st-msg" class="text-xs font-bold mt-1 h-4"></p>
+                    <button id="st-unlock" class="w-full mt-1 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Aktifkan Premium</button>
+                </div>
+                <button id="st-deactivate" class="hidden w-full border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Nonaktifkan premium di perangkat ini</button>
+            </div>
+            <div class="border-t-2 border-black border-dashed mb-6"></div>
+
             <div class="mb-6">
                 <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Kotoba</h3>
                 <div class="flex flex-col gap-4">
@@ -323,6 +343,26 @@
     </div>
 
     
+
+    <!-- PREMIUM MODAL -->
+    <div id="premium-modal" class="hidden fixed inset-0 z-[150] items-center justify-center bg-black/60 p-4" onclick="closePremiumModal()">
+        <form id="premium-form" class="relative w-full max-w-sm max-h-[92vh] overflow-y-auto border-2 border-black bg-white shadow-solid p-6" onclick="event.stopPropagation()" autocomplete="off">
+            <button type="button" onclick="closePremiumModal()" class="absolute top-2 right-2 w-8 h-8 border-2 border-black font-black leading-none hover:bg-black hover:text-white" aria-label="Tutup">&times;</button>
+            <div class="text-center">
+                <div class="font-jp text-4xl font-black">&#128274;</div>
+                <h2 class="text-xl font-black uppercase mt-1">Buka Premium</h2>
+                <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
+            </div>
+            <p id="pm-msg" class="text-xs font-bold text-center text-gray-700 mb-3"></p>
+            <ul id="pm-benefits" class="text-sm font-bold leading-snug list-disc pl-5 mb-4 flex flex-col gap-1"></ul>
+            <input id="pm-input" type="text" placeholder="Masukkan kode premium" autocapitalize="characters" spellcheck="false" class="w-full border-2 border-black px-3 py-2 font-bold text-sm tracking-widest uppercase outline-none">
+            <p id="pm-error" class="text-xs font-bold text-red-600 mt-2 h-4"></p>
+            <button type="submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Buka Semua Materi</button>
+            <p class="text-[11px] font-bold text-gray-500 text-center mt-3"><span id="pm-contact-text"></span></p>
+            <a id="pm-contact" href="#" target="_blank" rel="noopener" class="hidden mt-2 block text-center border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors">Hubungi Admin</a>
+        </form>
+    </div>
+
     <!-- KANJI MODAL -->
     <div id="kanji-modal" class="fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4" onclick="closeKanjiModal(event)">
         <div class="relative w-full max-w-sm max-h-[90vh] overflow-y-auto border-2 border-black bg-white shadow-solid p-6 text-center" onclick="event.stopPropagation()">
@@ -349,6 +389,122 @@
     </div>
 
     <script>
+
+        // ==========================================
+        // VERSI GRATIS / PREMIUM
+        // ==========================================
+        // Aktifkan password aplikasi (false = tanpa password, hanya kode premium):
+        const APP_PASSWORD_ENABLED = false;
+        // Daftar kode premium disimpan sebagai hash SHA-256 (kode asli tidak tertulis di sini).
+        // Tambah kode baru: jalankan n5Hash('KODEBARU') di Console browser, lalu tempel hasilnya ke daftar ini.
+        const PREMIUM_HASHES = ["8a26c05f0c76b0008df9d6922b6207e3cff6d471fad15e57ac3ae0d5b085036f", "fa740d824ee8e034ced1f8d8a2be8dc8bb8973753215e6d2ae1d6a294be7d27b", "171d4449f6a0e705aa31004596e39a0ec7b48b421936e76d1257346488ff50b5", "05047b85e1749be1af727d9298f996252f6859136cbb8c49dae6930506e4c5b3", "c8d98b6c0e592e2e7a2ba36ba991cbde3c7fbe3d81f06fa56bbe31c87c66526b"];
+        // Link Web App Google Apps Script untuk validasi kode (lihat file apps_script_premium.gs).
+        // Kosongkan ('') untuk memakai daftar hash lokal saja.
+        const PREMIUM_API_URL = 'https://script.google.com/macros/s/AKfycbysA7m3QHIF5eJvpUEWRLWlCXZj7cLDVQbnUEg6LptZ0rQfi0Ad7nVARGbeRPZSsL0Pnw/exec';
+        // Premium yang sudah aktif tetap berlaku offline selama sekian hari sejak pengecekan server terakhir.
+        const PREMIUM_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
+        const PREMIUM_CONTACT_TEXT = 'Belum punya kode? Hubungi admin untuk mendapatkan kode premium.';
+        const PREMIUM_CONTACT_URL = ''; // contoh: 'https://wa.me/62812xxxxxxx' (kosong = tombol tidak ditampilkan)
+        // Batas versi gratis: bab / tab yang boleh dibuka
+        const FREE_LIMIT = { kotoba: 1, bunpou: 1, partikel: 'wa' };
+        // SHA-256 sederhana (tanpa dependensi) untuk memeriksa kode premium
+        function sha256(str) {
+            const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+            const bytes = Array.from(new TextEncoder().encode(str));
+            const bitLen = bytes.length * 8;
+            bytes.push(0x80);
+            while (bytes.length % 64 !== 56) bytes.push(0);
+            for (let i = 7; i >= 0; i--) bytes.push(i >= 4 ? 0 : (bitLen >>> (i * 8)) & 0xff);
+            let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+            const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+            for (let o = 0; o < bytes.length; o += 64) {
+                const w = new Array(64);
+                for (let i = 0; i < 16; i++) w[i] = (bytes[o+i*4] << 24) | (bytes[o+i*4+1] << 16) | (bytes[o+i*4+2] << 8) | bytes[o+i*4+3];
+                for (let i = 16; i < 64; i++) {
+                    const s0 = rotr(w[i-15],7) ^ rotr(w[i-15],18) ^ (w[i-15] >>> 3);
+                    const s1 = rotr(w[i-2],17) ^ rotr(w[i-2],19) ^ (w[i-2] >>> 10);
+                    w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+                }
+                let [a,b,c,d,e,f,g,h] = H;
+                for (let i = 0; i < 64; i++) {
+                    const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25);
+                    const ch = (e & f) ^ (~e & g);
+                    const t1 = (h + S1 + ch + K[i] + w[i]) | 0;
+                    const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22);
+                    const mj = (a & b) ^ (a & c) ^ (b & c);
+                    const t2 = (S0 + mj) | 0;
+                    h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+                }
+                H = [(H[0]+a)|0,(H[1]+b)|0,(H[2]+c)|0,(H[3]+d)|0,(H[4]+e)|0,(H[5]+f)|0,(H[6]+g)|0,(H[7]+h)|0];
+            }
+            return H.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
+        }
+
+        function n5Hash(code) { return sha256(String(code).trim().toUpperCase()); }
+        function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+        function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+        function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+        function deviceId() {
+            let d = lsGet('n5_device');
+            if (!d) { d = 'D' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); lsSet('n5_device', d); }
+            return d;
+        }
+        let PREMIUM = false;
+        if (PREMIUM_API_URL) {
+            const c = lsGet('n5_premium_c'), t = parseInt(lsGet('n5_premium_t'), 10);
+            PREMIUM = !!c && !isNaN(t) && (Date.now() - t) < PREMIUM_GRACE_MS;
+        }
+        if (!PREMIUM) PREMIUM = PREMIUM_HASHES.includes(lsGet('n5_premium_h'));
+        function canOpen(kind, id) { return PREMIUM || id === FREE_LIMIT[kind]; }
+
+        const REASON_TEXT = {
+            not_found: 'Kode tidak ditemukan. Periksa kembali.',
+            inactive: 'Kode ini sudah dinonaktifkan.',
+            expired: 'Kode ini sudah kedaluwarsa.',
+            device_limit: 'Kode ini sudah dipakai di jumlah perangkat maksimum.',
+            network: 'Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.',
+            bad_request: 'Permintaan tidak valid.',
+            server_error: 'Server sedang bermasalah. Coba lagi nanti.'
+        };
+        const reasonText = (r) => REASON_TEXT[r] || 'Kode tidak valid.';
+
+        async function verifyOnline(code) {
+            const ctrl = new AbortController();
+            const to = setTimeout(() => ctrl.abort(), 12000);
+            try {
+                const url = PREMIUM_API_URL + (PREMIUM_API_URL.includes('?') ? '&' : '?') + 'action=verify&code=' + encodeURIComponent(code) + '&device=' + encodeURIComponent(deviceId());
+                const r = await fetch(url, { signal: ctrl.signal });
+                return await r.json();
+            } catch (e) {
+                return { ok: false, reason: 'network' };
+            } finally { clearTimeout(to); }
+        }
+
+        // Mengembalikan { ok, reason }
+        async function tryUnlock(codeRaw) {
+            const code = String(codeRaw).trim().toUpperCase();
+            if (PREMIUM_API_URL) {
+                const res = await verifyOnline(code);
+                if (res && res.ok) {
+                    PREMIUM = true;
+                    lsSet('n5_premium_c', code); lsSet('n5_premium_t', Date.now());
+                    if (res.expires) lsSet('n5_premium_exp', res.expires); else lsDel('n5_premium_exp');
+                    lsDel('n5_premium_h');
+                    return { ok: true };
+                }
+                if (!res || res.reason !== 'network') return res || { ok: false, reason: 'server_error' };
+            }
+            // Cadangan: kode hash lokal (dipakai bila server tidak terjangkau / API belum diatur)
+            const h = n5Hash(code);
+            if (PREMIUM_HASHES.includes(h)) { PREMIUM = true; lsSet('n5_premium_h', h); return { ok: true, offline: true }; }
+            return { ok: false, reason: PREMIUM_API_URL ? 'network' : 'not_found' };
+        }
+
+        function deactivatePremium() {
+            PREMIUM = false;
+            ['n5_premium_h', 'n5_premium_c', 'n5_premium_t', 'n5_premium_exp'].forEach(lsDel);
+        }
+
         // ==========================================
         // PASSWORD GATE
         // ==========================================
@@ -389,10 +545,10 @@
             return !isNaN(last) && (Date.now() - last) < LOCK_AFTER_MS;
         }
         function checkLock() {
-            if (lockScreen.style.display === 'none' && !isSessionValid()) lockApp();
+            if (APP_PASSWORD_ENABLED && lockScreen.style.display === 'none' && !isSessionValid()) lockApp();
         }
 
-        if (isSessionValid()) unlockApp(); else lockApp();
+        if (!APP_PASSWORD_ENABLED || isSessionValid()) unlockApp(); else lockApp();
 
         // Catat waktu terakhir aktif; kunci bila pergi >= 5 menit
         document.addEventListener('visibilitychange', () => {
@@ -416,6 +572,7 @@
                 lockInput.focus();
             }
         });
+        if (!APP_PASSWORD_ENABLED) { const lb = document.getElementById('logout-btn'); lb.previousElementSibling.classList.add('hidden'); lb.classList.add('hidden'); }
         document.getElementById('logout-btn').addEventListener('click', () => { lockApp(); switchView('Home'); });
         document.getElementById('lock-eye').addEventListener('click', (e) => {
             const show = lockInput.type === 'password';
@@ -1052,7 +1209,7 @@
         function loadSavedId(key, data) {
             try {
                 const v = parseInt(localStorage.getItem(key), 10);
-                if (data.some(c => c.id === v)) return v;
+                if (data.some(c => c.id === v) && (PREMIUM || v === 1)) return v;
             } catch (e) {}
             return 1;
         }
@@ -1205,7 +1362,7 @@ function romajiToKana(s){
             document.getElementById('hc-title').textContent = cat.title;
             document.getElementById('hc-count').textContent = d + '/' + t + ' dikuasai';
             document.getElementById('hc-bar').style.width = (t ? d / t * 100 : 0) + '%';
-            document.getElementById('hc-btn').onclick = () => { selectKotobaCategory(cat.id); switchView('Kotoba'); };
+            document.getElementById('hc-btn').onclick = () => { if (selectKotobaCategory(cat.id) === false) return; switchView('Kotoba'); };
         }
 
         function renderHome() {
@@ -1221,10 +1378,10 @@ function romajiToKana(s){
                 row.className = 'text-left w-full group';
                 row.innerHTML = `
                     <div class="flex justify-between text-[11px] font-bold uppercase mb-0.5 group-hover:underline">
-                        <span>${cat.title}</span><span class="font-mono">${d}/${t}</span>
+                        <span>${cat.title}${canOpen('kotoba', cat.id) ? '' : ' \uD83D\uDD12'}</span><span class="font-mono">${d}/${t}</span>
                     </div>
                     <div class="w-full h-2.5 border-2 border-black bg-white"><div class="h-full bg-black" style="width:${pct}%"></div></div>`;
-                row.addEventListener('click', () => { selectKotobaCategory(cat.id); switchView('Kotoba'); });
+                row.addEventListener('click', () => { if (selectKotobaCategory(cat.id) === false) return; switchView('Kotoba'); });
                 list.appendChild(row);
             });
             const pctAll = total ? Math.round(done / total * 100) : 0;
@@ -1608,6 +1765,7 @@ function romajiToKana(s){
         ];
         let currentPartikelTab = 'ringkasan';
         try { const t = localStorage.getItem('n5_partikelTab'); if (PARTIKEL_TABS.some(x => x.id === t)) currentPartikelTab = t; } catch (e) {}
+        if (!PREMIUM && currentPartikelTab !== FREE_LIMIT.partikel) currentPartikelTab = FREE_LIMIT.partikel;
         const PX = { j: '', r: '' };
         const pJp = (s) => renderExample(s, PX);
         const pExBox = (e) => `
@@ -1623,7 +1781,7 @@ function romajiToKana(s){
                 const b = document.createElement('button');
                 const active = t.id === currentPartikelTab;
                 b.className = `flex-shrink-0 px-3 py-1 border-2 border-black font-bold text-xs font-jp transition-colors ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-200'}`;
-                b.textContent = t.label;
+                b.textContent = t.label + (canOpen('partikel', t.id) ? '' : ' \uD83D\uDD12');
                 b.addEventListener('click', () => selectPartikelTab(t.id));
                 nav.appendChild(b);
             });
@@ -1632,6 +1790,7 @@ function romajiToKana(s){
         }
 
         function selectPartikelTab(id) {
+            if (!canOpen('partikel', id)) { openPremiumModal('Materi partikel ini hanya tersedia untuk pengguna premium.'); return; }
             currentPartikelTab = id;
             try { localStorage.setItem('n5_partikelTab', id); } catch (e) {}
             renderPartikelNav();
@@ -1850,7 +2009,8 @@ function romajiToKana(s){
                     allDone += done; allTotal += total;
                     const pct = total ? Math.round(done / total * 100) : 0;
                     const complete = total > 0 && done === total;
-                    const isCur = c.id === currentKotobaCategoryId;
+                    const locked = !canOpen('kotoba', c.id);
+                    const isCur = !locked && c.id === currentKotobaCategoryId;
                     const num = (c.title.match(/^\d+/) || [''])[0];
                     const name = c.title.replace(/^\d+\s*/, '');
                     const { x, y } = pts[i];
@@ -1859,13 +2019,13 @@ function romajiToKana(s){
                     node.style.cssText = `left:${x - 42}px;top:${y - 42}px;width:84px;height:84px`;
                     node.innerHTML = `
                         ${isCur ? `<div class="map-bounce absolute left-1/2 -translate-x-1/2 -top-9 z-10 whitespace-nowrap"><div class="bg-black text-white text-[10px] font-black uppercase px-2 py-1 border-2 border-black">${started || done > 0 ? 'Lanjut' : 'Mulai'}</div><div class="mx-auto w-0 h-0" style="border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid #000"></div></div>` : ''}
-                        <button class="map-node w-full h-full rounded-full border-2 border-black p-[5px]" style="background:conic-gradient(#000 ${pct}%, #e5e7eb 0);box-shadow:4px 4px 0 #000" aria-label="${esc(c.title)}">
-                            <span class="w-full h-full rounded-full border-2 border-black flex flex-col items-center justify-center leading-none ${complete ? 'bg-black text-white' : 'bg-white text-black'}">
+                        <button class="map-node w-full h-full rounded-full border-2 border-black p-[5px]" style="background:${locked ? '#e5e7eb' : `conic-gradient(#000 ${pct}%, #e5e7eb 0)`};box-shadow:${locked ? '2px 2px 0 #9ca3af' : '4px 4px 0 #000'}" aria-label="${esc(c.title)}">
+                            <span class="w-full h-full rounded-full border-2 ${locked ? 'border-gray-400 border-dashed text-gray-400 bg-gray-100' : 'border-black'} flex flex-col items-center justify-center leading-none ${locked ? '' : (complete ? 'bg-black text-white' : 'bg-white text-black')}">
                                 <span class="font-black text-xl">${esc(num)}</span>
-                                <span class="text-[11px] font-black mt-0.5">${complete ? '&#10003;' : pct + '%'}</span>
+                                <span class="text-[11px] font-black mt-0.5">${locked ? '\uD83D\uDD12' : (complete ? '&#10003;' : pct + '%')}</span>
                             </span>
                         </button>
-                        <div class="absolute left-1/2 -translate-x-1/2 top-[92px] w-[130px] text-center text-[10px] font-black uppercase leading-tight">${esc(name)}<span class="block font-mono text-gray-500">${done}/${total}</span></div>`;
+                        <div class="absolute left-1/2 -translate-x-1/2 top-[92px] w-[130px] text-center text-[10px] font-black uppercase leading-tight">${esc(name)}<span class="block font-mono text-gray-500">${locked ? 'Premium' : done + '/' + total}</span></div>`;
                     node.querySelector('button').addEventListener('click', () => { selectKotobaCategory(c.id); window.scrollTo({ top: 0 }); });
                     if (isCur) node.dataset.current = '1';
                     wrap.appendChild(node);
@@ -1874,6 +2034,7 @@ function romajiToKana(s){
                 sec.appendChild(wrap);
                 root.appendChild(sec);
             });
+            document.getElementById('km-free-note').classList.toggle('hidden', PREMIUM);
             document.getElementById('km-total-text').textContent = allDone + '/' + allTotal;
             document.getElementById('km-total-bar').style.width = (allTotal ? allDone / allTotal * 100 : 0) + '%';
         }
@@ -1897,6 +2058,108 @@ function romajiToKana(s){
             if (!v.classList.contains('hidden') && kotobaMode === 'chapter') { setKotobaMode('map'); applyKotobaMode(); return; }
             switchView('Kotoba');
         }
+
+
+
+        // ----- UI Premium -----
+        function openPremiumModal(msg) {
+            document.getElementById('pm-msg').textContent = msg || 'Versi gratis hanya membuka 1 bab dari tiap materi.';
+            document.getElementById('pm-benefits').innerHTML = [
+                vocabData.length + ' bab Kotoba lengkap (775 kata) beserta contoh kalimat',
+                bunpouData.length + ' bab Bunpou dengan kalimat contoh',
+                'Materi Partikel lengkap: ' + PARTIKEL.length + ' kartu partikel, perbandingan, dan latihan soal'
+            ].map(t => '<li>' + t + '</li>').join('');
+            document.getElementById('pm-contact-text').textContent = PREMIUM_CONTACT_TEXT;
+            const c = document.getElementById('pm-contact');
+            if (PREMIUM_CONTACT_URL) { c.href = PREMIUM_CONTACT_URL; c.classList.remove('hidden'); } else c.classList.add('hidden');
+            document.getElementById('pm-error').textContent = '';
+            document.getElementById('pm-input').value = '';
+            const m = document.getElementById('premium-modal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => document.getElementById('pm-input').focus(), 50);
+        }
+        function closePremiumModal() {
+            const m = document.getElementById('premium-modal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePremiumModal(); });
+
+        function refreshPremiumUI() {
+            document.getElementById('home-premium-banner').classList.toggle('hidden', PREMIUM);
+            document.getElementById('km-free-note').classList.toggle('hidden', PREMIUM);
+            const st = document.getElementById('st-status');
+            const exp = lsGet('n5_premium_exp');
+            let expTxt = '';
+            if (PREMIUM && exp) { const dt = new Date(exp); if (!isNaN(dt)) expTxt = ' (berlaku s/d ' + dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ')'; }
+            st.textContent = PREMIUM ? '\u2605 PREMIUM AKTIF: semua materi terbuka' + expTxt : '\uD83D\uDD12 VERSI GRATIS: 1 bab per materi';
+            document.getElementById('st-free-box').classList.toggle('hidden', PREMIUM);
+            document.getElementById('st-deactivate').classList.toggle('hidden', !PREMIUM);
+            renderKotobaCategories();
+            renderBunpouCategories();
+            if (partikelRendered) { renderPartikelNav(); renderPartikelContent(); }
+            // render ulang halaman yang sedang tampil
+            const names = ['Home', 'Kotoba', 'Bunpou', 'Partikel', 'Settings'];
+            const cur = names.find(n => !document.getElementById('view-' + n.toLowerCase()).classList.contains('hidden'));
+            if (cur) switchView(cur);
+        }
+
+        async function submitPremiumFrom(input, errEl, onDone, btn) {
+            const code = input.value;
+            errEl.classList.add('text-red-600');
+            if (!code.trim()) { errEl.textContent = 'Masukkan kode terlebih dahulu.'; return; }
+            const oldTxt = btn ? btn.textContent : '';
+            if (btn) { btn.disabled = true; btn.textContent = 'Memeriksa kode...'; }
+            errEl.textContent = '';
+            const res = await tryUnlock(code);
+            if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+            if (res && res.ok) {
+                input.value = '';
+                refreshPremiumUI();
+                if (onDone) onDone();
+                alert('Premium aktif! Semua materi sekarang terbuka.');
+            } else {
+                errEl.textContent = reasonText(res && res.reason);
+            }
+        }
+        document.getElementById('premium-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitPremiumFrom(document.getElementById('pm-input'), document.getElementById('pm-error'), closePremiumModal, e.target.querySelector('button[type=submit]'));
+        });
+        document.getElementById('st-unlock').addEventListener('click', (e) => submitPremiumFrom(document.getElementById('st-code'), document.getElementById('st-msg'), null, e.currentTarget));
+        document.getElementById('st-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('st-unlock').click(); } });
+
+        function deactivateAndRefresh() {
+            deactivatePremium();
+            if (!canOpen('kotoba', currentKotobaCategoryId)) { currentKotobaCategoryId = 1; lsSet('n5_kotobaCategory', 1); }
+            if (!canOpen('bunpou', currentBunpouCategoryId)) { currentBunpouCategoryId = 1; lsSet('n5_bunpouCategory', 1); }
+            if (!canOpen('partikel', currentPartikelTab)) currentPartikelTab = FREE_LIMIT.partikel;
+            renderVocab(currentKotobaCategoryId); renderBunpou(currentBunpouCategoryId);
+            refreshPremiumUI();
+        }
+        document.getElementById('st-deactivate').addEventListener('click', () => {
+            if (!confirm('Nonaktifkan premium di perangkat ini?')) return;
+            deactivateAndRefresh();
+        });
+
+        // Cek ulang ke server secara berkala: kode yang dicabut / kedaluwarsa otomatis dinonaktifkan
+        async function revalidatePremium(force) {
+            if (!PREMIUM_API_URL || !PREMIUM) return;
+            const code = lsGet('n5_premium_c');
+            if (!code) return;
+            const last = parseInt(lsGet('n5_premium_t'), 10) || 0;
+            if (!force && Date.now() - last < 60 * 60 * 1000) return;
+            const res = await verifyOnline(code);
+            if (res && res.ok) {
+                lsSet('n5_premium_t', Date.now());
+                if (res.expires) lsSet('n5_premium_exp', res.expires); else lsDel('n5_premium_exp');
+                refreshPremiumUI();
+                return;
+            }
+            if (!res || res.reason === 'network' || res.reason === 'server_error') return;
+            deactivateAndRefresh();
+            alert(reasonText(res.reason) + ' Mode premium dinonaktifkan.');
+        }
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') revalidatePremium(false); });
 
 
         // View Switcher
@@ -2043,12 +2306,14 @@ function romajiToKana(s){
         }
 
         function selectKotobaCategory(id) {
+            if (!canOpen('kotoba', id)) { openPremiumModal('Bab ini hanya tersedia untuk pengguna premium.'); return false; }
             currentKotobaCategoryId = id;
             try { localStorage.setItem('n5_kotobaCategory', id); } catch (e) {}
             setKotobaMode('chapter');
             renderKotobaCategories();
             renderVocab(id);
             applyKotobaMode();
+            return true;
         }
 
         // --- BUNPOU LOGIC ---
@@ -2060,7 +2325,7 @@ function romajiToKana(s){
                 btn.className = `flex-shrink-0 px-3 py-1 border-2 border-black font-bold text-xs transition-colors ${
                     isActive ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-200'
                 }`;
-                btn.textContent = cat.title;
+                btn.textContent = cat.title + (canOpen('bunpou', cat.id) ? '' : ' \uD83D\uDD12');
                 btn.onclick = () => {
                     selectBunpouCategory(cat.id);
                     btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -2103,6 +2368,7 @@ function romajiToKana(s){
         }
 
         function selectBunpouCategory(id) {
+            if (!canOpen('bunpou', id)) { openPremiumModal('Bab Bunpou ini hanya tersedia untuk pengguna premium.'); return; }
             currentBunpouCategoryId = id;
             try { localStorage.setItem('n5_bunpouCategory', id); } catch (e) {}
             renderBunpouCategories();
@@ -2196,7 +2462,9 @@ function romajiToKana(s){
         }, 50);
 
         // Mulai dari Home
+        refreshPremiumUI();
         switchView('Home');
+        revalidatePremium(true);
 
     </script>
 </body>
