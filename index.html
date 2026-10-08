@@ -40,8 +40,10 @@
             scrollbar-width: none;
         }
         
-        body.hide-romaji .romaji-text { display: none !important; }
-        body.hide-arti .arti-text { display: none !important; }
+        body.k-hide-romaji #view-kotoba .romaji-text { display: none !important; }
+        body.k-hide-arti #view-kotoba .arti-text { display: none !important; }
+        body.b-hide-romaji #view-bunpou .romaji-text { display: none !important; }
+        body.b-hide-arti #view-bunpou .arti-text { display: none !important; }
 
         /* Highlight untuk tanda kurung sudut Jepang di kalimat */
         .highlight-jp {
@@ -58,7 +60,15 @@
             line-height: inherit;
         }
 
-        body.serif-jp .font-jp, body.serif-jp .highlight-jp { font-family: 'Noto Serif JP', serif !important; }
+        #main-nav { transition: max-width .35s ease, opacity .35s ease, box-shadow .35s ease; }
+        #main-nav .nav-btn { transition: flex .35s ease, max-width .35s ease, opacity .25s ease, padding .35s ease, background-color .2s, color .2s; white-space: nowrap; overflow: hidden; max-width: 200px; }
+        #main-nav.collapsed { max-width: 96px !important; opacity: .75; box-shadow: 2px 2px 0 0 #000; }
+        #main-nav.collapsed .nav-btn.nav-hide { flex: 0 0 0; max-width: 0; opacity: 0; padding-left: 0; padding-right: 0; pointer-events: none; }
+        body.k-serif #view-kotoba .font-jp, body.k-serif #kanji-modal .font-jp { font-family: 'Noto Serif JP', serif !important; }
+        body.b-serif #view-bunpou .font-jp, body.b-serif #view-bunpou .highlight-jp { font-family: 'Noto Serif JP', serif !important; }
+        @keyframes lock-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+        .lock-shake { animation: lock-shake .35s; }
+        body.locked { overflow: hidden; }
         .kanji-card { cursor: pointer; }
         .kanji-card:active { transform: translate(2px,2px); box-shadow: none; }
         .kanji-dot { position:absolute; top:3px; right:3px; width:6px; height:6px; background:#000; border-radius:50%; }
@@ -69,6 +79,22 @@
     </style>
 </head>
 <body class="antialiased selection:bg-black selection:text-white pb-24">
+    <!-- PASSWORD GATE -->
+    <div id="lock-screen" class="fixed inset-0 z-[300] bg-white flex items-center justify-center px-4">
+        <form id="lock-form" class="border-2 border-black bg-white shadow-solid p-6 md:p-8 w-full max-w-sm text-center" autocomplete="off">
+            <div class="font-jp text-4xl font-black mb-1">日本語</div>
+            <h1 class="text-xl md:text-2xl font-black uppercase">N5 Kotoba &amp; Bunpou</h1>
+            <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
+            <p class="text-xs font-bold text-gray-600 mb-4">Masukkan password untuk melanjutkan.</p>
+            <div class="flex border-2 border-black">
+                <input id="lock-input" type="password" placeholder="Password" class="flex-1 min-w-0 px-3 py-2 font-bold text-sm outline-none bg-white" autofocus>
+                <button type="button" id="lock-eye" class="px-3 border-l-2 border-black text-xs font-black uppercase hover:bg-black hover:text-white">Lihat</button>
+            </div>
+            <p id="lock-error" class="text-xs font-bold text-red-600 mt-2 h-4"></p>
+            <button type="submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Masuk</button>
+        </form>
+    </div>
+
 
     <!-- Top Header -->
     <header class="fixed top-0 w-full z-40 bg-white border-b-2 border-black h-[50px] flex items-center">
@@ -164,43 +190,73 @@
     </div>
 
     <!-- MAIN SETTINGS VIEW -->
-    <div id="view-settings" class="page-view hidden pt-[50px] min-h-screen flex items-center justify-center px-4">
+    <div id="view-settings" class="page-view hidden pt-[60px] pb-28 min-h-screen flex items-start justify-center px-4">
         <div class="border-2 border-black p-6 md:p-8 bg-white shadow-solid w-full max-w-sm">
             <h2 class="text-2xl md:text-3xl font-black mb-4 uppercase text-center">Settings</h2>
             <div class="border-t-4 border-black w-12 mx-auto mb-6"></div>
             
-            <div class="flex flex-col gap-4">
+            <div class="mb-6">
+                <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Kotoba</h3>
+                <div class="flex flex-col gap-4">
                 <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-bold text-sm md:text-base group-hover:underline">Tampilkan Romaji</span>
-                    <input type="checkbox" id="toggle-romaji" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                    <input type="checkbox" id="k-romaji" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
                 </label>
-                
+
                 <div class="border-b-2 border-black border-dashed"></div>
-                
+
                 <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-bold text-sm md:text-base group-hover:underline">Tampilkan Arti (B. Indo)</span>
-                    <input type="checkbox" id="toggle-arti" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                    <input type="checkbox" id="k-arti" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
                 </label>
 
                 <div class="border-b-2 border-black border-dashed"></div>
 
                 <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-bold text-sm md:text-base group-hover:underline">Font Noto Serif Japan</span>
-                    <input type="checkbox" id="toggle-serif" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                    <input type="checkbox" id="k-serif" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
                 </label>
 
                 <div class="border-b-2 border-black border-dashed"></div>
 
                 <button id="reset-progress" class="w-full border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Reset Progress Kotoba</button>
+                </div>
+            </div>
+            <div class="border-t-2 border-black border-dashed mb-6"></div>
+            <div class="mb-6">
+                <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Bunpou</h3>
+                <div class="flex flex-col gap-4">
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Tampilkan Romaji</span>
+                    <input type="checkbox" id="b-romaji" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+
+                <div class="border-b-2 border-black border-dashed"></div>
+
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Tampilkan Arti (B. Indo)</span>
+                    <input type="checkbox" id="b-arti" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+
+                <div class="border-b-2 border-black border-dashed"></div>
+
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Font Noto Serif Japan</span>
+                    <input type="checkbox" id="b-serif" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+                </div>
             </div>
             
-            <p class="text-[11px] font-bold text-gray-500 mt-8 text-center leading-tight">Hilangkan centang untuk menyembunyikan teks. Pengaturan ini akan tersimpan di perangkat Anda!</p>
+            <div class="border-t-2 border-black border-dashed mb-6"></div>
+            <button id="logout-btn" class="w-full border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Logout</button>
+
+            <p class="text-[11px] font-bold text-gray-500 mt-8 text-center leading-tight">Pengaturan Kotoba dan Bunpou terpisah. Hilangkan centang untuk menyembunyikan teks. Tersimpan di perangkat Anda!</p>
         </div>
     </div>
 
     <!-- Floating Bottom Navbar -->
     <div class="fixed bottom-4 left-0 w-full z-50 pointer-events-none flex justify-center px-4">
-        <nav class="pointer-events-auto bg-white border-2 border-black p-1 flex items-center gap-1 shadow-solid w-full max-w-[320px] justify-between">
+        <nav id="main-nav" class="pointer-events-auto bg-white border-2 border-black p-1 flex items-center gap-1 shadow-solid w-full max-w-[320px] justify-between">
             <button onclick="switchView('Home')" id="nav-Home" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase transition-colors hover:bg-black hover:text-white">
                 Home
             </button>
@@ -236,6 +292,81 @@
     </div>
 
     <script>
+        // ==========================================
+        // PASSWORD GATE
+        // ==========================================
+        // Ganti password di sini (otomatis terkunci lagi setelah 5 menit tidak di website):
+        const APP_PASSWORD = 'sakura5';
+        const lockScreen = document.getElementById('lock-screen');
+        const lockInput = document.getElementById('lock-input');
+        const lockError = document.getElementById('lock-error');
+
+        const LOCK_AFTER_MS = 5 * 60 * 1000; // 5 menit
+        const store = {
+            get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} },
+            del: (k) => { try { localStorage.removeItem(k); } catch (e) {} }
+        };
+        const touchSeen = () => store.set('n5_lastSeen', Date.now());
+
+        function unlockApp() {
+            lockScreen.style.display = 'none';
+            document.body.classList.remove('locked');
+            lockError.textContent = '';
+            touchSeen();
+        }
+        function lockApp() {
+            store.del('n5_unlocked');
+            if (typeof closeKanjiModal === 'function') closeKanjiModal();
+            lockInput.value = '';
+            lockInput.type = 'password';
+            document.getElementById('lock-eye').textContent = 'Lihat';
+            lockScreen.style.display = 'flex';
+            document.body.classList.add('locked');
+            setTimeout(() => lockInput.focus(), 50);
+        }
+        // Masih berlaku bila login sebelumnya belum lewat 5 menit sejak terakhir aktif
+        function isSessionValid() {
+            if (store.get('n5_unlocked') !== '1') return false;
+            const last = parseInt(store.get('n5_lastSeen'), 10);
+            return !isNaN(last) && (Date.now() - last) < LOCK_AFTER_MS;
+        }
+        function checkLock() {
+            if (lockScreen.style.display === 'none' && !isSessionValid()) lockApp();
+        }
+
+        if (isSessionValid()) unlockApp(); else lockApp();
+
+        // Catat waktu terakhir aktif; kunci bila pergi >= 5 menit
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') touchSeen();
+            else checkLock();
+        });
+        window.addEventListener('pagehide', touchSeen);
+        window.addEventListener('focus', checkLock);
+        setInterval(() => { if (document.visibilityState === 'visible' && lockScreen.style.display === 'none') touchSeen(); }, 10000);
+
+        document.getElementById('lock-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (lockInput.value === APP_PASSWORD) {
+                store.set('n5_unlocked', '1');
+                unlockApp();
+            } else {
+                lockError.textContent = 'Password salah, coba lagi.';
+                lockInput.value = '';
+                const f = document.getElementById('lock-form');
+                f.classList.remove('lock-shake'); void f.offsetWidth; f.classList.add('lock-shake');
+                lockInput.focus();
+            }
+        });
+        document.getElementById('logout-btn').addEventListener('click', () => { lockApp(); switchView('Kotoba'); });
+        document.getElementById('lock-eye').addEventListener('click', (e) => {
+            const show = lockInput.type === 'password';
+            lockInput.type = show ? 'text' : 'password';
+            e.target.textContent = show ? 'Tutup' : 'Lihat';
+        });
+
+
         // ==========================================
         // DATA KOTOBA
         // ==========================================
@@ -1283,54 +1414,35 @@ function romajiToKana(s){
         // ==========================================
         // SETTINGS & LOCAL STORAGE
         // ==========================================
-        const toggleRomaji = document.getElementById('toggle-romaji');
-        const toggleArti = document.getElementById('toggle-arti');
+        // Pengaturan terpisah: k = Kotoba, b = Bunpou
+        const SETTING_DEFS = [
+            { id: 'k-romaji', key: 'n5_k_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'k-hide-romaji', invert: true },
+            { id: 'k-arti',   key: 'n5_k_showArti',   old: 'n5_showArti',   def: true,  cls: 'k-hide-arti',   invert: true },
+            { id: 'k-serif',  key: 'n5_k_useSerif',   old: 'n5_useSerif',   def: false, cls: 'k-serif',       invert: false },
+            { id: 'b-romaji', key: 'n5_b_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'b-hide-romaji', invert: true },
+            { id: 'b-arti',   key: 'n5_b_showArti',   old: 'n5_showArti',   def: true,  cls: 'b-hide-arti',   invert: true },
+            { id: 'b-serif',  key: 'n5_b_useSerif',   old: 'n5_useSerif',   def: false, cls: 'b-serif',       invert: false },
+        ];
+
+        function applySetting(d, checked) {
+            // invert: kelas dipasang saat TIDAK dicentang (hide-*); non-invert: dipasang saat dicentang
+            document.body.classList.toggle(d.cls, d.invert ? !checked : checked);
+        }
 
         function loadSettings() {
-            const saveRomaji = localStorage.getItem('n5_showRomaji');
-            const saveArti = localStorage.getItem('n5_showArti');
-
-            // Default is true if not set
-            const isRomajiVisible = saveRomaji === null ? true : saveRomaji === 'true';
-            const isArtiVisible = saveArti === null ? true : saveArti === 'true';
-
-            toggleRomaji.checked = isRomajiVisible;
-            if(!isRomajiVisible) document.body.classList.add('hide-romaji');
-
-            toggleArti.checked = isArtiVisible;
-            if(!isArtiVisible) document.body.classList.add('hide-arti');
+            SETTING_DEFS.forEach(d => {
+                const el = document.getElementById('toggle-' + d.id) || document.getElementById(d.id);
+                let v = null;
+                try { v = localStorage.getItem(d.key); if (v === null) v = localStorage.getItem(d.old); } catch (e) {}
+                const checked = v === null ? d.def : v === 'true';
+                el.checked = checked;
+                applySetting(d, checked);
+                el.addEventListener('change', (e) => {
+                    applySetting(d, e.target.checked);
+                    try { localStorage.setItem(d.key, e.target.checked); } catch (err) {}
+                });
+            });
         }
-
-        toggleRomaji.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            if (isChecked) {
-                document.body.classList.remove('hide-romaji');
-            } else {
-                document.body.classList.add('hide-romaji');
-            }
-            localStorage.setItem('n5_showRomaji', isChecked);
-        });
-
-        const toggleSerif = document.getElementById('toggle-serif');
-        function applySerif(on) {
-            document.body.classList.toggle('serif-jp', on);
-            toggleSerif.checked = on;
-        }
-        applySerif(localStorage.getItem('n5_useSerif') === 'true');
-        toggleSerif.addEventListener('change', (e) => {
-            applySerif(e.target.checked);
-            localStorage.setItem('n5_useSerif', e.target.checked);
-        });
-
-        toggleArti.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            if (isChecked) {
-                document.body.classList.remove('hide-arti');
-            } else {
-                document.body.classList.add('hide-arti');
-            }
-            localStorage.setItem('n5_showArti', isChecked);
-        });
 
         // ==========================================
         // INITIALIZATION
@@ -1343,6 +1455,41 @@ function romajiToKana(s){
         renderBunpouCategories();
         renderBunpou(currentBunpouCategoryId);
         
+
+        // ==========================================
+        // NAVBAR AUTO-COLLAPSE (mengecil saat tidak ada aktivitas)
+        // ==========================================
+        const mainNav = document.getElementById('main-nav');
+        const NAV_IDLE_MS = 3000;
+        let navIdleTimer = null;
+
+        function collapseNav() {
+            mainNav.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('nav-hide', !b.classList.contains('bg-black')));
+            mainNav.classList.add('collapsed');
+        }
+        function expandNav() {
+            mainNav.classList.remove('collapsed');
+            mainNav.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-hide'));
+        }
+        function resetNavTimer() {
+            clearTimeout(navIdleTimer);
+            navIdleTimer = setTimeout(collapseNav, NAV_IDLE_MS);
+        }
+        // Saat mengecil, klik pertama hanya membuka kembali navbar
+        mainNav.addEventListener('click', (e) => {
+            if (mainNav.classList.contains('collapsed')) {
+                e.stopPropagation(); e.preventDefault();
+                expandNav(); resetNavTimer();
+            }
+        }, true);
+        // Aktivitas pada navbar menjaga tetap terbuka
+        ['pointerdown', 'pointermove', 'touchstart', 'focusin'].forEach(ev =>
+            mainNav.addEventListener(ev, () => { if (!mainNav.classList.contains('collapsed')) resetNavTimer(); }, { passive: true }));
+        // Aktivitas lain di halaman (scroll/klik/tombol) hanya mereset timer
+        ['scroll', 'click', 'keydown'].forEach(ev =>
+            window.addEventListener(ev, () => { if (!mainNav.classList.contains('collapsed')) resetNavTimer(); }, { passive: true }));
+        resetNavTimer();
+
         // Scroll tombol kategori aktif ke tampilan setelah refresh
         setTimeout(() => {
             document.querySelectorAll('#category-nav button, #bunpou-category-nav button').forEach(b => {
