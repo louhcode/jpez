@@ -85,6 +85,38 @@
     </style>
 </head>
 <body class="antialiased selection:bg-black selection:text-white pb-24">
+    <!-- AUTH: REGISTER / LOGIN -->
+    <div id="auth-screen" class="fixed inset-0 z-[310] bg-white flex items-start justify-center px-4 overflow-y-auto">
+        <form id="auth-form" class="border-2 border-black bg-white shadow-solid p-6 w-full max-w-sm my-8" autocomplete="on" novalidate>
+            <div class="text-center">
+                <div class="font-jp text-4xl font-black">日本語</div>
+                <h1 class="text-xl font-black uppercase">N5 Kotoba &amp; Bunpou</h1>
+                <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
+            </div>
+            <div class="flex border-2 border-black mb-4">
+                <button type="button" id="auth-tab-login" class="flex-1 py-2 font-bold text-sm uppercase bg-black text-white">Masuk</button>
+                <button type="button" id="auth-tab-register" class="flex-1 py-2 font-bold text-sm uppercase bg-white text-black hover:bg-gray-200 border-l-2 border-black">Daftar</button>
+            </div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Username</label>
+            <input id="auth-user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" class="w-full border-2 border-black px-3 py-2 font-bold text-sm outline-none mb-3">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Password</label>
+            <div class="flex border-2 border-black mb-3">
+                <input id="auth-pass" type="password" autocomplete="current-password" maxlength="64" class="flex-1 min-w-0 px-3 py-2 font-bold text-sm outline-none bg-white">
+                <button type="button" id="auth-eye" class="px-3 border-l-2 border-black text-xs font-black uppercase hover:bg-black hover:text-white">Lihat</button>
+            </div>
+            <div id="auth-confirm-wrap" class="hidden">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Ulangi Password</label>
+                <input id="auth-pass2" type="password" autocomplete="new-password" maxlength="64" class="w-full border-2 border-black px-3 py-2 font-bold text-sm outline-none mb-3">
+            </div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Nama Perangkat</label>
+            <input id="auth-device-name" type="text" maxlength="60" class="w-full border-2 border-black px-3 py-2 font-bold text-sm outline-none mb-1">
+            <p class="text-[11px] font-bold text-gray-500 mb-1">Dipakai untuk membatasi jumlah perangkat per akun.</p>
+            <p id="auth-error" class="text-xs font-bold text-red-600 mt-2 min-h-[1rem]"></p>
+            <button type="submit" id="auth-submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Masuk</button>
+            <p id="auth-hint" class="text-[11px] font-bold text-gray-500 text-center mt-3"></p>
+        </form>
+    </div>
+
     <!-- PASSWORD GATE -->
     <div id="lock-screen" class="fixed inset-0 z-[300] bg-white flex items-center justify-center px-4">
         <form id="lock-form" class="border-2 border-black bg-white shadow-solid p-6 md:p-8 w-full max-w-sm text-center" autocomplete="off">
@@ -252,13 +284,16 @@
             
             <div class="mb-6">
                 <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Akun</h3>
+                <div id="st-account" class="hidden text-xs font-bold bg-gray-100 border border-black p-2 mb-3 leading-relaxed break-words"></div>
                 <div id="st-status" class="font-black text-sm mb-3"></div>
                 <div id="st-free-box">
                     <input id="st-code" type="text" placeholder="Kode premium" autocapitalize="characters" spellcheck="false" class="w-full border-2 border-black px-3 py-2 font-bold text-sm tracking-widest uppercase outline-none">
                     <p id="st-msg" class="text-xs font-bold mt-1 h-4"></p>
+                    <p class="text-[11px] font-bold text-gray-500 mb-1">Satu akun hanya bisa memakai satu kode premium.</p>
                     <button id="st-unlock" class="w-full mt-1 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Aktifkan Premium</button>
                 </div>
                 <button id="st-deactivate" class="hidden w-full border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Nonaktifkan premium di perangkat ini</button>
+                <button id="st-logout" class="hidden w-full mt-3 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Keluar (Logout)</button>
             </div>
             <div class="border-t-2 border-black border-dashed mb-6"></div>
 
@@ -358,7 +393,8 @@
             <input id="pm-input" type="text" placeholder="Masukkan kode premium" autocapitalize="characters" spellcheck="false" class="w-full border-2 border-black px-3 py-2 font-bold text-sm tracking-widest uppercase outline-none">
             <p id="pm-error" class="text-xs font-bold text-red-600 mt-2 h-4"></p>
             <button type="submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Buka Semua Materi</button>
-            <p class="text-[11px] font-bold text-gray-500 text-center mt-3"><span id="pm-contact-text"></span></p>
+            <p class="text-[11px] font-bold text-gray-500 text-center mt-3">Satu akun hanya bisa memakai satu kode premium.</p>
+            <p class="text-[11px] font-bold text-gray-500 text-center mt-1"><span id="pm-contact-text"></span></p>
             <a id="pm-contact" href="#" target="_blank" rel="noopener" class="hidden mt-2 block text-center border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors">Hubungi Admin</a>
         </form>
     </div>
@@ -449,60 +485,90 @@
             if (!d) { d = 'D' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); lsSet('n5_device', d); }
             return d;
         }
-        let PREMIUM = false;
-        if (PREMIUM_API_URL) {
-            const c = lsGet('n5_premium_c'), t = parseInt(lsGet('n5_premium_t'), 10);
-            PREMIUM = !!c && !isNaN(t) && (Date.now() - t) < PREMIUM_GRACE_MS;
+        function autoDeviceName() {
+            const ua = navigator.userAgent || '';
+            let os = 'Perangkat', br = 'Browser';
+            if (/Android/i.test(ua)) os = 'Android'; else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+            else if (/Windows/i.test(ua)) os = 'Windows'; else if (/Mac OS X/i.test(ua)) os = 'macOS'; else if (/Linux/i.test(ua)) os = 'Linux';
+            if (/Edg\//.test(ua)) br = 'Edge'; else if (/OPR\//.test(ua)) br = 'Opera'; else if (/Chrome\//.test(ua)) br = 'Chrome';
+            else if (/Firefox\//.test(ua)) br = 'Firefox'; else if (/Safari\//.test(ua)) br = 'Safari';
+            return br + ' di ' + os;
         }
-        if (!PREMIUM) PREMIUM = PREMIUM_HASHES.includes(lsGet('n5_premium_h'));
+        const deviceName = () => lsGet('n5_device_name') || autoDeviceName();
+
+        // Mode akun (register/login) aktif bila PREMIUM_API_URL diisi
+        const AUTH_ON = !!PREMIUM_API_URL;
+        let AUTH = { user: lsGet('n5_user'), token: lsGet('n5_token') };
+        let PREMIUM = false;
+        if (AUTH_ON) {
+            const t = parseInt(lsGet('n5_premium_t'), 10) || 0;
+            PREMIUM = !!AUTH.token && lsGet('n5_premium') === '1' && (Date.now() - t) < PREMIUM_GRACE_MS;
+        } else {
+            PREMIUM = PREMIUM_HASHES.includes(lsGet('n5_premium_h'));
+        }
         function canOpen(kind, id) { return PREMIUM || id === FREE_LIMIT[kind]; }
 
         const REASON_TEXT = {
+            bad_credentials: 'Username atau password salah.',
+            username_taken: 'Username sudah dipakai. Pilih username lain.',
+            invalid_username: 'Username 3-20 karakter: huruf kecil, angka, atau garis bawah (_).',
+            weak_password: 'Password minimal 6 karakter.',
+            locked: 'Terlalu banyak percobaan salah. Akun dikunci sementara.',
+            blocked: 'Akun ini diblokir. Hubungi admin.',
+            device_limit: 'Batas jumlah perangkat untuk akun ini sudah tercapai.',
+            session_invalid: 'Sesi berakhir. Silakan masuk kembali.',
+            code_not_found: 'Kode tidak ditemukan. Periksa kembali.',
+            code_inactive: 'Kode ini sudah dinonaktifkan.',
+            code_expired: 'Kode ini sudah kedaluwarsa.',
+            code_used: 'Kode ini sudah dipakai akun lain.',
+            already_premium: 'Akunmu sudah memakai satu kode premium. Satu akun hanya bisa memakai satu kode.',
             not_found: 'Kode tidak ditemukan. Periksa kembali.',
-            inactive: 'Kode ini sudah dinonaktifkan.',
-            expired: 'Kode ini sudah kedaluwarsa.',
-            device_limit: 'Kode ini sudah dipakai di jumlah perangkat maksimum.',
             network: 'Tidak bisa terhubung ke server. Periksa internet lalu coba lagi.',
             bad_request: 'Permintaan tidak valid.',
             server_error: 'Server sedang bermasalah. Coba lagi nanti.'
         };
-        const reasonText = (r) => REASON_TEXT[r] || 'Kode tidak valid.';
+        function reasonText(r, res) {
+            if (r === 'locked' && res && res.minutes) return 'Terlalu banyak percobaan salah. Akun dikunci ' + res.minutes + ' menit.';
+            return REASON_TEXT[r] || 'Terjadi kesalahan.';
+        }
 
-        async function verifyOnline(code) {
+        // Semua permintaan ke Google Apps Script memakai POST (password tidak muncul di URL)
+        async function api(body) {
             const ctrl = new AbortController();
-            const to = setTimeout(() => ctrl.abort(), 12000);
+            const to = setTimeout(() => ctrl.abort(), 15000);
             try {
-                const url = PREMIUM_API_URL + (PREMIUM_API_URL.includes('?') ? '&' : '?') + 'action=verify&code=' + encodeURIComponent(code) + '&device=' + encodeURIComponent(deviceId());
-                const r = await fetch(url, { signal: ctrl.signal });
+                const r = await fetch(PREMIUM_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(body),
+                    signal: ctrl.signal
+                });
                 return await r.json();
             } catch (e) {
                 return { ok: false, reason: 'network' };
             } finally { clearTimeout(to); }
         }
 
-        // Mengembalikan { ok, reason }
+        // Menebus kode premium. Mengembalikan { ok, reason }
         async function tryUnlock(codeRaw) {
             const code = String(codeRaw).trim().toUpperCase();
-            if (PREMIUM_API_URL) {
-                const res = await verifyOnline(code);
-                if (res && res.ok) {
-                    PREMIUM = true;
-                    lsSet('n5_premium_c', code); lsSet('n5_premium_t', Date.now());
-                    if (res.expires) lsSet('n5_premium_exp', res.expires); else lsDel('n5_premium_exp');
-                    lsDel('n5_premium_h');
-                    return { ok: true };
-                }
-                if (!res || res.reason !== 'network') return res || { ok: false, reason: 'server_error' };
+            if (AUTH_ON) {
+                if (!AUTH.token) return { ok: false, reason: 'session_invalid' };
+                const res = await api({ action: 'redeem', username: AUTH.user, token: AUTH.token, code: code });
+                if (res && res.ok) { applyServerState(res); return res; }
+                if (res && (res.reason === 'session_invalid' || res.reason === 'blocked')) handleSessionLost(res.reason);
+                return res || { ok: false, reason: 'server_error' };
             }
-            // Cadangan: kode hash lokal (dipakai bila server tidak terjangkau / API belum diatur)
+            // Mode tanpa server: daftar hash lokal
             const h = n5Hash(code);
-            if (PREMIUM_HASHES.includes(h)) { PREMIUM = true; lsSet('n5_premium_h', h); return { ok: true, offline: true }; }
-            return { ok: false, reason: PREMIUM_API_URL ? 'network' : 'not_found' };
+            if (PREMIUM_HASHES.includes(h)) { PREMIUM = true; lsSet('n5_premium_h', h); return { ok: true }; }
+            return { ok: false, reason: 'not_found' };
         }
 
         function deactivatePremium() {
             PREMIUM = false;
-            ['n5_premium_h', 'n5_premium_c', 'n5_premium_t', 'n5_premium_exp'].forEach(lsDel);
+            lsSet('n5_premium', '0');
+            ['n5_premium_h', 'n5_premium_c', 'n5_premium_exp'].forEach(lsDel);
         }
 
         // ==========================================
@@ -2093,7 +2159,8 @@ function romajiToKana(s){
             if (PREMIUM && exp) { const dt = new Date(exp); if (!isNaN(dt)) expTxt = ' (berlaku s/d ' + dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ')'; }
             st.textContent = PREMIUM ? '\u2605 PREMIUM AKTIF: semua materi terbuka' + expTxt : '\uD83D\uDD12 VERSI GRATIS: 1 bab per materi';
             document.getElementById('st-free-box').classList.toggle('hidden', PREMIUM);
-            document.getElementById('st-deactivate').classList.toggle('hidden', !PREMIUM);
+            document.getElementById('st-deactivate').classList.toggle('hidden', AUTH_ON || !PREMIUM);
+            updateAccountUI();
             renderKotobaCategories();
             renderBunpouCategories();
             if (partikelRendered) { renderPartikelNav(); renderPartikelContent(); }
@@ -2118,7 +2185,7 @@ function romajiToKana(s){
                 if (onDone) onDone();
                 alert('Premium aktif! Semua materi sekarang terbuka.');
             } else {
-                errEl.textContent = reasonText(res && res.reason);
+                errEl.textContent = reasonText(res && res.reason, res);
             }
         }
         document.getElementById('premium-form').addEventListener('submit', (e) => {
@@ -2141,25 +2208,124 @@ function romajiToKana(s){
             deactivateAndRefresh();
         });
 
-        // Cek ulang ke server secara berkala: kode yang dicabut / kedaluwarsa otomatis dinonaktifkan
-        async function revalidatePremium(force) {
-            if (!PREMIUM_API_URL || !PREMIUM) return;
-            const code = lsGet('n5_premium_c');
-            if (!code) return;
-            const last = parseInt(lsGet('n5_premium_t'), 10) || 0;
-            if (!force && Date.now() - last < 60 * 60 * 1000) return;
-            const res = await verifyOnline(code);
-            if (res && res.ok) {
-                lsSet('n5_premium_t', Date.now());
-                if (res.expires) lsSet('n5_premium_exp', res.expires); else lsDel('n5_premium_exp');
-                refreshPremiumUI();
-                return;
-            }
-            if (!res || res.reason === 'network' || res.reason === 'server_error') return;
-            deactivateAndRefresh();
-            alert(reasonText(res.reason) + ' Mode premium dinonaktifkan.');
+        // ==========================================
+        // AKUN: REGISTER / LOGIN
+        // ==========================================
+        const authScreen = document.getElementById('auth-screen');
+        const authErr = document.getElementById('auth-error');
+        let authMode = 'login';
+
+        function setAuthMode(m) {
+            authMode = m;
+            const isReg = m === 'register';
+            document.getElementById('auth-confirm-wrap').classList.toggle('hidden', !isReg);
+            document.getElementById('auth-submit').textContent = isReg ? 'Daftar' : 'Masuk';
+            document.getElementById('auth-pass').autocomplete = isReg ? 'new-password' : 'current-password';
+            const on = 'flex-1 py-2 font-bold text-sm uppercase bg-black text-white', off = 'flex-1 py-2 font-bold text-sm uppercase bg-white text-black hover:bg-gray-200';
+            document.getElementById('auth-tab-login').className = !isReg ? on : off;
+            document.getElementById('auth-tab-register').className = isReg ? on : off;
+            document.getElementById('auth-hint').textContent = isReg
+                ? 'Username 3-20 karakter (huruf kecil, angka, _). Password minimal 6 karakter.'
+                : 'Belum punya akun? Pilih tab Daftar.';
+            authErr.textContent = '';
         }
-        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') revalidatePremium(false); });
+        function showAuth(msg) {
+            authScreen.style.display = 'flex';
+            document.body.classList.add('locked');
+            setAuthMode(authMode);
+            document.getElementById('auth-device-name').value = deviceName();
+            if (msg) authErr.textContent = msg;
+        }
+        function hideAuth() {
+            authScreen.style.display = 'none';
+            document.body.classList.remove('locked');
+        }
+        document.getElementById('auth-tab-login').addEventListener('click', () => setAuthMode('login'));
+        document.getElementById('auth-tab-register').addEventListener('click', () => setAuthMode('register'));
+        document.getElementById('auth-eye').addEventListener('click', (e) => {
+            const i1 = document.getElementById('auth-pass'), i2 = document.getElementById('auth-pass2');
+            const show = i1.type === 'password';
+            i1.type = i2.type = show ? 'text' : 'password';
+            e.target.textContent = show ? 'Tutup' : 'Lihat';
+        });
+
+        function saveSession(res) {
+            AUTH = { user: res.username, token: res.token };
+            lsSet('n5_user', res.username); lsSet('n5_token', res.token);
+        }
+        // Menerapkan status premium dari server
+        function applyServerState(res) {
+            const was = PREMIUM, p = !!res.premium;
+            lsSet('n5_premium', p ? '1' : '0'); lsSet('n5_premium_t', Date.now());
+            if (res.expires) lsSet('n5_premium_exp', res.expires); else lsDel('n5_premium_exp');
+            if (was && !p) { deactivateAndRefresh(); }
+            else { PREMIUM = p; refreshPremiumUI(); }
+        }
+        function logoutLocal() {
+            AUTH = { user: null, token: null };
+            lsDel('n5_user'); lsDel('n5_token');
+            deactivateAndRefresh();
+        }
+        function handleSessionLost(reason) {
+            logoutLocal();
+            showAuth(reasonText(reason));
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('auth-user').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-pass').value;
+            const pass2 = document.getElementById('auth-pass2').value;
+            const dn = (document.getElementById('auth-device-name').value.trim() || autoDeviceName()).slice(0, 60);
+            if (!/^[a-z0-9_]{3,20}$/.test(user)) { authErr.textContent = reasonText('invalid_username'); return; }
+            if (pass.length < 6) { authErr.textContent = reasonText('weak_password'); return; }
+            if (authMode === 'register' && pass !== pass2) { authErr.textContent = 'Ulangi password tidak sama.'; return; }
+            lsSet('n5_device_name', dn);
+            const btn = document.getElementById('auth-submit'), old = btn.textContent;
+            btn.disabled = true; btn.textContent = 'Memproses...'; authErr.textContent = '';
+            const res = await api({ action: authMode, username: user, password: pass, deviceId: deviceId(), deviceName: dn });
+            btn.disabled = false; btn.textContent = old;
+            if (res && res.ok) {
+                document.getElementById('auth-pass').value = ''; document.getElementById('auth-pass2').value = '';
+                saveSession(res);
+                applyServerState(res);
+                hideAuth();
+                switchView('Home');
+            } else {
+                authErr.textContent = reasonText(res && res.reason, res);
+            }
+        });
+
+        function updateAccountUI() {
+            const box = document.getElementById('st-account'), lo = document.getElementById('st-logout');
+            if (!AUTH_ON || !AUTH.user) { box.classList.add('hidden'); lo.classList.add('hidden'); return; }
+            box.classList.remove('hidden'); lo.classList.remove('hidden');
+            box.textContent = 'Masuk sebagai: ' + AUTH.user + ' | Perangkat: ' + deviceName();
+        }
+        document.getElementById('st-logout').addEventListener('click', async () => {
+            if (!confirm('Keluar dari akun di perangkat ini?')) return;
+            if (AUTH.token) await api({ action: 'logout', username: AUTH.user, token: AUTH.token });
+            logoutLocal();
+            switchView('Home');
+            showAuth();
+        });
+
+        // Cek status akun ke server (premium dicabut / kedaluwarsa, akun diblokir, sesi habis)
+        let lastSync = 0;
+        async function syncStatus(force) {
+            if (!AUTH_ON || !AUTH.token) return;
+            if (!force && Date.now() - lastSync < 60 * 60 * 1000) return;
+            lastSync = Date.now();
+            const res = await api({ action: 'status', username: AUTH.user, token: AUTH.token });
+            if (res && res.ok) { applyServerState(res); return; }
+            if (res && (res.reason === 'session_invalid' || res.reason === 'blocked')) handleSessionLost(res.reason);
+        }
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncStatus(false); });
+        function startAuth() {
+            if (!AUTH_ON) { hideAuth(); return; }
+            if (AUTH.token) { hideAuth(); syncStatus(true); }
+            else showAuth();
+        }
 
 
         // View Switcher
@@ -2464,7 +2630,7 @@ function romajiToKana(s){
         // Mulai dari Home
         refreshPremiumUI();
         switchView('Home');
-        revalidatePremium(true);
+        startAuth();
 
     </script>
 </body>
