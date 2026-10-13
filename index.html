@@ -76,6 +76,8 @@
         .map-bounce { animation: mapBounce 1.1s ease-in-out infinite; }
         .map-node { transition: transform .1s, box-shadow .1s; }
         .map-node:active { transform: translate(3px,3px); box-shadow: 0 0 0 #000 !important; }
+        .partikel-panel { display: none; }
+        .partikel-panel.open, body.b-open-partikel #view-bunpou .partikel-panel { display: block; }
         .kanji-card { cursor: pointer; }
         .kanji-card:active { transform: translate(2px,2px); box-shadow: none; }
         .kanji-dot { position:absolute; top:3px; right:3px; width:6px; height:6px; background:#000; border-radius:50%; }
@@ -355,6 +357,13 @@
                 <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-bold text-sm md:text-base group-hover:underline">Font Noto Serif Japan</span>
                     <input type="checkbox" id="b-serif" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+
+                <div class="border-b-2 border-black border-dashed"></div>
+
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Buka penjelasan partikel otomatis</span>
+                    <input type="checkbox" id="b-partikel" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
                 </label>
                 </div>
             </div>
@@ -1761,6 +1770,10 @@ function romajiToKana(s){
               tips: ['でも juga bisa berarti "tetapi" di awal kalimat (Sambung).'] }
         ];
 
+        // Contoh kalimat tambahan (minimal 5 per kategori penggunaan)
+        const PARTIKEL_EXTRA = {"wa.0":[{"j":"[兄|あに]{は}[会社員|かいしゃいん]です。","m":"Kakak laki-laki saya adalah karyawan perusahaan."},{"j":"この[本|ほん]{は}おもしろいです。","m":"Buku ini menarik."},{"j":"[東京|とうきょう]{は}[大|おお]きい[町|まち]です。","m":"Tokyo adalah kota yang besar."},{"j":"[田中|たなか]さん{は}[先生|せんせい]ではありません。","m":"Tuan Tanaka bukan guru."},{"j":"[私|わたし]の[家|いえ]{は}[駅|えき]から[近|ちか]いです。","m":"Rumah saya dekat dari stasiun."},{"j":"[日本語|にほんご]{は}むずかしいですか。","m":"Apakah bahasa Jepang itu sulit?"}],"wa.1":[{"j":"[夏|なつ]{は}[好|す]きですが、[冬|ふゆ]{は}[好|す]きではありません。","m":"Saya suka musim panas, tetapi tidak suka musim dingin."},{"j":"[兄|あに]{は}[背|せ]が[高|たか]いですが、[私|わたし]{は}[低|ひく]いです。","m":"Kakak saya tinggi, tetapi saya pendek."},{"j":"コーヒー{は}[飲|の]みますが、お[茶|ちゃ]{は}[飲|の]みません。","m":"Kopi saya minum, tetapi teh tidak."},{"j":"[昼|ひる]{は}[忙|いそが]しいですが、[夜|よる]{は}ひまです。","m":"Siang hari saya sibuk, tetapi malam hari senggang."},{"j":"[日本語|にほんご]{は}[分|わ]かりますが、[中国語|ちゅうごくご]{は}[分|わ]かりません。","m":"Bahasa Jepang saya mengerti, tetapi bahasa Mandarin tidak."},{"j":"[雨|あめ]の[日|ひ]{は}[家|いえ]にいますが、[晴|は]れの[日|ひ]{は}[外|そと]へ[行|い]きます。","m":"Saat hujan saya di rumah, tetapi saat cerah saya pergi keluar."}],"wa.2":[{"j":"この[部屋|へや]{では}たばこを[吸|す]わないでください。","m":"Tolong jangan merokok di ruangan ini."},{"j":"[図書館|としょかん]{では}[静|しず]かにしてください。","m":"Tolong tenang di perpustakaan."},{"j":"[日本|にほん]{には}[山|やま]がたくさんあります。","m":"Di Jepang ada banyak gunung."},{"j":"[駅|えき]{からは}[歩|ある]いて[十分|じゅっぷん]です。","m":"Dari stasiun, jalan kaki sepuluh menit."},{"j":"[私|わたし]{には}[弟|おとうと]が[二人|ふたり]います。","m":"Saya punya dua adik laki-laki."},{"j":"ここ{までは}バスで[来|き]ました。","m":"Sampai di sini saya naik bus."}],"ga.0":[{"j":"[空|そら]に[星|ほし]{が}[出|で]ています。","m":"Bintang muncul di langit."},{"j":"[玄関|げんかん]に[誰|だれ]か{が}います。","m":"Ada seseorang di pintu depan."},{"j":"[外|そと]で[子供|こども]{が}[遊|あそ]んでいます。","m":"Anak-anak bermain di luar."},{"j":"[電話|でんわ]{が}[鳴|な]っています。","m":"Teleponnya berdering."},{"j":"[部屋|へや]の[電気|でんき]{が}ついています。","m":"Lampu kamar menyala."},{"j":"[窓|まど]の[外|そと]に[鳥|とり]{が}います。","m":"Ada burung di luar jendela."}],"ga.1":[{"j":"[何|なに]{が}[好|す]きですか。","m":"Kamu suka apa?"},{"j":"どれ{が}あなたの[傘|かさ]ですか。","m":"Payung yang mana milikmu?"},{"j":"[誰|だれ]{が}この[絵|え]をかきましたか。","m":"Siapa yang melukis gambar ini?"},{"j":"どこ{が}いちばん[安|やす]いですか。","m":"Di mana yang paling murah?"},{"j":"いつ{が}いいですか。","m":"Kapan waktu yang cocok?"},{"j":"どの[色|いろ]{が}[好|す]きですか。","m":"Warna mana yang kamu suka?"}],"ga.2":[{"j":"[私|わたし]は[母|はは]の[料理|りょうり]{が}[好|す]きです。","m":"Saya suka masakan ibu."},{"j":"[弟|おとうと]は[野菜|やさい]{が}きらいです。","m":"Adik saya tidak suka sayuran."},{"j":"[姉|あね]は[歌|うた]{が}[上手|じょうず]です。","m":"Kakak perempuan saya pandai bernyanyi."},{"j":"[私|わたし]は[料理|りょうり]{が}[下手|へた]です。","m":"Saya tidak pandai memasak."},{"j":"[新|あたら]しいかばん{が}[欲|ほ]しいです。","m":"Saya ingin tas baru."},{"j":"この[漢字|かんじ]{が}[分|わ]かりますか。","m":"Apakah kamu mengerti kanji ini?"}],"ga.3":[{"j":"[失礼|しつれい]です{が}、お[名前|なまえ]は。","m":"Maaf, siapa nama Anda?"},{"j":"[日本語|にほんご]はむずかしいです{が}、おもしろいです。","m":"Bahasa Jepang sulit, tetapi menarik."},{"j":"[行|い]きたいです{が}、お[金|かね]がありません。","m":"Saya ingin pergi, tetapi tidak punya uang."},{"j":"[安|やす]いです{が}、おいしくないです。","m":"Murah, tetapi tidak enak."},{"j":"[天気|てんき]はいいです{が}、[風|かぜ]が[強|つよ]いです。","m":"Cuacanya bagus, tetapi anginnya kencang."},{"j":"すみません{が}、ちょっと[手伝|てつだ]ってください。","m":"Maaf, tolong bantu sebentar."}],"wo.0":[{"j":"[毎朝|まいあさ]、[水|みず]{を}[飲|の]みます。","m":"Setiap pagi saya minum air."},{"j":"[手紙|てがみ]{を}[書|か]きます。","m":"Saya menulis surat."},{"j":"テレビ{を}[見|み]ます。","m":"Saya menonton televisi."},{"j":"[友達|ともだち]に[電話|でんわ]{を}かけます。","m":"Saya menelepon teman."},{"j":"[新|あたら]しい[靴|くつ]{を}[買|か]いました。","m":"Saya membeli sepatu baru."},{"j":"[日本語|にほんご]{を}[勉強|べんきょう]しています。","m":"Saya sedang belajar bahasa Jepang."}],"wo.1":[{"j":"[毎朝|まいあさ]、[川|かわ]{を}[散歩|さんぽ]します。","m":"Setiap pagi saya berjalan-jalan di sepanjang sungai."},{"j":"[道|みち]{を}[渡|わた]ります。","m":"Saya menyeberangi jalan."},{"j":"[次|つぎ]の[角|かど]{を}[右|みぎ]へ[曲|ま]がります。","m":"Di sudut berikutnya, belok ke kanan."},{"j":"[山|やま]{を}[登|のぼ]ります。","m":"Saya mendaki gunung."},{"j":"[公園|こうえん]{を}[走|はし]ります。","m":"Saya berlari di taman."},{"j":"[鳥|とり]が[空|そら]{を}[飛|と]んでいます。","m":"Burung terbang di langit."}],"wo.2":[{"j":"[朝|あさ][七時|しちじ]に[家|いえ]{を}[出|で]ます。","m":"Saya keluar rumah jam tujuh pagi."},{"j":"バス{を}[降|お]りて、[歩|ある]きます。","m":"Saya turun dari bus, lalu berjalan kaki."},{"j":"この[駅|えき]{を}[出|で]て、[右|みぎ]へ[行|い]きます。","m":"Keluar dari stasiun ini, lalu pergi ke kanan."},{"j":"[毎日|まいにち]、[八時|はちじ]に[会社|かいしゃ]{を}[出|で]ます。","m":"Setiap hari saya keluar kantor jam delapan."},{"j":"[学校|がっこう]{を}[出|で]て、[友達|ともだち]と[会|あ]います。","m":"Saya keluar dari sekolah, lalu bertemu teman."},{"j":"[電車|でんしゃ]{を}[降|お]りて、バスに[乗|の]ります。","m":"Turun dari kereta, lalu naik bus."}],"ni.0":[{"j":"[毎朝|まいあさ][六時半|ろくじはん]{に}[起|お]きます。","m":"Setiap pagi saya bangun jam setengah tujuh."},{"j":"[土曜日|どようび]{に}[友達|ともだち]と[会|あ]います。","m":"Hari Sabtu saya bertemu teman."},{"j":"[三月|さんがつ]{に}[日本|にほん]へ[行|い]きます。","m":"Bulan Maret saya pergi ke Jepang."},{"j":"[夜|よる][十一時|じゅういちじ]{に}[寝|ね]ます。","m":"Saya tidur jam sebelas malam."},{"j":"[日曜日|にちようび]の[午後|ごご][三時|さんじ]{に}[買|か]い[物|もの]に[行|い]きます。","m":"Hari Minggu jam tiga sore saya pergi berbelanja."},{"j":"[八時|はちじ]{に}[学校|がっこう]へ[行|い]きます。","m":"Saya pergi ke sekolah jam delapan."}],"ni.1":[{"j":"かばんの[中|なか]{に}[財布|さいふ]があります。","m":"Ada dompet di dalam tas."},{"j":"[駅|えき]の[前|まえ]{に}[銀行|ぎんこう]があります。","m":"Ada bank di depan stasiun."},{"j":"[木|き]の[下|した]{に}[犬|いぬ]がいます。","m":"Ada anjing di bawah pohon."},{"j":"[教室|きょうしつ]{に}[先生|せんせい]がいます。","m":"Ada guru di dalam kelas."},{"j":"[机|つくえ]の[上|うえ]{に}[時計|とけい]があります。","m":"Ada jam di atas meja."},{"j":"[冷蔵庫|れいぞうこ]{に}[牛乳|ぎゅうにゅう]があります。","m":"Ada susu di dalam kulkas."}],"ni.2":[{"j":"[毎日|まいにち]、[会社|かいしゃ]{に}[行|い]きます。","m":"Setiap hari saya pergi ke kantor."},{"j":"[明日|あした]、[友達|ともだち]の[家|いえ]{に}[行|い]きます。","m":"Besok saya pergi ke rumah teman."},{"j":"[六時|ろくじ]に[家|いえ]{に}[帰|かえ]ります。","m":"Saya pulang ke rumah jam enam."},{"j":"[来年|らいねん]、[日本|にほん]{に}[来|き]ます。","m":"Tahun depan saya datang ke Jepang."},{"j":"[夏休|なつやす]みに[国|くに]{に}[帰|かえ]ります。","m":"Saat liburan musim panas saya pulang ke kampung halaman."},{"j":"[今日|きょう]はスーパー{に}[行|い]きます。","m":"Hari ini saya pergi ke supermarket."}],"ni.3":[{"j":"[母|はは]{に}[花|はな]をあげました。","m":"Saya memberi bunga kepada ibu."},{"j":"[友達|ともだち]{に}[本|ほん]を[借|か]りました。","m":"Saya meminjam buku dari teman."},{"j":"[田中|たなか]さん{に}[話|はな]します。","m":"Saya berbicara kepada Tuan Tanaka."},{"j":"[姉|あね]{に}[手紙|てがみ]を[書|か]きました。","m":"Saya menulis surat untuk kakak perempuan."},{"j":"[弟|おとうと]{に}おもちゃをあげました。","m":"Saya memberi mainan kepada adik laki-laki."},{"j":"[駅|えき]で[友達|ともだち]{に}[会|あ]います。","m":"Saya bertemu teman di stasiun."}],"ni.4":[{"j":"バス{に}[乗|の]ります。","m":"Saya naik bus."},{"j":"ソファ{に}[座|すわ]ります。","m":"Saya duduk di sofa."},{"j":"[教室|きょうしつ]{に}[入|はい]ります。","m":"Saya masuk ke dalam kelas."},{"j":"[電車|でんしゃ]{に}[乗|の]って、[会社|かいしゃ]へ[行|い]きます。","m":"Saya naik kereta, lalu pergi ke kantor."},{"j":"[大学|だいがく]{に}[入|はい]ります。","m":"Saya masuk universitas."},{"j":"[壁|かべ]{に}[絵|え]をかけます。","m":"Saya menggantung lukisan di dinding."}],"ni.5":[{"j":"[昼|ひる]ご[飯|はん]を[食|た]べ{に}[行|い]きます。","m":"Saya pergi untuk makan siang."},{"j":"[図書館|としょかん]へ[本|ほん]を[借|か]り{に}[行|い]きます。","m":"Saya pergi ke perpustakaan untuk meminjam buku."},{"j":"[駅|えき]へ[友達|ともだち]を[迎|むか]え{に}[行|い]きます。","m":"Saya pergi ke stasiun untuk menjemput teman."},{"j":"[町|まち]へ[服|ふく]を[買|か]い{に}[行|い]きます。","m":"Saya pergi ke kota untuk membeli pakaian."},{"j":"[海|うみ]へ[泳|およ]ぎ{に}[行|い]きます。","m":"Saya pergi ke laut untuk berenang."},{"j":"[公園|こうえん]へ[散歩|さんぽ]{に}[行|い]きます。","m":"Saya pergi ke taman untuk berjalan-jalan."}],"ni.6":[{"j":"[来年|らいねん]、[二十歳|はたち]{に}なります。","m":"Tahun depan saya akan berumur 20 tahun."},{"j":"[春|はる]{に}なりました。","m":"Sudah menjadi musim semi."},{"j":"[姉|あね]は[先生|せんせい]{に}なりました。","m":"Kakak perempuan saya menjadi guru."},{"j":"[十時|じゅうじ]{に}なりました。","m":"Sudah jam sepuluh."},{"j":"[彼|かれ]は[有名|ゆうめい]な[人|ひと]{に}なりました。","m":"Dia menjadi orang terkenal."},{"j":"[夜|よる]{に}なりました。","m":"Sudah menjadi malam."}],"ni.7":[{"j":"[一日|いちにち]{に}[三回|さんかい][薬|くすり]を[飲|の]みます。","m":"Sehari saya minum obat tiga kali."},{"j":"[一か月|いっかげつ]{に}[一回|いっかい]、[友達|ともだち]と[会|あ]います。","m":"Sebulan sekali saya bertemu teman."},{"j":"[一年|いちねん]{に}[一回|いっかい]、[日本|にほん]へ[行|い]きます。","m":"Setahun sekali saya pergi ke Jepang."},{"j":"[一週間|いっしゅうかん]{に}[二回|にかい]、プールへ[行|い]きます。","m":"Seminggu dua kali saya pergi ke kolam renang."},{"j":"[一日|いちにち]{に}[二回|にかい]、[歯|は]を[磨|みが]きます。","m":"Sehari dua kali saya menggosok gigi."},{"j":"[一週間|いっしゅうかん]{に}[一回|いっかい]、[母|はは]に[電話|でんわ]します。","m":"Seminggu sekali saya menelepon ibu."}],"de.0":[{"j":"[教室|きょうしつ]{で}[勉強|べんきょう]します。","m":"Saya belajar di kelas."},{"j":"[駅|えき]{で}[友達|ともだち]を[待|ま]ちます。","m":"Saya menunggu teman di stasiun."},{"j":"[公園|こうえん]{で}[遊|あそ]びます。","m":"Saya bermain di taman."},{"j":"スーパー{で}[野菜|やさい]を[買|か]います。","m":"Saya membeli sayur di supermarket."},{"j":"[家|いえ]{で}テレビを[見|み]ます。","m":"Saya menonton televisi di rumah."},{"j":"[海|うみ]{で}[泳|およ]ぎます。","m":"Saya berenang di laut."}],"de.1":[{"j":"[電車|でんしゃ]{で}[会社|かいしゃ]へ[行|い]きます。","m":"Saya pergi ke kantor naik kereta."},{"j":"ナイフ{で}[肉|にく]を[切|き]ります。","m":"Saya memotong daging dengan pisau."},{"j":"パソコン{で}[手紙|てがみ]を[書|か]きます。","m":"Saya menulis surat dengan komputer."},{"j":"[手|て]{で}[食|た]べます。","m":"Saya makan dengan tangan."},{"j":"ペン{で}[名前|なまえ]を[書|か]きます。","m":"Saya menulis nama dengan pulpen."},{"j":"[自転車|じてんしゃ]{で}[学校|がっこう]へ[行|い]きます。","m":"Saya pergi ke sekolah naik sepeda."}],"de.2":[{"j":"[英語|えいご]{で}[話|はな]します。","m":"Saya berbicara dalam bahasa Inggris."},{"j":"[日本語|にほんご]{で}[手紙|てがみ]を[書|か]きます。","m":"Saya menulis surat dalam bahasa Jepang."},{"j":"[紙|かみ]{で}[花|はな]を[作|つく]ります。","m":"Saya membuat bunga dari kertas."},{"j":"[米|こめ]{で}お[酒|さけ]を[作|つく]ります。","m":"Sake dibuat dari beras."},{"j":"[牛乳|ぎゅうにゅう]{で}ケーキを[作|つく]ります。","m":"Saya membuat kue dari susu."},{"j":"これは[日本語|にほんご]{で}[何|なん]と[言|い]いますか。","m":"Ini disebut apa dalam bahasa Jepang?"}],"de.3":[{"j":"[全部|ぜんぶ]{で}[千円|せんえん]です。","m":"Semuanya seribu yen."},{"j":"[三人|さんにん]{で}[映画|えいが]を[見|み]ます。","m":"Kami bertiga menonton film."},{"j":"[家族|かぞく]みんな{で}[旅行|りょこう]します。","m":"Seluruh keluarga bepergian bersama."},{"j":"[二人|ふたり]{で}[行|い]きましょう。","m":"Mari pergi berdua."},{"j":"[一人|ひとり]{で}[住|す]んでいます。","m":"Saya tinggal sendirian."},{"j":"みんな{で}[歌|うた]いましょう。","m":"Mari kita bernyanyi bersama-sama."}],"he.0":[{"j":"[学校|がっこう]{へ}[行|い]きます。","m":"Saya pergi ke sekolah."},{"j":"これから[家|いえ]{へ}[帰|かえ]ります。","m":"Sekarang saya pulang ke rumah."},{"j":"[明日|あした]、[京都|きょうと]{へ}[行|い]きます。","m":"Besok saya pergi ke Kyoto."},{"j":"[左|ひだり]{へ}[曲|ま]がってください。","m":"Tolong belok ke kiri."},{"j":"[駅|えき]{へ}[歩|ある]きます。","m":"Saya berjalan menuju stasiun."},{"j":"[友達|ともだち]の[家|いえ]{へ}[遊|あそ]びに[行|い]きます。","m":"Saya pergi bermain ke rumah teman."}],"he.1":[{"j":"[母|はは]{へ}[手紙|てがみ]を[送|おく]ります。","m":"Saya mengirim surat kepada ibu."},{"j":"[先生|せんせい]{へ}[花|はな]を[送|おく]ります。","m":"Saya mengirim bunga kepada guru."},{"j":"[友達|ともだち]{へ}はがきを[書|か]きます。","m":"Saya menulis kartu pos untuk teman."},{"j":"[会社|かいしゃ]{へ}[荷物|にもつ]を[送|おく]ります。","m":"Saya mengirim paket ke kantor."},{"j":"[日本|にほん]{へ}[手紙|てがみ]を[出|だ]します。","m":"Saya mengirim surat ke Jepang."},{"j":"[家族|かぞく]{へ}お[金|かね]を[送|おく]ります。","m":"Saya mengirim uang kepada keluarga."}],"to.0":[{"j":"[母|はは]{と}[買|か]い[物|もの]に[行|い]きます。","m":"Saya pergi berbelanja bersama ibu."},{"j":"[兄|あに]{と}サッカーをします。","m":"Saya bermain sepak bola bersama kakak."},{"j":"[先生|せんせい]{と}[話|はな]します。","m":"Saya berbicara dengan guru."},{"j":"[友達|ともだち]{と}[昼|ひる]ご[飯|はん]を[食|た]べます。","m":"Saya makan siang bersama teman."},{"j":"[家族|かぞく]{と}[日本|にほん]へ[行|い]きます。","m":"Saya pergi ke Jepang bersama keluarga."},{"j":"[彼女|かのじょ]{と}[公園|こうえん]を[散歩|さんぽ]します。","m":"Saya berjalan-jalan di taman bersama pacar."}],"to.1":[{"j":"[犬|いぬ]{と}[猫|ねこ]がいます。","m":"Ada anjing dan kucing."},{"j":"パン{と}[牛乳|ぎゅうにゅう]を[買|か]いました。","m":"Saya membeli roti dan susu."},{"j":"[机|つくえ]の[上|うえ]に[本|ほん]{と}ペンがあります。","m":"Di atas meja ada buku dan pulpen."},{"j":"[兄|あに]{と}[私|わたし]は[学生|がくせい]です。","m":"Kakak dan saya adalah pelajar."},{"j":"[春|はる]{と}[秋|あき]が[好|す]きです。","m":"Saya suka musim semi dan musim gugur."},{"j":"りんご{と}バナナを[食|た]べました。","m":"Saya makan apel dan pisang."}],"to.2":[{"j":"[母|はは]は「[元気|げんき]ですか」{と}[言|い]いました。","m":"Ibu berkata, \"Apakah kamu sehat?\""},{"j":"[先生|せんせい]は「[静|しず]かにしてください」{と}[言|い]いました。","m":"Guru berkata, \"Tolong tenang.\""},{"j":"[弟|おとうと]は「ありがとう」{と}[言|い]いました。","m":"Adik berkata, \"Terima kasih.\""},{"j":"[友達|ともだち]は「[行|い]きましょう」{と}[言|い]いました。","m":"Teman berkata, \"Ayo pergi.\""},{"j":"[明日|あした]は[雨|あめ]だ{と}[思|おも]います。","m":"Saya pikir besok akan hujan."},{"j":"[私|わたし]は[日本語|にほんご]がむずかしい{と}[思|おも]います。","m":"Saya pikir bahasa Jepang itu sulit."}],"mo.0":[{"j":"[弟|おとうと]{も}[学生|がくせい]です。","m":"Adik saya juga pelajar."},{"j":"[私|わたし]{も}[行|い]きます。","m":"Saya juga pergi."},{"j":"[彼女|かのじょ]{も}[先生|せんせい]です。","m":"Dia juga guru."},{"j":"[肉|にく]{も}[魚|さかな]{も}[食|た]べます。","m":"Daging dan ikan pun saya makan."},{"j":"[日曜日|にちようび]{も}[働|はたら]きます。","m":"Hari Minggu pun saya bekerja."},{"j":"これ{も}ください。","m":"Tolong yang ini juga."}],"mo.1":[{"j":"[部屋|へや]に[誰|だれ]{も}いません。","m":"Tidak ada seorang pun di kamar."},{"j":"[冷蔵庫|れいぞうこ]に[何|なに]{も}ありません。","m":"Tidak ada apa-apa di kulkas."},{"j":"[昨日|きのう]はどこ{も}[行|い]きませんでした。","m":"Kemarin saya tidak pergi ke mana-mana."},{"j":"[質問|しつもん]は[一つ|ひとつ]{も}ありません。","m":"Tidak ada satu pun pertanyaan."},{"j":"[今朝|けさ]は[誰|だれ]{も}[来|き]ませんでした。","m":"Pagi ini tidak ada yang datang."},{"j":"[今日|きょう]は[誰|だれ]{にも}[会|あ]いませんでした。","m":"Hari ini saya tidak bertemu siapa pun."}],"mo.2":[{"j":"ご[飯|はん]を[三杯|さんばい]{も}[食|た]べました。","m":"Saya makan nasi sampai tiga mangkuk."},{"j":"[本|ほん]を[十冊|じゅっさつ]{も}[買|か]いました。","m":"Saya membeli buku sampai sepuluh eksemplar."},{"j":"[一時間|いちじかん]{も}[待|ま]ちました。","m":"Saya menunggu sampai satu jam."},{"j":"[毎日|まいにち][五時間|ごじかん]{も}[勉強|べんきょう]します。","m":"Setiap hari saya belajar sampai lima jam."},{"j":"[水|みず]を[二|に]リットル{も}[飲|の]みました。","m":"Saya minum air sampai dua liter."},{"j":"[友達|ともだち]が[二十人|にじゅうにん]{も}[来|き]ました。","m":"Sampai dua puluh teman datang."}],"no.0":[{"j":"これは[姉|あね]{の}[傘|かさ]です。","m":"Ini payung kakak perempuan saya."},{"j":"あれは[先生|せんせい]{の}[車|くるま]です。","m":"Itu mobil guru."},{"j":"[私|わたし]{の}[名前|なまえ]は[山田|やまだ]です。","m":"Nama saya Yamada."},{"j":"[田中|たなか]さん{の}かばんは[大|おお]きいです。","m":"Tas Tuan Tanaka besar."},{"j":"[母|はは]{の}[料理|りょうり]はおいしいです。","m":"Masakan ibu enak."},{"j":"これは[誰|だれ]{の}[本|ほん]ですか。","m":"Ini buku siapa?"}],"no.1":[{"j":"[日本|にほん]{の}[車|くるま]は[有名|ゆうめい]です。","m":"Mobil Jepang terkenal."},{"j":"[英語|えいご]{の}[先生|せんせい]に[会|あ]いました。","m":"Saya bertemu guru bahasa Inggris."},{"j":"[銀行|ぎんこう]{の}[人|ひと]に[聞|き]きます。","m":"Saya bertanya kepada orang bank."},{"j":"これは[料理|りょうり]{の}[本|ほん]です。","m":"Ini buku masakan."},{"j":"[日本語|にほんご]{の}[勉強|べんきょう]は[楽|たの]しいです。","m":"Belajar bahasa Jepang menyenangkan."},{"j":"[私|わたし]は[大学|だいがく]{の}[学生|がくせい]です。","m":"Saya adalah mahasiswa universitas."}],"no.2":[{"j":"ベッド{の}[下|した]に[猫|ねこ]がいます。","m":"Ada kucing di bawah ranjang."},{"j":"[駅|えき]{の}[前|まえ]に[郵便局|ゆうびんきょく]があります。","m":"Ada kantor pos di depan stasiun."},{"j":"[学校|がっこう]{の}[隣|となり]に[公園|こうえん]があります。","m":"Ada taman di sebelah sekolah."},{"j":"[机|つくえ]{の}[中|なか]に[鉛筆|えんぴつ]があります。","m":"Ada pensil di dalam meja."},{"j":"[家|いえ]{の}[後ろ|うしろ]に[庭|にわ]があります。","m":"Ada pekarangan di belakang rumah."},{"j":"[銀行|ぎんこう]{の}[近|ちか]くにレストランがあります。","m":"Ada restoran di dekat bank."}],"no.3":[{"j":"その[傘|かさ]は[私|わたし]{の}です。","m":"Payung itu punya saya."},{"j":"この[車|くるま]は[先生|せんせい]{の}です。","m":"Mobil ini milik guru."},{"j":"これは[誰|だれ]{の}ですか。","m":"Ini punya siapa?"},{"j":"それは[兄|あに]のかばんではなく、[私|わたし]{の}です。","m":"Itu bukan tas kakak, tetapi punya saya."},{"j":"あの[赤|あか]い{の}は[私|わたし]のです。","m":"Yang merah itu punya saya."},{"j":"この[時計|とけい]は[父|ちち]{の}です。","m":"Jam ini milik ayah."}],"ya.0":[{"j":"かばんに[本|ほん]{や}ノート{など}が[入|はい]っています。","m":"Di dalam tas ada buku, buku catatan, dan sebagainya."},{"j":"[公園|こうえん]に[犬|いぬ]{や}[猫|ねこ]{など}がいます。","m":"Di taman ada anjing, kucing, dan sebagainya."},{"j":"スーパーで[肉|にく]{や}[野菜|やさい]{など}を[買|か]いました。","m":"Di supermarket saya membeli daging, sayur, dan sebagainya."},{"j":"[机|つくえ]の[上|うえ]にペン{や}[鉛筆|えんぴつ]{など}があります。","m":"Di atas meja ada pulpen, pensil, dan sebagainya."},{"j":"[日曜日|にちようび]は[掃除|そうじ]{や}[洗濯|せんたく]{など}をします。","m":"Hari Minggu saya membersihkan rumah, mencuci, dan sebagainya."},{"j":"[動物園|どうぶつえん]に[象|ぞう]{や}ライオン{など}がいます。","m":"Di kebun binatang ada gajah, singa, dan sebagainya."}],"ka.0":[{"j":"これはあなたの[本|ほん]です{か}。","m":"Apakah ini bukumu?"},{"j":"[明日|あした]、[学校|がっこう]へ[行|い]きます{か}。","m":"Apakah besok kamu pergi ke sekolah?"},{"j":"お[名前|なまえ]は[何|なに]です{か}。","m":"Siapa nama Anda?"},{"j":"トイレはどこです{か}。","m":"Di mana toilet?"},{"j":"[田中|たなか]さんは[先生|せんせい]です{か}。","m":"Apakah Tuan Tanaka seorang guru?"},{"j":"[今日|きょう]は[暑|あつ]いです{か}。","m":"Apakah hari ini panas?"}],"ka.1":[{"j":"バス{か}[電車|でんしゃ]で[行|い]きます。","m":"Saya pergi naik bus atau kereta."},{"j":"[日曜日|にちようび]{か}[月曜日|げつようび]に[会|あ]いましょう。","m":"Mari bertemu hari Minggu atau Senin."},{"j":"[紅茶|こうちゃ]{か}コーヒーを[飲|の]みます。","m":"Saya minum teh atau kopi."},{"j":"[犬|いぬ]{か}[猫|ねこ]を[飼|か]いたいです。","m":"Saya ingin memelihara anjing atau kucing."},{"j":"[土曜日|どようび]{か}[日曜日|にちようび]に[行|い]きます。","m":"Saya pergi hari Sabtu atau Minggu."},{"j":"ペン{か}[鉛筆|えんぴつ]で[書|か]いてください。","m":"Tolong menulis dengan pulpen atau pensil."}],"ka.2":[{"j":"いっしょに[食|た]べません{か}。","m":"Maukah makan bersama?"},{"j":"[明日|あした]、[映画|えいが]を[見|み]に[行|い]きません{か}。","m":"Besok maukah pergi menonton film?"},{"j":"コーヒーを[飲|の]みません{か}。","m":"Maukah minum kopi?"},{"j":"[日曜日|にちようび]に[海|うみ]へ[行|い]きません{か}。","m":"Hari Minggu maukah pergi ke laut?"},{"j":"いっしょにテニスをしません{か}。","m":"Maukah bermain tenis bersama?"},{"j":"お[茶|ちゃ]を[飲|の]みません{か}。","m":"Maukah minum teh?"}],"kara.0":[{"j":"[八時|はちじ]{から}[授業|じゅぎょう]が[始|はじ]まります。","m":"Pelajaran dimulai dari jam delapan."},{"j":"[月曜日|げつようび]{から}[金曜日|きんようび]まで[働|はたら]きます。","m":"Saya bekerja dari hari Senin sampai Jumat."},{"j":"[東京|とうきょう]{から}[京都|きょうと]まで[新幹線|しんかんせん]で[行|い]きます。","m":"Dari Tokyo ke Kyoto saya naik Shinkansen."},{"j":"いつ{から}[日本語|にほんご]を[勉強|べんきょう]していますか。","m":"Sejak kapan kamu belajar bahasa Jepang?"},{"j":"[家|いえ]{から}[学校|がっこう]まで[歩|ある]きます。","m":"Dari rumah ke sekolah saya berjalan kaki."},{"j":"[十時|じゅうじ]{から}テストがあります。","m":"Ada ujian mulai jam sepuluh."}],"kara.1":[{"j":"[母|はは]{から}[電話|でんわ]がありました。","m":"Ada telepon dari ibu."},{"j":"[先生|せんせい]{から}[本|ほん]をもらいました。","m":"Saya menerima buku dari guru."},{"j":"[友達|ともだち]{から}プレゼントをもらいました。","m":"Saya menerima hadiah dari teman."},{"j":"[兄|あに]{から}[手紙|てがみ]が[来|き]ました。","m":"Surat datang dari kakak."},{"j":"[姉|あね]{から}お[金|かね]を[借|か]りました。","m":"Saya meminjam uang dari kakak perempuan."},{"j":"[田中|たなか]さん{から}[聞|き]きました。","m":"Saya mendengarnya dari Tuan Tanaka."}],"kara.2":[{"j":"[雨|あめ]です{から}、[家|いえ]にいます。","m":"Karena hujan, saya di rumah."},{"j":"[忙|いそが]しい{から}、[行|い]きません。","m":"Karena sibuk, saya tidak pergi."},{"j":"お[金|かね]がない{から}、[買|か]いません。","m":"Karena tidak punya uang, saya tidak membeli."},{"j":"[熱|ねつ]がある{から}、[休|やす]みます。","m":"Karena demam, saya libur."},{"j":"おいしい{から}、たくさん[食|た]べました。","m":"Karena enak, saya makan banyak."},{"j":"[天気|てんき]がいい{から}、[散歩|さんぽ]しましょう。","m":"Karena cuacanya bagus, mari berjalan-jalan."}],"made.0":[{"j":"[十時|じゅうじ]{まで}[寝|ね]ました。","m":"Saya tidur sampai jam sepuluh."},{"j":"[駅|えき]{まで}[歩|ある]きます。","m":"Saya berjalan kaki sampai stasiun."},{"j":"[明日|あした]{まで}[待|ま]ってください。","m":"Tolong tunggu sampai besok."},{"j":"[夜|よる][遅|おそ]く{まで}[勉強|べんきょう]しました。","m":"Saya belajar sampai larut malam."},{"j":"[毎日|まいにち]、[五時|ごじ]{まで}[学校|がっこう]にいます。","m":"Setiap hari saya di sekolah sampai jam lima."},{"j":"[日曜日|にちようび]{まで}[休|やす]みです。","m":"Libur sampai hari Minggu."}],"yori.0":[{"j":"[今日|きょう]は[昨日|きのう]{より}[寒|さむ]いです。","m":"Hari ini lebih dingin daripada kemarin."},{"j":"[兄|あに]は[私|わたし]{より}[背|せ]が[高|たか]いです。","m":"Kakak lebih tinggi daripada saya."},{"j":"[犬|いぬ]{より}[猫|ねこ]の[方|ほう]が[好|す]きです。","m":"Saya lebih suka kucing daripada anjing."},{"j":"バス{より}[電車|でんしゃ]の[方|ほう]が[速|はや]いです。","m":"Kereta lebih cepat daripada bus."},{"j":"[東京|とうきょう]は[大阪|おおさか]{より}[大|おお]きいです。","m":"Tokyo lebih besar daripada Osaka."},{"j":"[夏|なつ]{より}[冬|ふゆ]の[方|ほう]が[好|す]きです。","m":"Saya lebih suka musim dingin daripada musim panas."}],"dake.0":[{"j":"お[茶|ちゃ]{だけ}[飲|の]みます。","m":"Saya hanya minum teh."},{"j":"[日曜日|にちようび]{だけ}[休|やす]みです。","m":"Hanya hari Minggu libur."},{"j":"[一つ|ひとつ]{だけ}ください。","m":"Tolong satu saja."},{"j":"お[金|かね]は[千円|せんえん]{だけ}あります。","m":"Uangnya hanya seribu yen."},{"j":"[今日|きょう]は[私|わたし]{だけ}[行|い]きます。","m":"Hari ini hanya saya yang pergi."},{"j":"[野菜|やさい]{だけ}[食|た]べます。","m":"Saya hanya makan sayur."}],"dake.1":[{"j":"[今日|きょう]は[三人|さんにん]{しか}[来|き]ませんでした。","m":"Hari ini hanya tiga orang yang datang."},{"j":"[水|みず]{しか}[飲|の]みません。","m":"Saya tidak minum selain air."},{"j":"[日本語|にほんご]{しか}[分|わ]かりません。","m":"Saya hanya mengerti bahasa Jepang."},{"j":"この[店|みせ]には[野菜|やさい]{しか}ありません。","m":"Toko ini hanya ada sayur."},{"j":"[今朝|けさ]はパン{しか}[食|た]べませんでした。","m":"Pagi ini saya hanya makan roti."},{"j":"[時間|じかん]が[十分|じゅっぷん]{しか}ありません。","m":"Waktunya hanya ada sepuluh menit."}],"neyo.0":[{"j":"[今日|きょう]は[暑|あつ]いです{ね}。","m":"Hari ini panas ya."},{"j":"この[料理|りょうり]はおいしいです{ね}。","m":"Masakan ini enak ya."},{"j":"[日本語|にほんご]はむずかしいです{ね}。","m":"Bahasa Jepang sulit ya."},{"j":"[来週|らいしゅう]はテストです{ね}。","m":"Minggu depan ada ujian ya."},{"j":"きれいな[花|はな]です{ね}。","m":"Bunganya cantik ya."},{"j":"[毎日|まいにち][忙|いそが]しいです{ね}。","m":"Setiap hari sibuk ya."}],"neyo.1":[{"j":"これは[私|わたし]の[本|ほん]です{よ}。","m":"Ini buku saya lho."},{"j":"あそこにバスが[来|き]ます{よ}。","m":"Busnya datang di sana lho."},{"j":"この[店|みせ]は[安|やす]いです{よ}。","m":"Toko ini murah lho."},{"j":"[明日|あした]は[休|やす]みです{よ}。","m":"Besok libur lho."},{"j":"[傘|かさ]を[忘|わす]れました{よ}。","m":"Kamu lupa membawa payung lho."},{"j":"もう[帰|かえ]ります{よ}。","m":"Aku pulang sekarang ya (lho)."}],"gurai.0":[{"j":"[家|いえ]から[駅|えき]まで[二十分|にじゅっぷん]{ぐらい}かかります。","m":"Dari rumah ke stasiun butuh sekitar dua puluh menit."},{"j":"[毎日|まいにち][三時間|さんじかん]{ぐらい}[勉強|べんきょう]します。","m":"Setiap hari saya belajar sekitar tiga jam."},{"j":"りんごを[五つ|いつつ]{ぐらい}[買|か]いました。","m":"Saya membeli sekitar lima apel."},{"j":"ここから[学校|がっこう]まで[一|いち]キロ{ぐらい}です。","m":"Dari sini ke sekolah sekitar satu kilometer."},{"j":"パーティーに[十人|じゅうにん]{ぐらい}[来|き]ました。","m":"Sekitar sepuluh orang datang ke pesta."},{"j":"[夜|よる]は[六時間|ろくじかん]{ぐらい}[寝|ね]ます。","m":"Malam hari saya tidur sekitar enam jam."}],"gurai.1":[{"j":"[毎朝|まいあさ]、[七時半|しちじはん]{ごろ}[起|お]きます。","m":"Setiap pagi saya bangun sekitar jam setengah delapan."},{"j":"[明日|あした]、[三時|さんじ]{ごろ}[会|あ]いましょう。","m":"Besok mari bertemu sekitar jam tiga."},{"j":"[夜|よる]、[十一時|じゅういちじ]{ごろ}[寝|ね]ます。","m":"Malam hari saya tidur sekitar jam sebelas."},{"j":"[昨日|きのう]は[十二時|じゅうにじ]{ごろ}[寝|ね]ました。","m":"Kemarin saya tidur sekitar jam dua belas."},{"j":"[十月|じゅうがつ]{ごろ}[日本|にほん]へ[行|い]きます。","m":"Sekitar bulan Oktober saya pergi ke Jepang."},{"j":"[五時|ごじ]{ごろ}[家|いえ]に[帰|かえ]ります。","m":"Saya pulang ke rumah sekitar jam lima."}],"zutsu.0":[{"j":"[毎日|まいにち]、[漢字|かんじ]を[五つ|いつつ]{ずつ}[覚|おぼ]えます。","m":"Setiap hari saya menghafal lima kanji."},{"j":"みんなに[二つ|ふたつ]{ずつ}あげます。","m":"Saya memberi masing-masing dua."},{"j":"[一人|ひとり]{ずつ}[入|はい]ってください。","m":"Tolong masuk satu per satu."},{"j":"[毎日|まいにち]、[少|すこ]し{ずつ}[勉強|べんきょう]します。","m":"Setiap hari saya belajar sedikit demi sedikit."},{"j":"りんごを[一つ|ひとつ]{ずつ}[食|た]べます。","m":"Saya makan apel satu per satu."},{"j":"ページを[一枚|いちまい]{ずつ}[見|み]ます。","m":"Saya melihat halaman satu per satu."}],"demo.0":[{"j":"コーヒー{でも}[飲|の]みませんか。","m":"Bagaimana kalau minum kopi atau semacamnya?"},{"j":"ちょっと[散歩|さんぽ]{でも}しませんか。","m":"Bagaimana kalau jalan-jalan sebentar?"},{"j":"[映画|えいが]{でも}[見|み]ませんか。","m":"Bagaimana kalau menonton film atau semacamnya?"},{"j":"ジュース{でも}どうですか。","m":"Bagaimana kalau minum jus atau semacamnya?"},{"j":"[日曜日|にちようび]に[買|か]い[物|もの]{でも}[行|い]きませんか。","m":"Hari Minggu, bagaimana kalau pergi berbelanja atau semacamnya?"},{"j":"おやつに[果物|くだもの]{でも}[食|た]べませんか。","m":"Untuk camilan, bagaimana kalau makan buah atau semacamnya?"}],"demo.1":[{"j":"[子供|こども]{でも}できます。","m":"Anak kecil pun bisa."},{"j":"[先生|せんせい]{でも}[分|わ]かりません。","m":"Guru pun tidak mengerti."},{"j":"[日曜日|にちようび]{でも}[働|はたら]きます。","m":"Hari Minggu pun saya bekerja."},{"j":"[冬|ふゆ]{でも}[泳|およ]ぎます。","m":"Musim dingin pun saya berenang."},{"j":"[小学生|しょうがくせい]{でも}[知|し]っています。","m":"Anak SD pun tahu."},{"j":"[東京|とうきょう]{でも}[雪|ゆき]が[降|ふ]ります。","m":"Di Tokyo pun salju turun."}]};
+        PARTIKEL.forEach(p => p.fungsi.forEach((f, i) => { const e = PARTIKEL_EXTRA[p.id + '.' + i]; if (e) f.ex.push(...e); }));
+
         const PARTIKEL_BANDING = [
             { judul: 'は vs が', intro: 'は = topik / informasi lama / kontras. が = subjek baru / kata tanya / objek perasaan.', pairs: [
                 { p: 'は', j: '[私|わたし]{は}[田中|たなか]です。', m: 'Saya Tanaka. (memperkenalkan diri = topik)' },
@@ -2349,6 +2362,244 @@ function romajiToKana(s){
         }
 
 
+        // ==========================================
+        // PENJELASAN PARTIKEL PADA KALIMAT BUNPOU
+        // ==========================================
+        const analyzeBunpouParticles = (function () {
+function toks(r){return r.split(/\s+/).filter(Boolean).map(raw=>({raw,core:raw.toLowerCase().replace(/[.,?!―;:()「」"]/g,''),end:/[.,?!―;:]$/.test(raw)}))}
+
+const OVERRIDE={
+ 'Kuroi kutsu wa shiroi shatsu ni aimasu.':{ni:['Kecocokan','に menandai hal yang dicocokkan: "shiroi shatsu" cocok dengan sepatu hitam. 合います (aimasu) di sini berarti "cocok/serasi dengan", bukan "bertemu".']}
+};
+const NUM=new Set('zero rei ichi ni san yon shi yo go roku nana shichi hachi kyuu ku juu hyaku sen man'.split(' '));
+const COUNTER=/^(ji|jikan|fun|pun|gatsu|nichi|nin|hon|mai|satsu|ko|hai|kai|dai|wa|hiki|tsu|sai|en|kiro|kagetsu|shuukan|nen|banme|ban|ten|do|meetoru|guramu|ji?han)$/;
+const QW=new Set('dare nani nan doko dore dochira itsu ikura ikutsu dono donna doushite dou'.split(' '));
+const PARTS=new Set('wa ga wo ni de e to mo no ya ka kara made yori dake shika ne yo gurai kurai goro zutsu demo nado na'.split(' '));
+const CHAR={wa:'は',ga:'が',wo:'を',ni:'に',de:'で',e:'へ',to:'と',mo:'も',no:'の',ya:'や',ka:'か',kara:'から',made:'まで',yori:'より',dake:'だけ',shika:'しか',ne:'ね',yo:'よ',gurai:'ぐらい',kurai:'ぐらい',goro:'ごろ',zutsu:'ずつ',demo:'でも',nado:'など',na:'な'};
+const VERBLIKE=/(masu|masen|mashita|mashou|mashouka|desu|deshita|kudasai|tai|taidesu|arimasen|imasu|imasen)$/;
+const TEFORM0=/^[a-z']{2,}(te|de|ite|tte|nde)$/;
+const NOT_TE=new Set(['kitte','kate','node','noni']);
+const TEFORM={test:w=>TEFORM0.test(w)&&!NOT_TE.has(w)};
+const TIME=/(^|[^a-z])(ji|han|fun|pun|youbi|gatsu|nichi|nen|asa|hiru|yoru|gogo|gozen|shuumatsu|natsuyasumi|fuyuyasumi|haru|natsu|aki|fuyu|tsuitachi|futsuka|mikka|yokka|itsuka|muika|nanoka|youka|kokonoka|tooka|hatsuka|kinou|kyou|ashita|mainichi|maiasa|maiban|raishuu|senshuu|raigetsu|rainen|kotoshi|ima|ato|goro|tanjoubi|mae|aida)$|(ji|han|fun|pun|youbi|gatsu|nichi|nen|yokka|ikka|mikka|futsuka)$/;
+const STRICT_TIME=/^(ji|han|fun|pun|youbi|gatsu|nichi|nen|gogo|gozen|asa|hiru|yoru|shuumatsu|natsuyasumi|fuyuyasumi|haru|natsu|aki|fuyu|tsuitachi|futsuka|mikka|yokka|itsuka|muika|nanoka|youka|kokonoka|tooka|hatsuka|tanjoubi)$|(youbi|gatsu|nichi|yokka|ji)$/;
+const TRANSPORT=new Set('densha basu kuruma jitensha takushii fune hikouki chikatetsu baiku shinkansen aruite erebeetaa esukareetaa feri'.split(' '));
+const LANG=/^(nihongo|eigo|chuugokugo|indoneshiago|kankokugo|furansugo|doitsugo|supeingo)$/;
+const TOOL=new Set('mimi kuchi ashi pen enpitsu hashi naifu fooku supuun te pasokon nooto jisho jibiki keitai denwa sekken hasami kasa'.split(' '));
+const MATERIAL=new Set('ki kami kome gyuunyuu mugi tamago'.split(' '));
+const PERSON=new Set('watashi boku kare kanojo anata haha chichi ani ane otouto imouto sensei tomodachi kazoku ryoushin kyoudai shachou okaasan otousan oniisan oneesan obaasan ojiisan tanaka yamada minna kodomo hito gakusei isha kaishain'.split(' '));
+const POS=new Set('ue shita mae ushiro naka soto tonari yoko chikaku soba mukou temae aida hidari migi muko'.split(' '));
+const ACTION=new Set('benkyou kaimono sanpo ryokou asobi shokuji ryouri sentaku souji undou shigoto renshuu kekkon nyuuin taiin unten shoukai sotsugyou ryuugaku eiga tabe mi kai nomi kiki'.split(' '));
+const GOOD=/^(suki|kirai|daisuki|jouzu|heta|tokui|nigate)(desu|deshita|dewa|ja)?$/;
+const EXIST=/^(arimasu|arimasen|arimashita|arimasendeshita|imasu|imasen|imashita|imasendeshita|aru|iru|arimasuka|imasuka)$/;
+const MOTION=/^(ikimasu|ikimasen|ikimashita|ikimashou|ikitai|ikitaidesu|kimasu|kimasen|kimashita|kaerimasu|kaerimasen|kaerimashita|modorimasu|itte|kite|kaette|ikimashouka|kaerimashou)$/;
+const CONTACT=/^(norimasu|norimashita|norimasen|hairimasu|hairimashita|hairimasen|suwarimasu|suwarimashita|notte|haitte|suwatte|agarimasu|noborimasu|tsukimasu|tsukimashita|tsuite)$/;
+const PUT=/^(iremasu|iremashita|irete|nurimasu|kakemasu|okimasu|okimashita|oite|tsukemasu|harimasu|nosemasu|kaite|kakimasu|kakimashita|tomemasu)$/;
+const GIVE=/^(agemasu|agemashita|yarimasu|kuremasu|kuremashita|kashimasu|kashimashita|misemasu|oshiemasu|okurimasu|okurimashita|dashimasu|dashimashita|tsutaemasu|iimasu|iimashita|hanashimasu|hanashimashita|setsumei|tanomimasu)$/;
+const RECV=/^(moraimasu|moraimashita|karimasu|karimashita|kikimasu|kikimashita|naraimasu|naraimashita|moratte|karite)$/;
+const MEET=/^(aimasu|aimashita|aimasen|atte|ai)$/;
+const BECOME=/^(narimasu|narimashita|narimasen|naru|natte)$/;
+
+function clauseOf(T,i){ // tokens after i until end punctuation (inclusive)
+  const out=[];for(let j=i+1;j<T.length;j++){out.push(T[j]);if(T[j].end&&j>i)break}return out}
+function pred(T,i){ const c=clauseOf(T,i);
+  for(let k=0;k<c.length;k++){ const t=c[k]; if(PARTS.has(t.core)&&t.core.length<=2)continue;
+    if(/^(desu|deshita|node|noni)$/.test(t.core)&&k>0&&!(PARTS.has(c[k-1].core)&&c[k-1].core.length<=2)) return c[k-1].core;   // kata sifat / nomina + desu
+    if(VERBLIKE.test(t.core)||TEFORM.test(t.core)||/^(shimasu|shimashita|shimasen|shite)$/.test(t.core))return t.core}
+  // tidak ada predikat di klausa ini (dilesapkan): cari predikat berikutnya di kalimat
+  for(let j=i+1;j<T.length;j++){ const t=T[j]; if(PARTS.has(t.core)&&t.core.length<=2)continue; if(VERBLIKE.test(t.core)||TEFORM.test(t.core)||/^(shimasu|shimashita|shimasen|shite)$/.test(t.core))return t.core}
+  return c.length?c[c.length-1].core:'';}
+const LIST_OK=new Set(['no','ya','to','nado']);
+const STOPW=new Set(['node','noni','keredo','keredomo','shi']);
+function phrase(T,i){ const w=[];for(let j=i-1;j>=0&&w.length<5;j--){ const c=T[j].core; if(PARTS.has(c)&&!LIST_OK.has(c))break; if(STOPW.has(c))break; if(T[j].end&&j<i-1)break; w.unshift(c); if(j>0&&T[j-1].end)break} return w.join(' ')||(T[i-1]?T[i-1].core:'');}
+// frasa nomina setelah partikel (sampai partikel / predikat berikutnya), maks 3 kata
+function nphr(T,i){ const w=[];for(let j=i+1;j<T.length&&w.length<3;j++){ const c=T[j].core; if(PARTS.has(c)&&c!=='no')break; if(VERBLIKE.test(c)||TEFORM.test(c))break; w.push(c); if(T[j].end)break} return w.join(' ')||nextw(T,i);}
+function nextw(T,i){return T[i+1]?T[i+1].core:''}
+const q=s=>`"${s}"`;
+function isNumberAmb(T,i){ // ni / yo / to dipakai sebagai angka?
+  const c=T[i].core;const prev=T[i-1]&&T[i-1].core,next=T[i+1]&&T[i+1].core;
+  if(c!=='ni'&&c!=='yo'&&c!=='go')return false;
+  if(c==='go')return true; // 'go' bukan partikel
+  if(NUM.has(prev)&&!T[i-1].end&&(NUM.has(next)||COUNTER.test(next)||T[i].end)) return true;
+  if(COUNTER.test(next||'')&&!PARTS.has(next))return true;
+  if(NUM.has(next||'')) return true;
+  if(T[i].end&&NUM.has(prev))return true;
+  if(T[i-1]&&T[i-1].end&&NUM.has(next))return true;
+  return false;}
+
+function baseNi(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i),cl=clauseOf(T,i).map(t=>t.core);
+  if(/^(kai|sankai|nikai|ikkai|yonkai|gokai|rokkai|kai)$/.test(nextw(T,i))||/kai$/.test(nextw(T,i))&&TIME.test(prev)) return ['Frekuensi',`に menyatakan frekuensi: dalam periode ${q(np)} terjadi ${q(nextw(T,i))} kali.`];
+  if(prev==='issho') return ['Keterangan "bersama"',`に pada ${q('issho ni')} (いっしょに) membentuk keterangan "bersama-sama" untuk ${q(p)}.`];
+  if(/^(ii|yoi|warui)$/.test(p)) return ['Pihak terkait',`に menandai pihak atau hal yang terkena manfaat/dampak: ${q(np)} ("baik/buruk bagi ${np}").`];
+  if(/^(nishi|higashi|minami|kita)$/.test(prev)) return ['Arah mata angin',`に menandai arah ${q(prev)} sebagai titik tujuan gerak ${q(p)}.`];
+  if(prev==='you') return ['Cara (ように)',`に setelah ${q(np)} membentuk keterangan cara: "dengan cara / seperti ${np}".`];
+  if(/^(hontou|shizuka|kirei|genki|tokubetsu|daijoubu|jouzu|yukkuri)$/.test(prev)) return ['Keterangan (sifat-na + に)',`に mengubah ${q(prev)} menjadi kata keterangan (cara/tingkat) yang menerangkan ${q(p)}.`];
+  if(/^(sunde|sumimasu|sumimashita|sumu|sumimasen)$/.test(p)) return ['Tempat tinggal',`に menandai tempat tinggal: ${q(np)} adalah tempat menetap (${q(p)}).`];
+  if(/^(tsutomete|tsutomemasu|tsutomeru)$/.test(p)) return ['Tempat bekerja',`に menandai tempat bekerja tetap: ${q(np)} (${q(p)}).`];
+  if(/^(migi|hidari)$/.test(prev)&&/maga/.test(p)) return ['Arah belokan',`に menandai arah belokan: ${q(prev)} dengan ${q(p)}.`];
+  if(STRICT_TIME.test(prev)&&!BECOME.test(p)&&!EXIST.test(p)) return ['Waktu',`に menandai titik waktu yang tepat: ${q(np)}. Waktu spesifik (jam, hari, bulan) memakai に.`];
+  if(BECOME.test(p)) return ['Hasil perubahan',`に menandai hasil perubahan: menjadi ${q(np)} (${p}).`];
+  if(EXIST.test(p)){ if(TIME.test(prev)&&!POS.has(prev)&&/(youbi|gatsu|nichi|ji|han|ka)$/.test(prev)) return ['Waktu',`に menandai waktu kejadian ${q(np)} pada kalimat dengan ${q(p)}.`]; return ['Lokasi keberadaan',`に menandai tempat keberadaan: ${q(np)} adalah lokasi tempat sesuatu ada/berada (${q(p)}). Dengan あります/います, lokasi memakai に.`];}
+  if(CONTACT.test(p)) return ['Titik kontak/masuk',`に menandai titik kontak atau tujuan masuk: ${q(np)} dengan ${q(p)} (naik, duduk, masuk, tiba memakai に).`];
+  if(PUT.test(p)) return ['Tujuan benda',`に menandai tempat/tujuan benda ditaruh, dimasukkan, atau ditulis: ${q(np)} (${q(p)}).`];
+  if(MEET.test(p)) return ['Lawan tindakan',`に menandai orang yang ditemui: ${q(np)} (${q(p)}). Bertemu seseorang memakai に.`];
+  if(cl.includes('denwa')&&/shi/.test(p)) return ['Lawan tindakan',`に menandai orang yang dihubungi lewat telepon: ${q(np)}.`];
+  if(GIVE.test(p)) return ['Penerima',`に menandai penerima/lawan bicara tindakan: ${q(np)} (${q(p)}).`];
+  if(RECV.test(p)) return ['Sumber/penerima',`に menandai orang yang memberi atau menjadi sumber: ${q(np)} (${q(p)}), "dari/pada ${np}".`];
+  if(MOTION.test(p)){ if(ACTION.has(prev)) return ['Tujuan tindakan',`に menandai tujuan seseorang pergi: ${q(np)}, artinya "pergi untuk ${np}".`]; return ['Tujuan perpindahan',`に menandai tempat tujuan: ${q(np)} dengan ${q(p)} (pergi/datang/pulang ke). Boleh diganti へ.`];}
+  if(TIME.test(prev)||/^(.*ji|.*han|.*youbi|.*gatsu|.*nichi)$/.test(prev)) return ['Waktu',`に menandai titik waktu yang tepat: ${q(np)}. Waktu spesifik (jam, hari, bulan) memakai に.`];
+  return ['Sasaran/tujuan',`に menandai sasaran atau tujuan tindakan: ${q(np)} dengan ${q(p)}.`];
+}
+function baseDe(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i);
+  if(/(kan|jikan)$/.test(prev)||COUNTER.test(prev)&&/(kan|jikan)/.test(prev)) return ['Jangka waktu',`で menandai jangka waktu/ukuran yang dipakai: ${q(np)} untuk menyelesaikan ${q(p)}.`];
+  if(TRANSPORT.has(prev)) return ['Sarana/kendaraan',`で menandai sarana atau kendaraan: ${q(np)} (naik/dengan ${prev}).`];
+  if(LANG.test(prev)) return ['Bahasa',`で menandai bahasa yang dipakai: ${q(np)}.`];
+  if(/^(minna|hitori|futari|zenbu|issho|kazoku|sannin|yonin|gonin)$/.test(prev)||/nin$/.test(prev)||prev==='zenbu') return ['Jumlah/bersama',`で menandai jumlah total atau kelompok yang bertindak bersama: ${q(np)}.`];
+  if(TOOL.has(prev)) return ['Alat',`で menandai alat yang dipakai: ${q(np)}.`];
+  if(MATERIAL.has(prev)&&/tsukuri/.test(p)) return ['Bahan',`で menandai bahan pembuat: ${q(np)}.`];
+  if(EXIST.test(p)) return ['Tempat acara',`で menandai tempat berlangsungnya suatu acara/kegiatan: ${q(np)} (${q(p)}).`];
+  return ['Tempat tindakan',`で menandai tempat berlangsungnya tindakan: ${q(np)} adalah lokasi tempat ${q(p)} dilakukan.`];
+}
+function baseGa(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i),raw=T[i];
+  if(QW.has(prev)||QW.has(np.split(' ')[0])) return ['Subjek kata tanya',`が menandai kata tanya sebagai subjek: ${q(np)}. Kata tanya yang menjadi subjek memakai が, bukan は.`];
+  if(raw.end||/(desu|masu|masen|deshita|mashita|dewa|ta|i|da|nai)$/.test(prev)&&!T[i-1].end&&/(desu|masu|masen|deshita|mashita|da)$/.test(prev)) return ['Penghubung "tetapi"','が di akhir klausa berarti "tetapi" (atau pembuka sopan), menghubungkan dua klausa yang berlawanan atau memperhalus ucapan.'];
+  if(GOOD.test(p)) return ['Objek perasaan/kemampuan',`が menandai objek perasaan atau kemampuan: ${q(np)} dengan ${q(p)}. Sifat seperti 好き, きらい, 上手, 下手 memakai が, bukan を.`];
+  if(/^(wakarimasu|wakarimasen|wakarimashita|dekimasu|dekimasen|dekimashita|dekiru|wakaru)$/.test(p)) return ['Objek pemahaman/kemampuan',`が menandai objek dari ${q(p)}: ${q(np)}. Mengerti dan bisa memakai が.`];
+  if(/^(hoshii|hoshiidesu|hoshikunai|hoshikatta)$/.test(p)||/hoshii/.test(p)) return ['Objek keinginan',`が menandai benda yang diinginkan: ${q(np)} dengan ${q(p)} (欲しい).`];
+  if(/tai(desu)?$/.test(p)) return ['Objek keinginan',`が menandai objek keinginan (bentuk ~たい): ${q(np)}.`];
+  if(EXIST.test(p)) return ['Keberadaan/kepemilikan',`が menandai benda atau orang yang ada: ${q(np)} dengan ${q(p)}. Dengan あります/います, yang ada ditandai が.`];
+  if(!VERBLIKE.test(p)&&!TEFORM.test(p)&&!/^(shi|shite)/.test(p)) return ['Subjek sifat/keadaan',`が menandai hal yang dijelaskan sifat atau keadaannya: ${q(np)} bersifat ${q(p)}. Pada pola "A は B が ...", B adalah bagian/aspek yang bersifat demikian.`];
+  return ['Subjek/fokus',`が menandai subjek yang menjadi fokus informasi baru: ${q(np)} adalah pelaku atau hal yang mengalami ${q(p)}.`];
+}
+function baseWo(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i);
+  if(/^(demasu|demashita|orimasu|orimashita|dete|orite|deru|oriru|demasen|orimasen)$/.test(p)) return ['Titik awal',`を menandai tempat yang ditinggalkan: ${q(np)} dengan ${q(p)} (keluar/turun dari).`];
+  if(/^(arukimasu|arukimashita|aruite|watarimasu|watarimashita|watatte|hashirimasu|noborimasu|noborimashita|magarimasu|magatte|tooru|toorimasu|sanposhimasu|tobimasu)$/.test(p)||(/^(michi|hashi|kouen|yama|kawa|sora|machi|kado|saka)$/.test(prev)&&/^(aruki|wata|hashiri|nobori|magari|shi)/.test(p))) return ['Tempat dilalui',`を menandai tempat yang dilintasi: ${q(np)} dengan ${q(p)} (menyeberang, berjalan, melintasi).`];
+  return ['Objek langsung',`を menandai objek langsung: ${q(np)} adalah benda yang dikenai tindakan ${q(p)}. (Ditulis "wo", dibaca "o".)`];
+}
+function baseTo(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i),nx=nextw(T,i);
+  if(/^(iimasu|iimashita|iu|itte|omoimasu|omoimashita|omou)$/.test(p)) return ['Kutipan',`と menandai isi ucapan atau pikiran yang dikutip, sebelum ${q(p)}.`];
+  if(/^(chigaimasu|chigaimashita|chigau|onaji|onajidesu|onajidewa)$/.test(p)||/^(chigai|onaji)/.test(p)) return ['Pembanding',`と menandai pembanding pada ${q(p)}: "berbeda dari / sama dengan ${np}".`];
+  // partikel yang mengikuti frasa sesudah と
+  let k=i+1;while(k<T.length&&!PARTS.has(T[k].core)&&!T[k].end)k++;
+  const after=T[k]?T[k].core:'';
+  const personBefore=PERSON.has(prev)||/^(.*san|.*kun|.*chan)$/.test(prev);
+  if(VERBLIKE.test(nx)||/^(issho|issho ni)$/.test(nx)) return ['Bersama',`と menandai teman atau lawan tindakan: "dengan ${np}" pada ${q(p)}.`];
+  if(personBefore&&['wo','ni','de','e'].includes(after)) return ['Bersama',`と menandai teman atau lawan tindakan: ${q(p)} dilakukan "bersama/dengan ${np}".`];
+  return ['Dan (lengkap)',`と menghubungkan benda-benda yang disebut lengkap: ${q(np)} dan ${q(nphr(T,i))}. Semua anggota daftar disebutkan.`];
+}
+function baseMo(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i);
+  if(QW.has(prev)||QW.has(np.split(' ')[0])) return ['Kata tanya + も',`も setelah kata tanya ${q(np)} dengan kalimat negatif (${q(p)}) berarti "sama sekali tidak".`];
+  if(COUNTER.test(prev)||/(jikan|nin|kai|hai|satsu|mai|ko|kiro)$/.test(prev)||/(nichi|ji)$/.test(prev)&&false) return ['Penekanan jumlah',`も menekankan bahwa jumlah ${q(np)} terasa banyak ("sampai ${np}").`];
+  return ['Juga',`も berarti "juga/pun": ${q(np)} juga mengalami hal yang sama seperti yang disebut sebelumnya (menggantikan は/が/を).`];
+}
+function baseNo(T,i){
+  const prev=T[i-1]?T[i-1].core:'',nx=nextw(T,i),np=phrase(T,i);
+  if(['ga','wa','wo','ni','de','mo'].includes(nx)) return ['Nominalisasi / pengganti nomina',`の membuat frasa ${q(np)} berfungsi sebagai kata benda ("hal ${np}") atau menggantikan benda yang sudah jelas, sehingga bisa diikuti partikel ${CHAR[nx]}.`];
+  if(POS.has(nx)) return ['Posisi',`の menghubungkan benda acuan ${q(np)} dengan kata posisi ${q(nx)}: "bagian ${nx} dari ${np}".`];
+  if(!nx||/^(desu|deshita|dewa|janai)$/.test(nx)||T[i+1].end&&!/(masu|desu)/.test(nx)&&false) return ['Pengganti nomina',`の menggantikan nomina yang sudah jelas: "milik ${np}" tanpa mengulang bendanya.`];
+  if(PERSON.has(prev)) return ['Kepemilikan',`の menyatakan kepemilikan: ${q(np)} memiliki ${q(nphr(T,i))} ("${nphr(T,i)} milik ${np}").`];
+  return ['Hubungan nomina',`の menghubungkan dua nomina: ${q(np)} menerangkan ${q(nphr(T,i))} (milik, asal, atau jenis).`];
+}
+function baseKa(T,i){
+  const raw=T[i],prev=T[i-1]?T[i-1].core:'',np=phrase(T,i);
+  const last=raw.end&&/[?.]$/.test(raw.raw)||i===T.length-1;
+  if(QW.has(prev)&&!last) return ['Tidak tentu',`か setelah kata tanya ${q(prev)} berarti "seseorang/sesuatu" yang tidak tentu.`];
+  if(last){ if(/masen$/.test(prev)) return ['Ajakan',`〜ませんか adalah ajakan sopan: ${q(prev)} + か berarti "maukah ...?"`]; if(/mashou$/.test(prev)) return ['Tawaran',`〜ましょうか adalah tawaran atau ajakan: ${q(prev)} + か.`]; return ['Pertanyaan',`か di akhir kalimat menandakan kalimat tanya: ${q(prev)} + か.`];}
+  return ['Atau (pilihan)',`か menghubungkan dua pilihan "atau": ${q(np)} atau ${q(nphr(T,i))}.`];
+}
+function baseKara(T,i){
+  const prev=T[i-1]?T[i-1].core:'',p=pred(T,i),np=phrase(T,i),raw=T[i];
+  if(/(desu|masu|masen|deshita|mashita|i|ta|da|nai|iru|aru)$/.test(prev)&&(raw.end||/(desu|masu|masen|deshita|mashita)$/.test(prev))) return ['Alasan',`から di belakang klausa ${q(np)} berarti "karena": klausa itu adalah alasan bagi kalimat berikutnya.`];
+  if(RECV.test(p)&&PERSON.has(prev)) return ['Asal pemberi',`から menandai orang yang memberi: ${q(np)} adalah sumber dari ${q(p)} ("dari ${np}").`];
+  return ['Titik awal',`から menandai titik awal waktu atau tempat: ${q(np)} ("dari ${np}"). Biasanya berpasangan dengan まで.`];
+}
+const BASE={ni:baseNi,de:baseDe,ga:baseGa,wo:baseWo,to:baseTo,mo:baseMo,no:baseNo,ka:baseKa,kara:baseKara};
+const SIMPLE={
+ e:(T,i)=>['Arah',`へ (dibaca "e") menandai arah tujuan: ${q(phrase(T,i))} dengan ${q(pred(T,i))}.`],
+ ya:(T,i)=>['Daftar tidak lengkap',`や menghubungkan contoh-contoh benda: ${q(phrase(T,i))} dan ${q(nphr(T,i))}, masih ada yang lain.`],
+ made:(T,i)=>['Batas akhir',`まで menandai batas akhir waktu atau tempat: ${q(phrase(T,i))} ("sampai ${phrase(T,i)}").`],
+ yori:(T,i)=>['Perbandingan',`より menandai pembanding: ${q(phrase(T,i))} adalah yang dikalahkan ("daripada ${phrase(T,i)}").`],
+ dake:(T,i)=>['Hanya',`だけ berarti "hanya": membatasi pada ${q(phrase(T,i))} saja.`],
+ shika:(T,i)=>['Hanya (negatif)',`しか berarti "hanya/tidak ada selain": ${q(phrase(T,i))}, dan harus diikuti bentuk negatif.`],
+ ne:(T,i)=>['Minta persetujuan','ね di akhir kalimat meminta persetujuan atau konfirmasi lawan bicara ("ya?", "kan?").'],
+ yo:(T,i)=>['Penegasan','よ di akhir kalimat menyampaikan informasi atau menegaskan sesuatu kepada lawan bicara ("lho!").'],
+ gurai:(T,i)=>['Perkiraan',`ぐらい berarti "kira-kira": ${q(phrase(T,i))} adalah perkiraan jumlah atau lama.`],
+ goro:(T,i)=>['Perkiraan waktu',`ごろ berarti "sekitar" untuk titik waktu: ${q(phrase(T,i))}.`],
+ zutsu:(T,i)=>['Masing-masing',`ずつ berarti "masing-masing/sedikit demi sedikit": ${q(phrase(T,i))} setiap kali.`],
+ demo:(T,i)=>['Misalnya / pun',`でも berarti "misalnya" atau "pun": contoh ${q(phrase(T,i))}.`],
+ nado:(T,i)=>['Dan sebagainya',`など berarti "dan sebagainya": daftar ${q(phrase(T,i))} tidak lengkap.`],
+ na:(T,i)=>['Penyambung kata sifat-na',`な menyambung kata sifat-na ${q(T[i-1].core)} dengan kata benda ${q(nphr(T,i))} yang diterangkannya.`]
+};
+SIMPLE.kurai=SIMPLE.gurai;
+
+function analyze(r){
+  const T=toks(r);const out=[];
+  const ov=OVERRIDE[r.trim()]||OVERRIDE[r.trim().split(/(?<=[.?!])\s+/).find(x=>OVERRIDE[x])]||null;
+  for(let i=0;i<T.length;i++){
+    const c=T[i].core;
+    if(!PARTS.has(c)) continue;
+    if(isNumberAmb(T,i)) continue;
+    if((c==='kurai'||c==='gurai')&&!(T[i-1]&&(NUM.has(T[i-1].core)||COUNTER.test(T[i-1].core)||/(jikan|kai|nin|fun|pun|ji|en|kiro|meetoru|ko|tsu)$/.test(T[i-1].core)))) continue;
+    if(c==='na'&&!(T[i-1]&&/[a-z]/.test(T[i-1].core))) continue;
+    // de bentuk sambung dari desu (mis. "ichinichi de, ...")
+    if(c==='de'&&T[i].end&&!TRANSPORT.has(T[i-1]&&T[i-1].core)) { out.push({p:'で',lbl:'Bentuk sambung です',t:'で di sini adalah bentuk sambung dari です ("adalah ..., dan ..."), bukan partikel tempat.'}); continue; }
+    if(c==='de'&&nextw(T,i)==='wa'&&T[i+2]&&/^arimasen/.test(T[i+2].core)) { out.push({p:'では',lbl:'Negatif sopan',t:'では ありません adalah bentuk negatif sopan dari です: "bukan ...". では = で (bentuk sambung です) + は.'});i++;continue; }
+    // gabungan dengan wa / mo
+    const nx=nextw(T,i);
+    if((nx==='wa'||nx==='mo')&&['ni','de','e','to','kara','made','yori'].includes(c)){
+      const b=(c==='ni'?baseNi:c==='de'?baseDe:c==='kara'?baseKara:c==='to'?baseTo:(SIMPLE[c]||(()=>['','']))) (T,i);
+      const w=nx==='wa'?'は':'も';const add=nx==='wa'?'は menambahkan makna topik/kontras':'も menambahkan makna "juga/pun"';
+      out.push({p:CHAR[c]+w,lbl:CHAR[c]+w,t:`${CHAR[c]}${w}: ${add} setelah partikel ${CHAR[c]}. Fungsi dasar ${CHAR[c]} di sini: ${b[1]}`});i++;continue;
+    }
+    if(c==='wa'){
+      const wasBefore=T.slice(0,i).filter(t=>t.core==='wa').length;
+      const np=phrase(T,i);
+      if(wasBefore>0) out.push({p:'は',lbl:'Topik sejajar',t:`は dipakai lagi untuk topik sejajar ${q(np)}: beberapa hal diurutkan atau dibandingkan dalam satu kalimat.`});
+      else out.push({p:'は',lbl:'Topik',t:`は menandai topik kalimat: ${q(np)} adalah hal yang dibicarakan, dan bagian sesudahnya menjelaskannya. (Ditulis "ha", dibaca "wa".)`});
+      continue;
+    }
+    const f=BASE[c]||SIMPLE[c]; if(!f) continue;
+    const [lbl,t]=f(T,i); out.push({p:CHAR[c],lbl,t});
+  }
+  if(ov)for(const k in ov){const idx=out.findIndex(x=>x.p===CHAR[k]);if(idx>=0)out[idx]={p:CHAR[k],lbl:ov[k][0],t:ov[k][1]}}
+  return out;
+}
+
+  return analyze;
+})();
+
+        // Tombol + panel penjelasan partikel di tiap kalimat Bunpou
+        function renderParticleBox(host, romaji) {
+            let list = [];
+            try { list = analyzeBunpouParticles(romaji); } catch (e) { list = []; }
+            if (!list.length) return;
+            const chips = list.map(x => `<span class="font-jp">${esc(x.p)}</span>`).join(' ');
+            host.innerHTML = `
+                <button type="button" class="partikel-btn mt-2 w-full flex items-center justify-between gap-2 border-2 border-black px-2 py-1 text-xs font-black uppercase hover:bg-black hover:text-white transition-colors">
+                    <span>Partikel (${list.length}) <span class="normal-case tracking-widest">${chips}</span></span><span class="arrow">&#9662;</span>
+                </button>
+                <div class="partikel-panel border-2 border-t-0 border-black bg-gray-50 p-2 flex flex-col gap-2">
+                    ${list.map(x => `
+                    <div class="flex gap-2 items-start">
+                        <span class="font-jp font-black text-lg bg-black text-white min-w-[44px] text-center px-1 py-0.5">${esc(x.p)}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-500">${esc(x.lbl)}</div>
+                            <div class="text-xs md:text-sm font-bold leading-snug text-gray-800 break-words">${esc(x.t)}</div>
+                        </div>
+                    </div>`).join('')}
+                </div>`;
+            const btn = host.querySelector('.partikel-btn'), panel = host.querySelector('.partikel-panel');
+            btn.addEventListener('click', () => {
+                const open = panel.classList.toggle('open');
+                btn.querySelector('.arrow').innerHTML = open ? '&#9652;' : '&#9662;';
+            });
+        }
+
         // View Switcher
         function switchView(viewName) {
             const navButtons = document.querySelectorAll('.nav-btn');
@@ -2546,9 +2797,11 @@ function romajiToKana(s){
                             <div class="arti-text border-t-2 border-black pt-2 text-sm md:text-base font-bold leading-tight">
                                 ${item.m}
                             </div>
+                            <div class="partikel-box"></div>
                         </div>
                     </div>
                 `;
+                renderParticleBox(card.querySelector('.partikel-box'), item.r);
                 bunpouGrid.appendChild(card);
             });
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2573,6 +2826,7 @@ function romajiToKana(s){
             { id: 'b-romaji', key: 'n5_b_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'b-hide-romaji', invert: true },
             { id: 'b-arti',   key: 'n5_b_showArti',   old: 'n5_showArti',   def: true,  cls: 'b-hide-arti',   invert: true },
             { id: 'b-serif',  key: 'n5_b_useSerif',   old: 'n5_useSerif',   def: false, cls: 'b-serif',       invert: false },
+            { id: 'b-partikel', key: 'n5_b_openPartikel', old: 'n5_b_openPartikel', def: false, cls: 'b-open-partikel', invert: false },
         ];
 
         function applySetting(d, checked) {
