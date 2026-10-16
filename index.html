@@ -78,6 +78,19 @@
         .map-node:active { transform: translate(3px,3px); box-shadow: 0 0 0 #000 !important; }
         .partikel-panel { display: none; }
         .partikel-panel.open, body.b-open-partikel #view-bunpou .partikel-panel { display: block; }
+        /* ===== Color highlighting: pasangan kata Jepang - Indonesia ===== */
+        .cw { border-radius: 3px; padding: 0 2px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.28); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+        .cw0 { background-color: #fde68a; } .cw1 { background-color: #bfdbfe; } .cw2 { background-color: #bbf7d0; } .cw3 { background-color: #fbcfe8; }
+        .cw4 { background-color: #ddd6fe; } .cw5 { background-color: #fed7aa; } .cw6 { background-color: #a5f3fc; } .cw7 { background-color: #fecaca; }
+        .cw8 { background-color: #d9f99d; } .cw9 { background-color: #f5d0fe; }
+        .cw .ex-hl, .cw .highlight-jp { background-color: transparent; }
+        body.k-nocolor #kanji-modal .cw, body.b-nocolor #view-bunpou .cw, body.b-nocolor #view-partikel .cw { background-color: transparent !important; box-shadow: none; padding: 0; }
+        .flash-scene { perspective: 1200px; touch-action: pan-y; transition: transform .15s ease; }
+        .flash-card { position: relative; height: 430px; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1); cursor: pointer; }
+        .flash-card.flipped { transform: rotateY(180deg); }
+        .flash-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border: 2px solid #000; background: #fff; box-shadow: 4px 4px 0 #000; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
+        .flash-back { transform: rotateY(180deg); justify-content: flex-start; }
+        .flash-back ruby { ruby-position: over; } .flash-back rt { font-size: .4em; font-weight: 500; }
         .kanji-card { cursor: pointer; }
         .kanji-card:active { transform: translate(2px,2px); box-shadow: none; }
         .kanji-dot { position:absolute; top:3px; right:3px; width:6px; height:6px; background:#000; border-radius:50%; }
@@ -193,6 +206,11 @@
                 </div>
                 <button id="cat-toggle-all" class="text-[10px] font-bold uppercase border-2 border-black px-2 py-0.5 hover:bg-black hover:text-white whitespace-nowrap">Centang semua</button>
             </div>
+            <div class="flex border-2 border-black mb-3 w-full max-w-xs">
+                <button id="kv-flash" class="flex-1 py-1.5 font-black text-xs uppercase bg-black text-white">Kartu</button>
+                <button id="kv-list" class="flex-1 py-1.5 font-black text-xs uppercase bg-white text-black border-l-2 border-black">Daftar</button>
+            </div>
+            <div id="flash-area"></div>
             <div id="vocab-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 md:gap-3">
                 <!-- Vocab cards injected by JS -->
             </div>
@@ -333,6 +351,13 @@
 
                 <div class="border-b-2 border-black border-dashed"></div>
 
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Warna highlight kata di kalimat contoh</span>
+                    <input type="checkbox" id="k-color" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+
+                <div class="border-b-2 border-black border-dashed"></div>
+
                 <button id="reset-progress" class="w-full border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Reset Progress Kotoba</button>
                 </div>
             </div>
@@ -357,6 +382,13 @@
                 <label class="flex items-center justify-between cursor-pointer group">
                     <span class="font-bold text-sm md:text-base group-hover:underline">Font Noto Serif Japan</span>
                     <input type="checkbox" id="b-serif" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
+                </label>
+
+                <div class="border-b-2 border-black border-dashed"></div>
+
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="font-bold text-sm md:text-base group-hover:underline">Warna highlight kata di kalimat (Bunpou & Partikel)</span>
+                    <input type="checkbox" id="b-color" class="w-6 h-6 accent-black border-2 border-black cursor-pointer transition-transform hover:scale-110">
                 </label>
 
                 <div class="border-b-2 border-black border-dashed"></div>
@@ -1399,8 +1431,9 @@ function romajiToKana(s){
             const exWrap = document.getElementById('km-ex-wrap');
             const ex = KOTOBA_EXAMPLES[catId + '.' + idx];
             if (ex) {
-                document.getElementById('km-ex-jp').innerHTML = renderExample(ex.j, item);
-                document.getElementById('km-ex-id').textContent = ex.m;
+                const cp = colorPairA(ex.j, item, ex.m);
+                document.getElementById('km-ex-jp').innerHTML = cp.jp;
+                document.getElementById('km-ex-id').innerHTML = cp.id;
                 exWrap.classList.remove('hidden');
             } else exWrap.classList.add('hidden');
             const note = document.getElementById('km-note');
@@ -1868,11 +1901,14 @@ function romajiToKana(s){
         if (!PREMIUM && currentPartikelTab !== FREE_LIMIT.partikel) currentPartikelTab = FREE_LIMIT.partikel;
         const PX = { j: '', r: '' };
         const pJp = (s) => renderExample(s, PX);
-        const pExBox = (e) => `
+        const pExBox = (e) => {
+            const cp = colorPairA(e.j, PX, e.m);
+            return `
             <div class="border-2 border-black bg-white p-3">
-                <div class="font-jp text-lg md:text-xl leading-[2.4]">${pJp(e.j)}</div>
-                <div class="border-t-2 border-black mt-1 pt-1.5 text-sm font-bold">${esc(e.m)}</div>
+                <div class="font-jp text-lg md:text-xl leading-[2.4]">${cp.jp}</div>
+                <div class="border-t-2 border-black mt-1 pt-1.5 text-sm font-bold">${cp.id}</div>
             </div>`;
+        };
 
         function renderPartikelNav() {
             const nav = document.getElementById('partikel-nav');
@@ -2600,6 +2636,483 @@ function analyze(r){
             });
         }
 
+        // ==========================================
+        // COLOR HIGHLIGHTING: PASANGAN KATA JEPANG - INDONESIA
+        // ==========================================
+        const CW = (function () {
+            const KJ = /[\u4e00-\u9fff々]/;
+            const HIRA = /[\u3041-\u3096]/;
+            const NCOL = 10;
+            const escH = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+            // ---------- stemmer Indonesia ringan ----------
+            const PRE = ['meng', 'meny', 'mem', 'men', 'me', 'peng', 'peny', 'pem', 'pen', 'pe', 'ber', 'be', 'ter', 'te', 'di', 'ke', 'se', 'per'];
+            const SUF = ['kan', 'an', 'i', 'nya', 'lah', 'kah'];
+            const stemCache = new Map();
+            function stems(w) {
+                w = w.toLowerCase();
+                if (stemCache.has(w)) return stemCache.get(w);
+                const bases = [w];
+                SUF.forEach(s => { if (w.endsWith(s) && w.length - s.length >= 3) bases.push(w.slice(0, -s.length)); });
+                const out = new Set(bases);
+                bases.forEach(b => PRE.forEach(p => {
+                    if (b.startsWith(p) && b.length - p.length >= 3) {
+                        const r = b.slice(p.length);
+                        out.add(r);
+                        if (p === 'meny' || p === 'peny') out.add('s' + r);
+                        if (p === 'mem' || p === 'pem') out.add('p' + r);
+                        if (p === 'men' || p === 'pen') out.add('t' + r);
+                        if (p === 'meng' || p === 'peng') out.add('k' + r);
+                    }
+                }));
+                stemCache.set(w, out);
+                return out;
+            }
+            const wordRe = /[A-Za-z0-9\u00C0-\u00FF]+/g;
+            function tokenize(text) {
+                const t = []; let m;
+                wordRe.lastIndex = 0;
+                while ((m = wordRe.exec(text)) !== null) t.push({ w: m[0], s: m.index, e: m.index + m[0].length, st: stems(m[0]), used: /^(adalah|ialah|merupakan)$/i.test(m[0]) });
+                return t;
+            }
+            function phraseTokens(p) {
+                return (p.toLowerCase().replace(/\([^)]*\)/g, ' ').match(/[a-z0-9\u00C0-\u00FF]+/g) || []).map(w => ({ w, st: stems(w) }));
+            }
+            function meaningPhrases(m) {
+                const full = String(m).split(/[,;\/]/).map(x => x.trim()).filter(Boolean)
+                    .map(phraseTokens).filter(p => p.length && p.length <= 4 && p.some(t => t.w.length >= 3 || /\d/.test(t.w) || t.w === 'pr'));
+                const fb = [];
+                full.forEach(p => { if (p.length > 1 && !p.some(t => /^(tidak|tdk|bukan|belum|jangan|tak|kurang)$/.test(t.w))) p.forEach(t => { if (t.w.length >= 4) fb.push([t]); }); });
+                return { full, fb };
+            }
+
+            // ---------- leksikon dari data kotoba ----------
+            const U_ROW = { 'い': 'う', 'き': 'く', 'ぎ': 'ぐ', 'し': 'す', 'ち': 'つ', 'に': 'ぬ', 'び': 'ぶ', 'み': 'む', 'り': 'る' };
+            const A_ROW = { 'う': 'わ', 'く': 'か', 'ぐ': 'が', 'す': 'さ', 'つ': 'た', 'ぬ': 'な', 'ぶ': 'ば', 'む': 'ま', 'る': 'ら' };
+            const TE = { 'う': 'って', 'つ': 'って', 'る': 'って', 'む': 'んで', 'ぶ': 'んで', 'ぬ': 'んで', 'く': 'いて', 'ぐ': 'いで', 'す': 'して' };
+            const TA = { 'う': 'った', 'つ': 'った', 'る': 'った', 'む': 'んだ', 'ぶ': 'んだ', 'ぬ': 'んだ', 'く': 'いた', 'ぐ': 'いだ', 'す': 'した' };
+            const MASU = ['ます', 'ません', 'ました', 'ませんでした', 'ましょう', 'ませんか', 'たい', 'たいです', 'たく', 'ながら', 'に'];
+
+
+            // kosakata tambahan di luar daftar kotoba (agar pewarnaan lebih lengkap)
+            const EXTRA = [
+                ['友達', 'teman'], ['ともだち', 'teman'], ['日本語', 'bahasa Jepang'], ['日本', 'Jepang'], ['田中', 'Tanaka'], ['山田', 'Yamada'],
+                ['東京', 'Tokyo'], ['京都', 'Kyoto'], ['大阪', 'Osaka'], ['名前', 'nama'], ['ご飯', 'nasi, makan'], ['昼ご飯', 'makan siang'], ['朝ご飯', 'sarapan'], ['晩ご飯', 'makan malam'],
+                ['ペン', 'pulpen, pena'], ['ケーキ', 'kue'], ['テニス', 'tenis'], ['サッカー', 'sepak bola'], ['スープ', 'sup'], ['カレー', 'kari'], ['シャツ', 'kemeja'],
+                ['プレゼント', 'hadiah'], ['トイレ', 'toilet'], ['スーパー', 'supermarket'], ['アルバイト', 'kerja sambilan'], ['パソコン', 'komputer'], ['ボール', 'bola'],
+                ['ラーメン', 'ramen'], ['ジュース', 'jus'], ['テレビ', 'televisi'], ['ボタン', 'kancing'], ['ビザ', 'visa'], ['アプリ', 'aplikasi'], ['ミルク', 'susu'], ['チキン', 'ayam'],
+                ['ジョギング', 'jogging'], ['コピー', 'fotokopi'], ['インドネシア', 'Indonesia'], ['アメリカ', 'Amerika'], ['休み', 'libur, istirahat'], ['電気', 'lampu, listrik'],
+                ['旅行', 'perjalanan, bepergian, wisata'], ['一緒に', 'bersama'], ['いっしょに', 'bersama'], ['五十', 'lima puluh'], ['五百', 'lima ratus'], ['千円', 'seribu yen'],
+                ['百円', 'seratus yen'], ['一万円', 'sepuluh ribu yen'], ['二十人', 'dua puluh orang'], ['十人', 'sepuluh orang'], ['五人', 'lima orang'], ['四人', 'empat orang'],
+                ['三人', 'tiga orang'], ['二人', 'dua orang'], ['一人', 'satu orang, sendirian'], ['二回', 'dua kali'], ['三回', 'tiga kali'], ['一回', 'satu kali, sekali'], ['一時間', 'satu jam'],
+                ['祖父', 'kakek'], ['祖母', 'nenek'], ['両親', 'orang tua'], ['大丈夫', 'baik-baik saja, tidak apa-apa'], ['週末', 'akhir pekan'], ['空港', 'bandara'], ['島', 'pulau'],
+                ['田舎', 'desa, kampung'], ['高校生', 'siswa SMA'], ['小学生', 'siswa SD, anak SD'], ['自動車', 'mobil'], ['食事', 'makan'], ['動物', 'binatang, hewan'], ['試験', 'ujian'],
+                ['暖房', 'pemanas'], ['居間', 'ruang tamu'], ['半分', 'setengah'], ['彼女', 'dia, pacar'], ['彼', 'dia'], ['先生', 'guru'], ['学生', 'pelajar, mahasiswa']
+            ];
+            // sinonim tambahan untuk kata kotoba yang artinya sering ditulis berbeda di terjemahan
+            const SYN = { '上手': 'pandai, jago', '下手': 'tidak pandai, kurang pandai', '国': 'kampung halaman, negeri', '電気': 'lampu', '休みます': 'libur', '好き': 'suka', '背': 'tubuh', '歌': 'bernyanyi, lagu', '朝': 'pagi', '宿題': 'PR' };
+
+            const lex = new Map(); // surf -> { surf, phr: [], kana }
+            function addEntry(surf, mp) {
+                if (!surf || !mp.full.length) return;
+                const e = lex.get(surf);
+                if (e) { mp.full.forEach(p => e.phr.push(p)); mp.fb.forEach(p => e.fb.push(p)); return; }
+                lex.set(surf, { surf, phr: mp.full.slice(), fb: mp.fb.slice(), kana: !KJ.test(surf) && !/[\u30A0-\u30FF]/.test(surf) });
+            }
+            function surfaceVariants(seg) {
+                const out = new Set();
+                let s = seg.trim();
+                if (!s) return [];
+                const m1 = s.match(/^\(([^)]+)\)(.+)$/);       // (お)皿
+                if (m1) { out.add(m1[1] + m1[2]); out.add(m1[2]); return [...out]; }
+                const m2 = s.match(/^(.+?)\(([^)]+)\)$/);      // 二日(間)
+                if (m2) { out.add(m2[1]); out.add(m2[1] + m2[2]); return [...out]; }
+                out.add(s); return [...out];
+            }
+            function verbForms(surf, cat) {
+                // surf berakhiran ます
+                const sStem = surf.slice(0, -2);
+                const forms = new Set([surf]);
+                MASU.forEach(sf => forms.add(sStem + sf));
+                if (cat === 36 && sStem.length > 1) {
+                    const last = sStem.slice(-1), pre = sStem.slice(0, -1), u = U_ROW[last];
+                    if (u) {
+                        const te = pre === '行' ? 'って' : TE[u], ta = pre === '行' ? 'った' : TA[u];
+                        forms.add(pre + u); forms.add(pre + te); forms.add(pre + ta); forms.add(pre + A_ROW[u] + 'ない');
+                    }
+                } else if (cat === 37 || cat === 38) {
+                    ['る', 'て', 'た', 'ない'].forEach(sf => forms.add(sStem + sf));
+                } else if (cat === 40) {
+                    const noun = surf.slice(0, -3);
+                    if (noun) ['する', 'して', 'した', 'しない', 'します', 'しません', 'しました', 'しましょう', 'したい'].forEach(sf => forms.add(noun + sf));
+                } else if (cat === 39) {
+                    ['来る', '来て', '来た', '来ない', '来ます', '来ません', '来ました'].forEach(f => forms.add(f));
+                }
+                return [...forms];
+            }
+            function adjForms(surf) {
+                const st = surf.slice(0, -1);
+                return [surf, st + 'くない', st + 'く', st + 'かった', st + 'くなかった', st + 'くて'];
+            }
+            function build(vocab) {
+                vocab.forEach(c => c.items.forEach(it => {
+                    it.j.split('、').forEach(seg => surfaceVariants(seg).forEach(sv => {
+                        const phr = meaningPhrases(it.m + (SYN[sv] ? ', ' + SYN[sv] : ''));
+                        if (!phr.full.length) return;
+                        if (/ます$/.test(sv)) verbForms(sv, c.id).forEach(f => addEntry(f, phr));
+                        else if ((c.id === 34 || c.id === 7) && /い$/.test(sv) && sv.length >= 2) adjForms(sv).forEach(f => addEntry(f, phr));
+                        else addEntry(sv, phr);
+                    }));
+                }));
+                EXTRA.forEach(x => addEntry(x[0], meaningPhrases(x[1])));
+                // indeks per huruf pertama
+                const idx = new Map();
+                lex.forEach(e => { const k = e.surf[0]; if (!idx.has(k)) idx.set(k, []); idx.get(k).push(e); });
+                idx.forEach(arr => arr.sort((a, b) => b.surf.length - a.surf.length));
+                return idx;
+            }
+            let INDEX = null;
+
+            // ---------- parser unit kalimat ----------
+            // markup A: {kata} {kata|yomi} [kanji|yomi]   (Kotoba, Partikel)
+            function parseA(str, item, buildFurigana, hasKanji) {
+                const re = /\{([^{}|]+)(?:\|([^{}]*))?\}|\[([^\[\]|]+)\|([^\[\]]*)\]/g;
+                const units = []; let last = 0, m;
+                const pushPlain = (txt) => { for (const ch of txt) units.push({ surf: ch, html: escH(ch) }); };
+                while ((m = re.exec(str)) !== null) {
+                    pushPlain(str.slice(last, m.index));
+                    if (m[3] !== undefined) {
+                        units.push({ surf: m[3], html: `<ruby>${escH(m[3])}<rt>${escH(m[4])}</rt></ruby>` });
+                    } else {
+                        let reading = m[2];
+                        if (!reading && item && hasKanji(m[1]) && m[1] === item.j && !item.j.includes('、')) reading = buildFurigana(item.j, item.r).kana;
+                        units.push({ surf: m[1], html: '<span class="ex-hl">' + (reading && hasKanji(m[1]) ? `<ruby>${escH(m[1])}<rt>${escH(reading)}</rt></ruby>` : escH(m[1])) + '</span>' });
+                    }
+                    last = re.lastIndex;
+                }
+                pushPlain(str.slice(last));
+                return units;
+            }
+            // markup B: 【kata】 (Bunpou)
+            function parseB(str) {
+                const units = []; const re = /【(.*?)】/g; let last = 0, m;
+                const pushPlain = (txt) => { for (const ch of txt) units.push({ surf: ch, html: escH(ch) }); };
+                while ((m = re.exec(str)) !== null) {
+                    pushPlain(str.slice(last, m.index));
+                    units.push({ surf: m[1], html: `<span class="highlight-jp">${escH(m[1])}</span>` });
+                    last = re.lastIndex;
+                }
+                pushPlain(str.slice(last));
+                return units;
+            }
+
+            // ---------- penyelarasan ----------
+            function align(units, idText) {
+                if (!INDEX) INDEX = build(vocabData);
+                const S = units.map(u => u.surf).join('');
+                const startAt = new Array(S.length + 1).fill(-1), endAt = new Array(S.length + 1).fill(-1);
+                let off = 0;
+                units.forEach((u, i) => { startAt[off] = i; off += u.surf.length; endAt[off] = i; });
+                const toks = tokenize(idText);
+                const matches = []; // {u0,u1,color,t0,t1}
+                let pos = 0, col = 0;
+                while (pos < S.length) {
+                    const cands = startAt[pos] >= 0 ? (INDEX.get(S[pos]) || []) : [];
+                    let hit = null;
+                    for (const e of cands) {
+                        const L = e.surf.length;
+                        if (!S.startsWith(e.surf, pos)) continue;
+                        if (endAt[pos + L] < 0) continue;
+                        if (e.kana && (L < 2 || (pos > 0 && HIRA.test(S[pos - 1]) && !/[はがをにでへともやか]/.test(S[pos - 1])))) continue;
+                        // cari pasangan Indonesia
+                        let found = null;
+                        for (const ph of e.phr.concat(e.fb)) {
+                            for (let i = 0; i + ph.length <= toks.length && !found; i++) {
+                                let ok = true;
+                                for (let j = 0; j < ph.length; j++) {
+                                    const t = toks[i + j];
+                                    if (t.used) { ok = false; break; }
+                                    let hitst = false;
+                                    for (const s of ph[j].st) if (t.st.has(s)) { hitst = true; break; }
+                                    if (!hitst) { ok = false; break; }
+                                }
+                                if (ok) found = [i, i + ph.length - 1];
+                            }
+                            if (found) break;
+                        }
+                        if (found) { hit = { e, L, found }; break; }
+                    }
+                    if (hit) {
+                        for (let k = hit.found[0]; k <= hit.found[1]; k++) toks[k].used = true;
+                        matches.push({ u0: startAt[pos], u1: endAt[pos + hit.L], color: col % NCOL, t0: hit.found[0], t1: hit.found[1] });
+                        col++; pos += hit.L;
+                    } else pos++;
+                }
+                // render JP
+                const starts = new Map(matches.map(m => [m.u0, m]));
+                let jp = '';
+                units.forEach((u, i) => {
+                    const m = starts.get(i);
+                    if (m) jp += `<span class="cw cw${m.color}">`;
+                    jp += u.html;
+                    if (matches.some(x => x.u1 === i)) jp += '</span>';
+                });
+                // render Indonesia
+                let id = '', cur = 0;
+                matches.slice().sort((a, b) => toks[a.t0].s - toks[b.t0].s).forEach(m => {
+                    const s = toks[m.t0].s, e = toks[m.t1].e;
+                    id += escH(idText.slice(cur, s)) + `<span class="cw cw${m.color}">` + escH(idText.slice(s, e)) + '</span>';
+                    cur = e;
+                });
+                id += escH(idText.slice(cur));
+                return { jp, id, pairs: matches.length, list: matches.map(m => [S.slice(units.slice(0, m.u0).reduce((a, u) => a + u.surf.length, 0), units.slice(0, m.u1 + 1).reduce((a, u) => a + u.surf.length, 0)), idText.slice(toks[m.t0].s, toks[m.t1].e), m.color]) };
+            }
+            return { parseA, parseB, align, escH };
+        })();
+
+        // Pasangan siap pakai: kembalikan { jp, id } berwarna
+        function colorPairA(markup, item, idText) {
+            const units = CW.parseA(markup, item, buildFurigana, hasKanji);
+            return CW.align(units, idText);
+        }
+        function colorPairB(markup, idText) {
+            return CW.align(CW.parseB(markup), idText);
+        }
+
+
+        // ==========================================
+        // FLASHCARD KOTOBA
+        // ==========================================
+        let kotobaView = lsGet('n5_kotobaView') === 'list' ? 'list' : 'flash';
+        let flashDir = lsGet('n5_flashDir') === 'id' ? 'id' : 'jp';
+        let flashOnly = lsGet('n5_flashOnly') !== '0';
+        let flashShuffle = lsGet('n5_flashShuffle') === '1';
+        const FL = { cat: null, deck: [], pos: 0, flipped: false, total: 0, known: 0, again: 0, timer: null };
+
+        function applyKotobaViewMode() {
+            const flash = kotobaView === 'flash';
+            document.getElementById('vocab-grid').classList.toggle('hidden', flash);
+            document.getElementById('flash-area').classList.toggle('hidden', !flash);
+            const on = 'flex-1 py-1.5 font-black text-xs uppercase bg-black text-white', off = 'flex-1 py-1.5 font-black text-xs uppercase bg-white text-black hover:bg-gray-200';
+            document.getElementById('kv-flash').className = flash ? on : off;
+            document.getElementById('kv-list').className = (flash ? off : on) + ' border-l-2 border-black';
+            document.getElementById('cat-toggle-all').classList.toggle('hidden', flash);
+        }
+        function setKotobaView(v) {
+            kotobaView = v; lsSet('n5_kotobaView', v);
+            if (v === 'list') renderVocab(currentKotobaCategoryId);   // sinkronkan centang hafal dari mode kartu
+            else renderFlash(currentKotobaCategoryId, true);
+            applyKotobaViewMode();
+        }
+        document.getElementById('kv-flash').addEventListener('click', () => setKotobaView('flash'));
+        document.getElementById('kv-list').addEventListener('click', () => setKotobaView('list'));
+
+        function flashItem() {
+            const cat = vocabData.find(c => c.id === FL.cat);
+            const idx = FL.deck[FL.pos];
+            return { cat, idx, item: cat.items[idx], key: itemKey(cat.id, idx) };
+        }
+        function buildFlashDeck(catId) {
+            const cat = vocabData.find(c => c.id === catId);
+            let deck = cat.items.map((_, i) => i);
+            if (flashOnly) deck = deck.filter(i => !doneSet.has(itemKey(cat.id, i)));
+            if (flashShuffle) for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+            Object.assign(FL, { cat: catId, deck, pos: 0, flipped: false, total: deck.length, known: 0, again: 0 });
+        }
+
+        function renderFlash(catId, reset) {
+            if (!catId) return;
+            if (reset || FL.cat !== catId) buildFlashDeck(catId);
+            const area = document.getElementById('flash-area');
+            const btn = 'border-2 border-black font-black text-xs uppercase py-2 px-2 hover:bg-black hover:text-white transition-colors';
+            area.innerHTML = `
+                <div class="max-w-md mx-auto pb-24">
+                    <div class="flex items-center justify-between text-xs font-black uppercase mb-1">
+                        <span id="fl-pos"></span><span id="fl-stat" class="font-mono"></span>
+                    </div>
+                    <div class="w-full h-2.5 border-2 border-black bg-white mb-3"><div id="fl-bar" class="h-full bg-black transition-all duration-300" style="width:0%"></div></div>
+                    <div id="fl-main">
+                        <div id="fl-scene" class="flash-scene">
+                            <div id="fl-card" class="flash-card">
+                                <div id="fl-front" class="flash-face"></div>
+                                <div id="fl-back" class="flash-face flash-back"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <button id="fl-forget" class="border-2 border-black bg-white font-black text-sm uppercase py-3 hover:bg-black hover:text-white transition-colors">&#10007; Lupa</button>
+                            <button id="fl-know" class="border-2 border-black bg-black text-white font-black text-sm uppercase py-3 hover:bg-white hover:text-black transition-colors">&#10003; Hafal</button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 mt-2">
+                            <button id="fl-prev" class="${btn}">&#9664; Prev</button>
+                            <button id="fl-dir" class="${btn}">&#8644; Arah</button>
+                            <button id="fl-speak" class="${btn}">&#128266; Suara</button>
+                            <button id="fl-next" class="${btn}">Next &#9654;</button>
+                        </div>
+                    </div>
+                    <div id="fl-done" class="hidden"></div>
+                    <div class="mt-4 flex flex-col gap-2 text-xs font-bold">
+                        <label class="flex items-center justify-between cursor-pointer border-2 border-black bg-white px-3 py-2"><span>Hanya kartu yang belum hafal</span><input id="fl-only" type="checkbox" class="w-5 h-5 accent-black" ${flashOnly ? 'checked' : ''}></label>
+                        <label class="flex items-center justify-between cursor-pointer border-2 border-black bg-white px-3 py-2"><span>Acak urutan kartu</span><input id="fl-shuffle" type="checkbox" class="w-5 h-5 accent-black" ${flashShuffle ? 'checked' : ''}></label>
+                        <p class="text-[11px] text-gray-500 text-center leading-snug">Ketuk kartu untuk membalik. Geser kartu ke kanan = Hafal, ke kiri = Lupa. Pintasan keyboard: Spasi, &larr; &rarr;, &uarr; Hafal, &darr; Lupa.</p>
+                    </div>
+                </div>`;
+            document.getElementById('fl-forget').addEventListener('click', flashForget);
+            document.getElementById('fl-know').addEventListener('click', flashKnow);
+            document.getElementById('fl-prev').addEventListener('click', () => flashMove(-1));
+            document.getElementById('fl-next').addEventListener('click', () => flashMove(1));
+            document.getElementById('fl-dir').addEventListener('click', () => { flashDir = flashDir === 'jp' ? 'id' : 'jp'; lsSet('n5_flashDir', flashDir); flashShow(true); });
+            const sp = document.getElementById('fl-speak');
+            if (!('speechSynthesis' in window)) sp.classList.add('hidden');
+            sp.addEventListener('click', flashSpeak);
+            document.getElementById('fl-only').addEventListener('change', (e) => { flashOnly = e.target.checked; lsSet('n5_flashOnly', flashOnly ? '1' : '0'); renderFlash(FL.cat, true); });
+            document.getElementById('fl-shuffle').addEventListener('change', (e) => { flashShuffle = e.target.checked; lsSet('n5_flashShuffle', flashShuffle ? '1' : '0'); renderFlash(FL.cat, true); });
+            document.getElementById('fl-scene').addEventListener('click', () => flashFlip());
+            bindFlashSwipe(document.getElementById('fl-scene'));
+            flashShow(false);
+        }
+
+        function flashFaces(item, cat, idx) {
+            const label = (t) => `<div class="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2">${t}</div>`;
+            const kanji = hasKanji(item.j);
+            const f = buildFurigana(item.j, item.r);
+            const wordRuby = kanji ? f.html : esc(item.j);
+            const frontJP = `${label('Bahasa Jepang')}<div class="font-jp text-4xl md:text-5xl font-black text-center break-words leading-tight">${esc(item.j)}</div><div class="mt-5 text-[11px] font-bold text-gray-400">Ketuk untuk melihat arti</div>`;
+            const frontID = `${label('Bahasa Indonesia')}<div class="text-3xl md:text-4xl font-black text-center break-words leading-tight">${esc(item.m)}</div><div class="mt-5 text-[11px] font-bold text-gray-400">Ketuk untuk melihat kata Jepang</div>`;
+            const ex = KOTOBA_EXAMPLES[cat.id + '.' + idx];
+            let exHtml = '';
+            if (ex) {
+                const cp = colorPairA(ex.j, item, ex.m);
+                exHtml = `<div class="w-full border-t-2 border-dashed border-black mt-3 pt-2 text-left">${label('Contoh kalimat')}<div class="font-jp text-base md:text-lg leading-[2.4]">${cp.jp}</div><div class="text-sm font-bold mt-1">${cp.id}</div></div>`;
+            }
+            const note = item.note ? `<div class="w-full mt-2 p-2 bg-gray-100 border border-black text-[11px] font-medium text-left leading-snug">${item.note}</div>` : '';
+            const back = `<div class="font-jp text-4xl font-black text-center break-words leading-tight pt-3">${wordRuby}</div>
+                <div class="font-mono text-sm text-gray-600 mt-2">${esc(item.r)}</div>
+                <div class="text-2xl font-black text-center mt-2 leading-tight">${esc(item.m)}</div>${exHtml}${note}`;
+            return flashDir === 'jp' ? { front: frontJP, back } : { front: frontID, back };
+        }
+
+        function flashShow(unflip) {
+            const card = document.getElementById('fl-card');
+            if (!card) return;
+            const main = document.getElementById('fl-main'), done = document.getElementById('fl-done');
+            const cat = vocabData.find(c => c.id === FL.cat);
+            const d = catDoneCount(cat);
+            document.getElementById('fl-stat').textContent = 'Hafal ' + d + '/' + cat.items.length;
+            document.getElementById('fl-bar').style.width = (FL.total ? (FL.total - FL.deck.length) / FL.total * 100 : 100) + '%';
+            if (!FL.deck.length) {
+                main.classList.add('hidden'); done.classList.remove('hidden');
+                document.getElementById('fl-pos').textContent = FL.total ? 'Sesi selesai' : 'Tidak ada kartu';
+                const all = d === cat.items.length;
+                const idx = vocabData.findIndex(c => c.id === FL.cat), nxt = vocabData[idx + 1];
+                done.innerHTML = `
+                    <div class="border-2 border-black bg-white shadow-solid p-5 text-center">
+                        <div class="text-4xl mb-1">&#127881;</div>
+                        <div class="font-black text-lg uppercase">${all ? 'Semua kartu sudah hafal!' : 'Sesi selesai!'}</div>
+                        <p class="text-sm font-bold text-gray-600 mt-1">${FL.total ? 'Hafal ' + FL.known + ' kartu, ' + FL.again + ' kali ditandai Lupa.' : 'Tidak ada kartu yang perlu dipelajari di bab ini.'}</p>
+                        <div class="flex flex-col gap-2 mt-4">
+                            <button id="fl-redo" class="border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Ulangi semua kartu</button>
+                            <button id="fl-reset" class="border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Reset hafalan bab ini</button>
+                            ${nxt ? `<button id="fl-nextcat" class="border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Bab berikutnya &rarr;</button>` : ''}
+                            <button id="fl-map" class="border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Kembali ke peta</button>
+                        </div>
+                    </div>`;
+                document.getElementById('fl-redo').addEventListener('click', () => { flashOnly = false; lsSet('n5_flashOnly', '0'); renderFlash(FL.cat, true); });
+                document.getElementById('fl-reset').addEventListener('click', () => {
+                    if (!confirm('Hapus semua centang hafal di bab ini?')) return;
+                    cat.items.forEach((_, i) => doneSet.delete(itemKey(cat.id, i)));
+                    saveDone(); updateCategoryProgress(); renderVocab(cat.id);
+                });
+                const nb = document.getElementById('fl-nextcat'); if (nb) nb.addEventListener('click', () => { selectKotobaCategory(nxt.id); window.scrollTo({ top: 0 }); });
+                document.getElementById('fl-map').addEventListener('click', () => { setKotobaMode('map'); applyKotobaMode(); });
+                return;
+            }
+            main.classList.remove('hidden'); done.classList.add('hidden');
+            const { item, idx } = flashItem();
+            document.getElementById('fl-pos').textContent = 'Kartu ' + (FL.pos + 1) + ' / ' + FL.deck.length;
+            const faces = flashFaces(item, cat, idx);
+            document.getElementById('fl-front').innerHTML = faces.front;
+            document.getElementById('fl-back').innerHTML = faces.back;
+            if (unflip) { card.classList.remove('flipped'); FL.flipped = false; }
+        }
+        function flashFlip() {
+            const card = document.getElementById('fl-card');
+            if (!card || !FL.deck.length) return;
+            FL.flipped = !FL.flipped;
+            card.classList.toggle('flipped', FL.flipped);
+        }
+        // Ganti kartu; bila sedang terbalik, putar balik dulu agar jawaban kartu baru tidak terlihat
+        function flashAdvance() {
+            const card = document.getElementById('fl-card');
+            clearTimeout(FL.timer);
+            if (card && FL.flipped) {
+                card.classList.remove('flipped'); FL.flipped = false;
+                FL.timer = setTimeout(() => flashShow(false), 260);
+            } else flashShow(false);
+        }
+        function flashMove(step) {
+            if (FL.deck.length < 2) return;
+            FL.pos = (FL.pos + step + FL.deck.length) % FL.deck.length;
+            flashAdvance();
+        }
+        function flashKnow() {
+            if (!FL.deck.length) return;
+            const { key } = flashItem();
+            doneSet.add(key); saveDone(); updateCategoryProgress();
+            FL.deck.splice(FL.pos, 1); FL.known++;
+            if (FL.pos >= FL.deck.length) FL.pos = 0;
+            flashAdvance();
+        }
+        function flashForget() {
+            if (!FL.deck.length) return;
+            const { key } = flashItem();
+            if (doneSet.delete(key)) { saveDone(); updateCategoryProgress(); }
+            const [c] = FL.deck.splice(FL.pos, 1); FL.deck.push(c); FL.again++;
+            if (FL.pos >= FL.deck.length) FL.pos = 0;
+            flashAdvance();
+        }
+        function flashSpeak() {
+            if (!FL.deck.length || !('speechSynthesis' in window)) return;
+            const { item } = flashItem();
+            try {
+                speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(item.j.split('、')[0].replace(/[()（）]/g, ''));
+                u.lang = 'ja-JP'; u.rate = 0.85;
+                speechSynthesis.speak(u);
+            } catch (e) {}
+        }
+        function bindFlashSwipe(scene) {
+            let x0 = 0, y0 = 0, dx = 0, active = false;
+            scene.addEventListener('touchstart', (e) => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; dx = 0; active = true; }, { passive: true });
+            scene.addEventListener('touchmove', (e) => {
+                if (!active) return;
+                const t = e.touches[0]; dx = t.clientX - x0; const dy = t.clientY - y0;
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) scene.style.transform = `translateX(${dx * 0.5}px) rotate(${dx / 40}deg)`;
+            }, { passive: true });
+            scene.addEventListener('touchend', () => {
+                if (!active) return; active = false;
+                scene.style.transform = '';
+                if (dx > 80) { scene.dataset.swiped = '1'; flashKnow(); }
+                else if (dx < -80) { scene.dataset.swiped = '1'; flashForget(); }
+                if (scene.dataset.swiped) setTimeout(() => { delete scene.dataset.swiped; }, 350);
+            });
+            // cegah "klik" yang menyusul setelah geser agar kartu tidak ikut terbalik
+            scene.addEventListener('click', (e) => { if (scene.dataset.swiped) { e.stopImmediatePropagation(); } }, true);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (kotobaView !== 'flash' || kotobaMode !== 'chapter') return;
+            if (document.getElementById('view-kotoba').classList.contains('hidden')) return;
+            if (document.getElementById('kanji-modal').classList.contains('open') || !document.getElementById('premium-modal').classList.contains('hidden')) return;
+            if (document.getElementById('auth-screen') && document.getElementById('auth-screen').style.display !== 'none') return;
+            const tag = (e.target && e.target.tagName) || '';
+            if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+            if (e.key === ' ') { e.preventDefault(); flashFlip(); }
+            else if (e.key === 'ArrowRight') flashMove(1);
+            else if (e.key === 'ArrowLeft') flashMove(-1);
+            else if (e.key === 'ArrowUp') { e.preventDefault(); flashKnow(); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); flashForget(); }
+        });
+
+
         // View Switcher
         function switchView(viewName) {
             const navButtons = document.querySelectorAll('.nav-btn');
@@ -2740,6 +3253,8 @@ function analyze(r){
                 vocabGrid.appendChild(card);
             });
             updateCategoryProgress();
+            renderFlash(categoryId, true);
+            applyKotobaViewMode();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2784,18 +3299,19 @@ function analyze(r){
                 const card = document.createElement('div');
                 card.className = 'border-2 border-black p-3 bg-white hover:shadow-solid-sm transition-all flex flex-col gap-2';
                 
+                const cpB = colorPairB(item.j, item.m);
                 card.innerHTML = `
                     <div class="flex items-start gap-2">
                         <span class="font-black text-xs mt-1 min-w-[20px] text-gray-400">${index + 1}.</span>
                         <div class="w-full">
                             <div class="text-lg md:text-xl font-jp font-medium text-black leading-loose mb-1.5 break-words">
-                                ${formatJapaneseText(item.j)}
+                                ${cpB.jp}
                             </div>
                             <div class="romaji-text text-xs md:text-sm text-gray-600 font-mono leading-tight mb-2">
                                 ${item.r}
                             </div>
                             <div class="arti-text border-t-2 border-black pt-2 text-sm md:text-base font-bold leading-tight">
-                                ${item.m}
+                                ${cpB.id}
                             </div>
                             <div class="partikel-box"></div>
                         </div>
@@ -2823,9 +3339,11 @@ function analyze(r){
             { id: 'k-romaji', key: 'n5_k_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'k-hide-romaji', invert: true },
             { id: 'k-arti',   key: 'n5_k_showArti',   old: 'n5_showArti',   def: true,  cls: 'k-hide-arti',   invert: true },
             { id: 'k-serif',  key: 'n5_k_useSerif',   old: 'n5_useSerif',   def: false, cls: 'k-serif',       invert: false },
+            { id: 'k-color', key: 'n5_k_color', old: 'n5_k_color', def: true, cls: 'k-nocolor', invert: true },
             { id: 'b-romaji', key: 'n5_b_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'b-hide-romaji', invert: true },
             { id: 'b-arti',   key: 'n5_b_showArti',   old: 'n5_showArti',   def: true,  cls: 'b-hide-arti',   invert: true },
             { id: 'b-serif',  key: 'n5_b_useSerif',   old: 'n5_useSerif',   def: false, cls: 'b-serif',       invert: false },
+            { id: 'b-color', key: 'n5_b_color', old: 'n5_b_color', def: true, cls: 'b-nocolor', invert: true },
             { id: 'b-partikel', key: 'n5_b_openPartikel', old: 'n5_b_openPartikel', def: false, cls: 'b-open-partikel', invert: false },
         ];
 
