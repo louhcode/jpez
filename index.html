@@ -2,9 +2,10 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>JPEZ - Belajar Bahasa Jepang N5</title>
     <link rel="icon" type="image/svg+xml" href="jpez.svg">
+    <script>try{var __t=localStorage.getItem("n5_theme")||"auto";if(__t==="dark"||(__t==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,8 +30,8 @@
     <style>
         body {
             -webkit-tap-highlight-color: transparent;
-            background-color: #ffffff;
-            color: #000000;
+            background-color: var(--paper);
+            color: var(--ink);
         }
         
         .no-scrollbar::-webkit-scrollbar {
@@ -49,7 +50,7 @@
         /* Highlight untuk tanda kurung sudut Jepang di kalimat */
         .highlight-jp {
             font-weight: 700;
-            background-color: #e5e7eb;
+            background-color: var(--track);
             padding: 0 2px;
             border: none;
             border-radius: 2px;
@@ -61,16 +62,17 @@
             line-height: inherit;
         }
 
-        #main-nav { transition: max-width .35s ease, opacity .35s ease, box-shadow .35s ease; }
-        #main-nav .nav-btn { transition: flex .35s ease, max-width .35s ease, opacity .25s ease, padding .35s ease, background-color .2s, color .2s; white-space: nowrap; overflow: hidden; max-width: 200px; }
-        #main-nav.collapsed { max-width: 96px !important; opacity: .75; box-shadow: 2px 2px 0 0 #000; }
-        #main-nav.collapsed .nav-btn.nav-hide { flex: 0 0 0; max-width: 0; opacity: 0; padding-left: 0; padding-right: 0; pointer-events: none; }
+        /* Navbar ikon: bar bawah tetap di HP, kapsul melayang di layar lebar */
+        #main-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        #main-nav .nav-btn { transition: background-color .15s, color .15s; }
+        #main-nav .nav-btn svg { width: 24px; height: 24px; flex-shrink: 0; }
+        @media (min-width: 768px) { #main-nav { padding-bottom: 4px; } }
         body.k-serif #view-kotoba .font-jp, body.k-serif #kanji-modal .font-jp { font-family: 'Noto Serif JP', serif !important; }
         body.b-serif #view-partikel .font-jp, body.b-serif #view-bunpou .font-jp, body.b-serif #view-bunpou .highlight-jp { font-family: 'Noto Serif JP', serif !important; }
         @keyframes lock-shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
         .lock-shake { animation: lock-shake .35s; }
         body.locked { overflow: hidden; }
-        .ex-hl { font-weight: 700; background-color: #e5e7eb; padding: 0 2px; border-radius: 2px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+        .ex-hl { font-weight: 700; background-color: var(--track); padding: 0 2px; border-radius: 2px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
         #view-home .font-jp { font-family: 'Noto Serif JP', serif !important; }
         @keyframes mapBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
         .map-bounce { animation: mapBounce 1.1s ease-in-out infinite; }
@@ -78,6 +80,38 @@
         .map-node:active { transform: translate(3px,3px); box-shadow: 0 0 0 #000 !important; }
         .partikel-panel { display: none; }
         .partikel-panel.open, body.b-open-partikel #view-bunpou .partikel-panel { display: block; }
+        /* ===== MODE GELAP ===== */
+        :root { --ink: #000; --paper: #fff; --track: #e5e7eb; --soft: #f3f4f6; }
+        html.dark { --ink: #f4f4f5; --paper: #17171a; --track: #3f3f46; --soft: #26262b; color-scheme: dark; }
+        html.dark body { background-color: #0c0c0e; color: var(--ink); }
+        html.dark .bg-white { background-color: var(--paper) !important; }
+        html.dark .bg-black { background-color: var(--ink) !important; }
+        html.dark .text-black { color: var(--ink) !important; }
+        html.dark .text-white { color: #0c0c0e !important; }
+        html.dark .border-black { border-color: var(--ink) !important; }
+        html.dark .border-white { border-color: #0c0c0e !important; }
+        html.dark .bg-gray-50, html.dark .bg-gray-100 { background-color: var(--soft) !important; }
+        html.dark .bg-gray-200 { background-color: var(--track) !important; }
+        html.dark .text-gray-300, html.dark .text-gray-400, html.dark .text-gray-500, html.dark .text-gray-600 { color: #a1a1aa !important; }
+        html.dark .text-gray-700, html.dark .text-gray-800 { color: #d4d4d8 !important; }
+        html.dark .border-gray-300, html.dark .border-gray-400 { border-color: #52525b !important; }
+        html.dark .text-red-600 { color: #f87171 !important; }
+        html.dark .hover\:bg-black:hover { background-color: var(--ink) !important; }
+        html.dark .hover\:text-white:hover { color: #0c0c0e !important; }
+        html.dark .hover\:bg-white:hover { background-color: var(--paper) !important; }
+        html.dark .hover\:text-black:hover { color: var(--ink) !important; }
+        html.dark .hover\:bg-gray-200:hover { background-color: var(--track) !important; }
+        html.dark .accent-black { accent-color: var(--ink); }
+        html.dark .shadow-solid { box-shadow: 3px 3px 0 0 var(--ink) !important; }
+        html.dark .shadow-solid-sm, html.dark .hover\:shadow-solid-sm:hover { box-shadow: 2px 2px 0 0 var(--ink) !important; }
+        html.dark select, html.dark option { background-color: var(--paper); color: var(--ink); }
+        html.dark input::placeholder { color: #71717a; }
+        html.dark .cw { box-shadow: inset 0 -2px 0 rgba(255,255,255,.35); }
+        html.dark .cw0 { background-color: rgba(250,204,21,.35); } html.dark .cw1 { background-color: rgba(96,165,250,.38); }
+        html.dark .cw2 { background-color: rgba(74,222,128,.32); } html.dark .cw3 { background-color: rgba(244,114,182,.38); }
+        html.dark .cw4 { background-color: rgba(167,139,250,.4); } html.dark .cw5 { background-color: rgba(251,146,60,.38); }
+        html.dark .cw6 { background-color: rgba(34,211,238,.32); } html.dark .cw7 { background-color: rgba(248,113,113,.4); }
+        html.dark .cw8 { background-color: rgba(163,230,53,.32); } html.dark .cw9 { background-color: rgba(232,121,249,.38); }
         /* ===== Color highlighting: pasangan kata Jepang - Indonesia ===== */
         .cw { border-radius: 3px; padding: 0 2px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.28); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
         .cw0 { background-color: #fde68a; } .cw1 { background-color: #bfdbfe; } .cw2 { background-color: #bbf7d0; } .cw3 { background-color: #fbcfe8; }
@@ -88,7 +122,7 @@
         .flash-scene { perspective: 1200px; touch-action: pan-y; transition: transform .15s ease; }
         .flash-card { position: relative; height: 430px; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,.2,.2,1); cursor: pointer; }
         .flash-card.flipped { transform: rotateY(180deg); }
-        .flash-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border: 2px solid #000; background: #fff; box-shadow: 4px 4px 0 #000; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
+        .flash-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border: 2px solid var(--ink); background: var(--paper); box-shadow: 4px 4px 0 var(--ink); padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
         .flash-back { transform: rotateY(180deg); justify-content: flex-start; }
         .flash-back ruby { ruby-position: over; } .flash-back rt { font-size: .4em; font-weight: 500; }
         .kanji-card { cursor: pointer; }
@@ -105,8 +139,7 @@
     <div id="auth-screen" class="fixed inset-0 z-[310] bg-white flex items-start justify-center px-4 overflow-y-auto">
         <form id="auth-form" class="border-2 border-black bg-white shadow-solid p-6 w-full max-w-sm my-8" autocomplete="on" novalidate>
             <div class="text-center">
-                <img src="jpez.svg" alt="jpez" class="h-16 w-16 mx-auto mb-1" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                <div class="font-jp text-4xl font-black" style="display:none">日本語</div>
+                <div class="font-jp text-4xl font-black">日本語</div>
                 <h1 class="text-2xl font-black uppercase tracking-widest">JPEZ</h1>
                 <div class="text-[11px] font-bold text-gray-500">Belajar Bahasa Jepang N5</div>
                 <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
@@ -138,8 +171,7 @@
     <!-- PASSWORD GATE -->
     <div id="lock-screen" class="fixed inset-0 z-[300] bg-white flex items-center justify-center px-4">
         <form id="lock-form" class="border-2 border-black bg-white shadow-solid p-6 md:p-8 w-full max-w-sm text-center" autocomplete="off">
-            <img src="jpez.svg" alt="jpez" class="h-16 w-16 mx-auto mb-1" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-            <div class="font-jp text-4xl font-black mb-1" style="display:none">日本語</div>
+            <div class="font-jp text-4xl font-black mb-1">日本語</div>
             <h1 class="text-2xl font-black uppercase tracking-widest">JPEZ</h1>
             <div class="text-[11px] font-bold text-gray-500">Belajar Bahasa Jepang N5</div>
             <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
@@ -158,7 +190,6 @@
     <header class="fixed top-0 w-full z-40 bg-white border-b-2 border-black h-[50px] flex items-center">
         <div class="w-full px-4 md:px-6 flex justify-between items-center">
             <div class="flex items-center gap-2 min-w-0">
-                <img src="jpez.svg" alt="jpez" class="h-7 w-7 flex-shrink-0" onerror="this.style.display='none'">
                 <span class="text-lg md:text-xl font-black uppercase tracking-widest">JPEZ</span>
                 <span class="text-gray-400 font-black">/</span>
                 <h1 id="header-title" class="text-xs md:text-sm font-black uppercase tracking-wider truncate">N5 KOTOBA</h1>
@@ -237,6 +268,24 @@
         </main>
     </div>
 
+    <!-- MAIN KANJI VIEW -->
+    <div id="view-kanji" class="page-view hidden pt-[50px]">
+        <div class="sticky top-[50px] w-full z-30 bg-white border-b-2 border-black py-1.5 shadow-sm">
+            <div id="kanji-nav" class="flex overflow-x-auto no-scrollbar gap-1.5 px-4 scroll-smooth items-center h-full"></div>
+        </div>
+        <main class="px-3 md:px-6 pt-4 pb-4 max-w-2xl mx-auto">
+            <div id="kanji-content"></div>
+        </main>
+    </div>
+
+    <!-- KANJI DETAIL MODAL -->
+    <div id="kj-modal" class="hidden fixed inset-0 z-[120] items-center justify-center bg-black/60 p-4">
+        <div class="relative w-full max-w-sm max-h-[92vh] overflow-y-auto border-2 border-black bg-white shadow-solid p-5">
+            <button id="kj-close" class="absolute top-2 right-2 w-8 h-8 border-2 border-black font-black leading-none hover:bg-black hover:text-white z-10" aria-label="Tutup">&times;</button>
+            <div id="kj-body"></div>
+        </div>
+    </div>
+
     <!-- MAIN PARTIKEL VIEW -->
     <div id="view-partikel" class="page-view hidden pt-[50px]">
         <div class="sticky top-[50px] w-full z-30 bg-white border-b-2 border-black py-1.5 shadow-sm">
@@ -280,6 +329,16 @@
                 <button id="hc-btn" class="w-full mt-3 border-2 border-white bg-white text-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Lanjutkan belajar &rarr;</button>
             </section>
 
+            <!-- Progress Kanji -->
+            <section class="border-2 border-black p-4 bg-white shadow-solid">
+                <div class="flex items-end justify-between mb-2">
+                    <h2 class="text-lg font-black uppercase">Penguasaan Kanji</h2>
+                    <span id="home-kanji-text" class="text-sm font-black font-mono">0/100</span>
+                </div>
+                <div class="w-full h-4 border-2 border-black bg-white"><div id="home-kanji-bar" class="h-full bg-black transition-all duration-500" style="width:0%"></div></div>
+                <button id="home-kanji-btn" class="w-full mt-3 border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Buka Kanji N5</button>
+            </section>
+
             <!-- Progress Kotoba -->
             <section class="border-2 border-black p-4 bg-white shadow-solid">
                 <div class="flex items-end justify-between mb-2">
@@ -312,6 +371,17 @@
             <h2 class="text-2xl md:text-3xl font-black mb-4 uppercase text-center">Settings</h2>
             <div class="border-t-4 border-black w-12 mx-auto mb-6"></div>
             
+            <div class="mb-6">
+                <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Tampilan</h3>
+                <div class="flex border-2 border-black">
+                    <button id="th-light" class="flex-1 py-2 font-black text-xs uppercase bg-black text-white">Terang</button>
+                    <button id="th-dark" class="flex-1 py-2 font-black text-xs uppercase bg-white text-black border-l-2 border-black">Gelap</button>
+                    <button id="th-auto" class="flex-1 py-2 font-black text-xs uppercase bg-white text-black border-l-2 border-black">Otomatis</button>
+                </div>
+                <p class="text-[11px] font-bold text-gray-500 mt-2">Otomatis mengikuti pengaturan tema perangkatmu.</p>
+            </div>
+            <div class="border-t-2 border-black border-dashed mb-6"></div>
+
             <div class="mb-6">
                 <h3 class="font-black text-sm uppercase bg-black text-white px-2 py-1 mb-4 inline-block">Akun</h3>
                 <div id="st-account" class="hidden text-xs font-bold bg-gray-100 border border-black p-2 mb-3 leading-relaxed break-words"></div>
@@ -407,23 +477,26 @@
         </div>
     </div>
 
-    <!-- Floating Bottom Navbar -->
-    <div class="fixed bottom-4 left-0 w-full z-50 pointer-events-none flex justify-center px-4">
-        <nav id="main-nav" class="pointer-events-auto bg-white border-2 border-black p-1 flex items-center gap-1 shadow-solid w-full max-w-[400px] justify-between">
-            <button onclick="switchView('Home')" id="nav-Home" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase transition-colors hover:bg-black hover:text-white">
-                Home
+    <!-- Navbar ikon: bar bawah tetap di HP, kapsul melayang di layar lebar -->
+    <div class="fixed bottom-0 left-0 w-full z-50 pointer-events-none flex justify-center md:bottom-4 md:px-4">
+        <nav id="main-nav" aria-label="Navigasi utama" class="pointer-events-auto bg-white border-t-2 border-black md:border-2 md:shadow-solid p-0 md:p-1 flex items-stretch gap-0 md:gap-1 w-full md:max-w-[400px]">
+            <button onclick="switchView('Home')" id="nav-Home" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white" aria-label="Home" title="Home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
             </button>
-            <button onclick="navKotoba()" id="nav-Kotoba" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase bg-black text-white transition-colors hover:bg-black hover:text-white">
-                Kotoba
+            <button onclick="navKotoba()" id="nav-Kotoba" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white bg-black text-white" aria-label="Kotoba" title="Kotoba">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg>
             </button>
-            <button onclick="switchView('Bunpou')" id="nav-Bunpou" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase transition-colors hover:bg-black hover:text-white">
-                Bunpou
+            <button onclick="switchView('Bunpou')" id="nav-Bunpou" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white" aria-label="Bunpou" title="Bunpou">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h6"/></svg>
             </button>
-            <button onclick="switchView('Partikel')" id="nav-Partikel" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase transition-colors hover:bg-black hover:text-white">
-                Partikel
+            <button onclick="switchView('Partikel')" id="nav-Partikel" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white" aria-label="Partikel" title="Partikel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02z"/></svg>
             </button>
-            <button onclick="switchView('Settings')" id="nav-Settings" class="nav-btn flex-1 py-2 font-bold text-[11px] uppercase transition-colors hover:bg-black hover:text-white">
-                Settings
+            <button onclick="switchView('Kanji')" id="nav-Kanji" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white" aria-label="Kanji" title="Kanji">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+            </button>
+            <button onclick="switchView('Settings')" id="nav-Settings" class="nav-btn flex-1 flex items-center justify-center py-3 md:py-2.5 transition-colors hover:bg-black hover:text-white" aria-label="Pengaturan" title="Pengaturan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
         </nav>
     </div>
@@ -493,7 +566,7 @@
         const PREMIUM_CONTACT_TEXT = 'Belum punya kode? Hubungi admin untuk mendapatkan kode premium.';
         const PREMIUM_CONTACT_URL = ''; // contoh: 'https://wa.me/62812xxxxxxx' (kosong = tombol tidak ditampilkan)
         // Batas versi gratis: bab / tab yang boleh dibuka
-        const FREE_LIMIT = { kotoba: 1, bunpou: 1, partikel: 'wa' };
+        const FREE_LIMIT = { kotoba: 1, bunpou: 1, partikel: 'wa', kanji: 1 };
         // SHA-256 sederhana (tanpa dependensi) untuk memeriksa kode premium
         function sha256(str) {
             const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
@@ -1496,6 +1569,7 @@ function romajiToKana(s){
 
         function renderHome() {
             renderContinue();
+            renderKanjiHome();
             let done = 0, total = 0;
             const list = document.getElementById('home-cat-list');
             list.innerHTML = '';
@@ -2138,7 +2212,7 @@ function romajiToKana(s){
                     const p = pts[i - 1], q = pts[i], m = (p.y + q.y) / 2;
                     d += ` C ${p.x} ${m}, ${q.x} ${m}, ${q.x} ${q.y}`;
                 }
-                wrap.insertAdjacentHTML('beforeend', `<svg class="absolute inset-0 pointer-events-none" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="#000" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/></svg>`);
+                wrap.insertAdjacentHTML('beforeend', `<svg class="absolute inset-0 pointer-events-none" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" style="stroke:var(--ink)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/></svg>`);
 
                 cats.forEach((c, i) => {
                     const done = catDoneCount(c), total = c.items.length;
@@ -2154,8 +2228,8 @@ function romajiToKana(s){
                     node.className = 'absolute';
                     node.style.cssText = `left:${x - 42}px;top:${y - 42}px;width:84px;height:84px`;
                     node.innerHTML = `
-                        ${isCur ? `<div class="map-bounce absolute left-1/2 -translate-x-1/2 -top-9 z-10 whitespace-nowrap"><div class="bg-black text-white text-[10px] font-black uppercase px-2 py-1 border-2 border-black">${started || done > 0 ? 'Lanjut' : 'Mulai'}</div><div class="mx-auto w-0 h-0" style="border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid #000"></div></div>` : ''}
-                        <button class="map-node w-full h-full rounded-full border-2 border-black p-[5px]" style="background:${locked ? '#e5e7eb' : `conic-gradient(#000 ${pct}%, #e5e7eb 0)`};box-shadow:${locked ? '2px 2px 0 #9ca3af' : '4px 4px 0 #000'}" aria-label="${esc(c.title)}">
+                        ${isCur ? `<div class="map-bounce absolute left-1/2 -translate-x-1/2 -top-9 z-10 whitespace-nowrap"><div class="bg-black text-white text-[10px] font-black uppercase px-2 py-1 border-2 border-black">${started || done > 0 ? 'Lanjut' : 'Mulai'}</div><div class="mx-auto w-0 h-0" style="border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--ink)"></div></div>` : ''}
+                        <button class="map-node w-full h-full rounded-full border-2 border-black p-[5px]" style="background:${locked ? 'var(--track)' : `conic-gradient(var(--ink) ${pct}%, var(--track) 0)`};box-shadow:${locked ? '2px 2px 0 #9ca3af' : '4px 4px 0 var(--ink)'}" aria-label="${esc(c.title)}">
                             <span class="w-full h-full rounded-full border-2 ${locked ? 'border-gray-400 border-dashed text-gray-400 bg-gray-100' : 'border-black'} flex flex-col items-center justify-center leading-none ${locked ? '' : (complete ? 'bg-black text-white' : 'bg-white text-black')}">
                                 <span class="font-black text-xl">${esc(num)}</span>
                                 <span class="text-[11px] font-black mt-0.5">${locked ? '\uD83D\uDD12' : (complete ? '&#10003;' : pct + '%')}</span>
@@ -2203,7 +2277,8 @@ function romajiToKana(s){
             document.getElementById('pm-benefits').innerHTML = [
                 vocabData.length + ' bab Kotoba lengkap (775 kata) beserta contoh kalimat',
                 bunpouData.length + ' bab Bunpou dengan kalimat contoh',
-                'Materi Partikel lengkap: ' + PARTIKEL.length + ' kartu partikel, perbandingan, dan latihan soal'
+                'Materi Partikel lengkap: ' + PARTIKEL.length + ' kartu partikel, perbandingan, dan latihan soal',
+                KANJI.length + ' kanji N5 (arti, bacaan on/kun, contoh kata) dan kuis kanji'
             ].map(t => '<li>' + t + '</li>').join('');
             document.getElementById('pm-contact-text').textContent = PREMIUM_CONTACT_TEXT;
             const c = document.getElementById('pm-contact');
@@ -2234,6 +2309,7 @@ function romajiToKana(s){
             renderKotobaCategories();
             renderBunpouCategories();
             if (partikelRendered) { renderPartikelNav(); renderPartikelContent(); }
+            if (kanjiRendered) { renderKanjiNav(); if (currentKanjiTab !== 'kuis') renderKanjiContent(); }
             // render ulang halaman yang sedang tampil
             const names = ['Home', 'Kotoba', 'Bunpou', 'Partikel', 'Settings'];
             const cur = names.find(n => !document.getElementById('view-' + n.toLowerCase()).classList.contains('hidden'));
@@ -2270,6 +2346,7 @@ function romajiToKana(s){
             if (!canOpen('kotoba', currentKotobaCategoryId)) { currentKotobaCategoryId = 1; lsSet('n5_kotobaCategory', 1); }
             if (!canOpen('bunpou', currentBunpouCategoryId)) { currentBunpouCategoryId = 1; lsSet('n5_bunpouCategory', 1); }
             if (!canOpen('partikel', currentPartikelTab)) currentPartikelTab = FREE_LIMIT.partikel;
+            if (currentKanjiTab !== 'kuis' && !canOpen('kanji', currentKanjiTab)) currentKanjiTab = FREE_LIMIT.kanji;
             renderVocab(currentKotobaCategoryId); renderBunpou(currentBunpouCategoryId);
             refreshPremiumUI();
         }
@@ -3113,6 +3190,394 @@ function analyze(r){
         });
 
 
+        // ==========================================
+        // KANJI N5 (100 huruf) + KUIS
+        // ==========================================
+        const KANJI_BAB = [
+            { id: 1, t: 'Angka', raw: [
+                '一|satu|イチ・イツ|ひと(つ)|一つ:ひとつ:satu (benda)/一人:ひとり:satu orang/一月:いちがつ:Januari',
+                '二|dua|ニ|ふた(つ)|二つ:ふたつ:dua (benda)/二人:ふたり:dua orang/二月:にがつ:Februari',
+                '三|tiga|サン|み(つ)|三つ:みっつ:tiga (benda)/三人:さんにん:tiga orang/三月:さんがつ:Maret',
+                '四|empat|シ|よ(つ)・よん|四つ:よっつ:empat (benda)/四人:よにん:empat orang/四月:しがつ:April',
+                '五|lima|ゴ|いつ(つ)|五つ:いつつ:lima (benda)/五人:ごにん:lima orang/五月:ごがつ:Mei',
+                '六|enam|ロク|む(つ)|六つ:むっつ:enam (benda)/六時:ろくじ:jam enam/六月:ろくがつ:Juni',
+                '七|tujuh|シチ|なな(つ)・なの|七つ:ななつ:tujuh (benda)/七日:なのか:tanggal 7/七月:しちがつ:Juli',
+                '八|delapan|ハチ|や(つ)・よう|八つ:やっつ:delapan (benda)/八日:ようか:tanggal 8/八月:はちがつ:Agustus',
+                '九|sembilan|キュウ・ク|ここの(つ)|九つ:ここのつ:sembilan (benda)/九時:くじ:jam sembilan/九月:くがつ:September',
+                '十|sepuluh|ジュウ|とお|十:とお:sepuluh (benda)/十分:じゅっぷん:sepuluh menit/十月:じゅうがつ:Oktober'
+            ] },
+            { id: 2, t: 'Angka Besar, Uang & Kalender', raw: [
+                '百|seratus|ヒャク|-|百:ひゃく:seratus/三百:さんびゃく:tiga ratus/百円:ひゃくえん:seratus yen',
+                '千|seribu|セン|ち|千:せん:seribu/三千:さんぜん:tiga ribu/千円:せんえん:seribu yen',
+                '万|sepuluh ribu|マン・バン|-|一万:いちまん:sepuluh ribu/百万:ひゃくまん:satu juta/万年筆:まんねんひつ:pen tinta',
+                '円|yen; bulat|エン|まる(い)|円:えん:yen/百円:ひゃくえん:seratus yen/二千円:にせんえん:dua ribu yen',
+                '年|tahun|ネン|とし|今年:ことし:tahun ini/来年:らいねん:tahun depan/毎年:まいとし:setiap tahun',
+                '日|hari; matahari|ニチ・ジツ|ひ・か|日曜日:にちようび:hari Minggu/毎日:まいにち:setiap hari/二日:ふつか:tanggal 2',
+                '月|bulan|ゲツ・ガツ|つき|月曜日:げつようび:hari Senin/今月:こんげつ:bulan ini/一月:いちがつ:Januari',
+                '時|waktu; jam|ジ|とき|時間:じかん:waktu/三時:さんじ:jam tiga/時々:ときどき:kadang-kadang',
+                '分|menit; bagian|フン・ブン・プン|わ(かる)|五分:ごふん:lima menit/自分:じぶん:diri sendiri/分かります:わかります:mengerti',
+                '半|setengah|ハン|なか(ば)|半分:はんぶん:setengah/三時半:さんじはん:jam setengah empat/一時間半:いちじかんはん:satu setengah jam',
+                '午|tengah hari|ゴ|-|午前:ごぜん:pagi (a.m.)/午後:ごご:siang atau sore (p.m.)'
+            ] },
+            { id: 3, t: 'Waktu & Posisi', raw: [
+                '前|depan; sebelum|ゼン|まえ|前:まえ:depan/午前:ごぜん:pagi (a.m.)/名前:なまえ:nama',
+                '後|belakang; sesudah|ゴ・コウ|あと・うし(ろ)|後ろ:うしろ:belakang/午後:ごご:siang atau sore (p.m.)/後で:あとで:nanti, setelah itu',
+                '間|antara; selang|カン・ケン|あいだ・ま|時間:じかん:waktu/一週間:いっしゅうかん:satu minggu/二日間:ふつかかん:selama dua hari',
+                '今|sekarang|コン・キン|いま|今:いま:sekarang/今日:きょう:hari ini/今朝:けさ:pagi ini',
+                '毎|setiap|マイ|-|毎日:まいにち:setiap hari/毎朝:まいあさ:setiap pagi/毎年:まいとし:setiap tahun',
+                '上|atas; naik|ジョウ|うえ・あ(がる)・のぼ(る)|上:うえ:atas/上手:じょうず:pandai/上がります:あがります:naik',
+                '下|bawah; turun|カ・ゲ|した・さ(がる)・くだ(さい)|下:した:bawah/下手:へた:tidak pandai/地下鉄:ちかてつ:kereta bawah tanah',
+                '中|dalam; tengah|チュウ・ジュウ|なか|中:なか:dalam/一日中:いちにちじゅう:seharian/中国:ちゅうごく:Tiongkok',
+                '外|luar|ガイ・ゲ|そと・ほか|外:そと:luar/外国:がいこく:luar negeri/外国人:がいこくじん:orang asing',
+                '右|kanan|ウ・ユウ|みぎ|右:みぎ:kanan/右手:みぎて:tangan kanan'
+            ] },
+            { id: 4, t: 'Arah & Alam', raw: [
+                '左|kiri|サ|ひだり|左:ひだり:kiri/左手:ひだりて:tangan kiri',
+                '東|timur|トウ|ひがし|東:ひがし:timur/東京:とうきょう:Tokyo',
+                '西|barat|セイ・サイ|にし|西:にし:barat/西口:にしぐち:pintu keluar barat',
+                '南|selatan|ナン|みなみ|南:みなみ:selatan/南口:みなみぐち:pintu keluar selatan',
+                '北|utara|ホク|きた|北:きた:utara/北口:きたぐち:pintu keluar utara/北海道:ほっかいどう:Hokkaido',
+                '山|gunung|サン|やま|山:やま:gunung/富士山:ふじさん:Gunung Fuji/火山:かざん:gunung berapi',
+                '川|sungai|セン|かわ|川:かわ:sungai/小川:おがわ:anak sungai',
+                '水|air|スイ|みず|水:みず:air/水曜日:すいようび:hari Rabu/水道:すいどう:air ledeng',
+                '火|api|カ|ひ|火:ひ:api/火曜日:かようび:hari Selasa/火山:かざん:gunung berapi',
+                '木|pohon; kayu|モク・ボク|き|木:き:pohon/木曜日:もくようび:hari Kamis'
+            ] },
+            { id: 5, t: 'Alam & Manusia', raw: [
+                '土|tanah|ド・ト|つち|土:つち:tanah/土曜日:どようび:hari Sabtu',
+                '金|emas; uang|キン・コン|かね|お金:おかね:uang/金曜日:きんようび:hari Jumat',
+                '天|langit|テン|あま|天気:てんき:cuaca/天ぷら:てんぷら:tempura',
+                '雨|hujan|ウ|あめ|雨:あめ:hujan/大雨:おおあめ:hujan lebat/雨季:うき:musim hujan',
+                '気|semangat; perasaan|キ・ケ|-|天気:てんき:cuaca/元気:げんき:sehat/気をつけて:きをつけて:hati-hati',
+                '人|orang|ジン・ニン|ひと|人:ひと:orang/日本人:にほんじん:orang Jepang/三人:さんにん:tiga orang',
+                '男|laki-laki|ダン・ナン|おとこ|男:おとこ:laki-laki/男の子:おとこのこ:anak laki-laki/男性:だんせい:pria',
+                '女|perempuan|ジョ・ニョ|おんな|女:おんな:perempuan/女の子:おんなのこ:anak perempuan/彼女:かのじょ:dia (perempuan)',
+                '子|anak|シ・ス|こ|子供:こども:anak/男の子:おとこのこ:anak laki-laki/女の子:おんなのこ:anak perempuan',
+                '母|ibu|ボ|はは|母:はは:ibu (saya)/お母さん:おかあさん:ibu (Anda)'
+            ] },
+            { id: 6, t: 'Keluarga, Sekolah & Bahasa', raw: [
+                '父|ayah|フ|ちち|父:ちち:ayah (saya)/お父さん:おとうさん:ayah (Anda)',
+                '友|teman|ユウ|とも|友達:ともだち:teman/友人:ゆうじん:kawan',
+                '先|dulu; sebelumnya|セン|さき|先生:せんせい:guru/先週:せんしゅう:minggu lalu/先月:せんげつ:bulan lalu',
+                '生|hidup; lahir|セイ・ショウ|い(きる)・う(まれる)・なま|学生:がくせい:pelajar/生まれます:うまれます:lahir/先生:せんせい:guru',
+                '学|belajar|ガク|まな(ぶ)|学校:がっこう:sekolah/大学:だいがく:universitas/学生:がくせい:pelajar',
+                '校|sekolah|コウ|-|学校:がっこう:sekolah/高校:こうこう:SMA',
+                '名|nama|メイ・ミョウ|な|名前:なまえ:nama/有名:ゆうめい:terkenal',
+                '語|bahasa; kata|ゴ|かた(る)|日本語:にほんご:bahasa Jepang/英語:えいご:bahasa Inggris',
+                '読|membaca|ドク・トク|よ(む)|読みます:よみます:membaca/読書:どくしょ:membaca buku',
+                '書|menulis|ショ|か(く)|書きます:かきます:menulis/辞書:じしょ:kamus/図書館:としょかん:perpustakaan'
+            ] },
+            { id: 7, t: 'Kata Kerja', raw: [
+                '行|pergi|コウ・ギョウ|い(く)・おこな(う)|行きます:いきます:pergi/銀行:ぎんこう:bank/旅行:りょこう:perjalanan',
+                '来|datang|ライ|く(る)|来ます:きます:datang/来年:らいねん:tahun depan/来週:らいしゅう:minggu depan',
+                '出|keluar|シュツ・スイ|で(る)・だ(す)|出ます:でます:keluar/出口:でぐち:pintu keluar/出します:だします:mengeluarkan',
+                '入|masuk|ニュウ|い(る)・はい(る)・い(れる)|入ります:はいります:masuk/入口:いりぐち:pintu masuk/入れます:いれます:memasukkan',
+                '見|melihat|ケン|み(る)・み(せる)|見ます:みます:melihat/見せます:みせます:memperlihatkan/花見:はなみ:melihat bunga',
+                '聞|mendengar; bertanya|ブン・モン|き(く)|聞きます:ききます:mendengar/新聞:しんぶん:koran',
+                '話|berbicara; cerita|ワ|はな(す)・はなし|話します:はなします:berbicara/電話:でんわ:telepon/会話:かいわ:percakapan',
+                '食|makan|ショク|た(べる)・く(う)|食べます:たべます:makan/食堂:しょくどう:ruang makan/食べ物:たべもの:makanan',
+                '休|istirahat; libur|キュウ|やす(む)|休みます:やすみます:istirahat/休み:やすみ:libur/夏休み:なつやすみ:liburan musim panas'
+            ] },
+            { id: 8, t: 'Sifat & Benda', raw: [
+                '大|besar|ダイ・タイ|おお(きい)|大きい:おおきい:besar/大学:だいがく:universitas/大丈夫:だいじょうぶ:tidak apa-apa',
+                '小|kecil|ショウ|ちい(さい)・こ|小さい:ちいさい:kecil/小学生:しょうがくせい:siswa SD',
+                '高|tinggi; mahal|コウ|たか(い)|高い:たかい:tinggi atau mahal/高校:こうこう:SMA',
+                '長|panjang; kepala|チョウ|なが(い)|長い:ながい:panjang/社長:しゃちょう:direktur',
+                '白|putih|ハク・ビャク|しろ(い)|白い:しろい:putih/白:しろ:warna putih',
+                '本|buku; asal|ホン|もと|本:ほん:buku/日本:にほん:Jepang/一本:いっぽん:satu batang',
+                '車|mobil; kendaraan|シャ|くるま|車:くるま:mobil/電車:でんしゃ:kereta listrik/自転車:じてんしゃ:sepeda',
+                '電|listrik|デン|-|電車:でんしゃ:kereta listrik/電話:でんわ:telepon/電気:でんき:listrik',
+                '何|apa|カ|なに・なん|何:なに:apa/何時:なんじ:jam berapa/何人:なんにん:berapa orang',
+                '国|negara|コク|くに|国:くに:negara/外国:がいこく:luar negeri/中国:ちゅうごく:Tiongkok'
+            ] },
+            { id: 9, t: 'Musim & Waktu Harian', raw: [
+                '春|musim semi|シュン|はる|春:はる:musim semi/春休み:はるやすみ:liburan musim semi',
+                '夏|musim panas|カ|なつ|夏:なつ:musim panas/夏休み:なつやすみ:liburan musim panas',
+                '秋|musim gugur|シュウ|あき|秋:あき:musim gugur',
+                '冬|musim dingin|トウ|ふゆ|冬:ふゆ:musim dingin/冬休み:ふゆやすみ:liburan musim dingin',
+                '朝|pagi|チョウ|あさ|朝:あさ:pagi/毎朝:まいあさ:setiap pagi/今朝:けさ:pagi ini',
+                '昼|siang|チュウ|ひる|昼:ひる:siang/昼ご飯:ひるごはん:makan siang/昼休み:ひるやすみ:istirahat siang',
+                '夜|malam|ヤ|よる|夜:よる:malam/今夜:こんや:malam ini/夜中:よなか:tengah malam'
+            ] },
+            { id: 10, t: 'Tempat & Kata Kerja Tambahan', raw: [
+                '家|rumah; keluarga|カ・ケ|いえ・うち|家:いえ:rumah/家族:かぞく:keluarga',
+                '会|bertemu; pertemuan|カイ・エ|あ(う)|会います:あいます:bertemu/会社:かいしゃ:perusahaan/会話:かいわ:percakapan',
+                '社|perusahaan; kuil|シャ|やしろ|会社:かいしゃ:perusahaan/社長:しゃちょう:direktur/会社員:かいしゃいん:karyawan',
+                '駅|stasiun|エキ|-|駅:えき:stasiun/駅前:えきまえ:depan stasiun',
+                '店|toko|テン|みせ|店:みせ:toko/喫茶店:きっさてん:kedai kopi/店員:てんいん:pegawai toko',
+                '買|membeli|バイ|か(う)|買います:かいます:membeli/買い物:かいもの:belanja',
+                '飲|minum|イン|の(む)|飲みます:のみます:minum/飲み物:のみもの:minuman',
+                '言|berkata|ゲン・ゴン|い(う)・こと|言います:いいます:berkata/言葉:ことば:kata'
+            ] },
+            { id: 11, t: 'Hewan & Makanan', raw: [
+                '犬|anjing|ケン|いぬ|犬:いぬ:anjing/子犬:こいぬ:anak anjing',
+                '猫|kucing|ビョウ|ねこ|猫:ねこ:kucing/子猫:こねこ:anak kucing',
+                '魚|ikan|ギョ|さかな・うお|魚:さかな:ikan/金魚:きんぎょ:ikan mas',
+                '肉|daging|ニク|-|肉:にく:daging/牛肉:ぎゅうにく:daging sapi/豚肉:ぶたにく:daging babi',
+                '花|bunga|カ|はな|花:はな:bunga/花見:はなみ:melihat bunga/花瓶:かびん:vas bunga'
+            ] }
+        ];
+        const KANJI = [];
+        KANJI_BAB.forEach(b => b.raw.forEach(line => {
+            const p = line.split('|');
+            KANJI.push({ k: p[0], m: p[1], on: p[2], kun: p[3], bab: b.id,
+                ex: p[4].split('/').map(x => { const q = x.split(':'); return { w: q[0], r: q[1], a: q[2] }; }) });
+        }));
+
+        let kanjiDone = new Set();
+        try { kanjiDone = new Set(JSON.parse(lsGet('n5_kanjiDone') || '[]')); } catch (e) {}
+        const saveKanjiDone = () => lsSet('n5_kanjiDone', JSON.stringify([...kanjiDone]));
+        let currentKanjiTab = parseInt(lsGet('n5_kanjiTab'), 10) || 1;
+        if (lsGet('n5_kanjiTab') === 'kuis') currentKanjiTab = 'kuis';
+        if (!PREMIUM && currentKanjiTab !== 'kuis' && currentKanjiTab !== FREE_LIMIT.kanji) currentKanjiTab = FREE_LIMIT.kanji;
+        const kjBab = (id) => KANJI_BAB.find(b => b.id === id);
+        const kjOfBab = (id) => KANJI.filter(k => k.bab === id);
+
+        function renderKanjiNav() {
+            const nav = document.getElementById('kanji-nav');
+            nav.innerHTML = '';
+            const tabs = KANJI_BAB.map(b => ({ id: b.id, label: 'Bab ' + b.id })).concat([{ id: 'kuis', label: 'Kuis' }]);
+            tabs.forEach(t => {
+                const locked = t.id !== 'kuis' && !canOpen('kanji', t.id);
+                const b = document.createElement('button');
+                const active = t.id === currentKanjiTab;
+                b.className = `flex-shrink-0 px-3 py-1 border-2 border-black font-bold text-xs transition-colors ${active ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-200'}`;
+                b.textContent = t.label + (locked ? ' \uD83D\uDD12' : '');
+                b.addEventListener('click', () => selectKanjiTab(t.id));
+                nav.appendChild(b);
+            });
+            const act = nav.querySelector('.bg-black');
+            if (act) act.scrollIntoView({ inline: 'center', block: 'nearest' });
+        }
+        function selectKanjiTab(id) {
+            if (id !== 'kuis' && !canOpen('kanji', id)) { openPremiumModal('Bab kanji ini hanya tersedia untuk pengguna premium.'); return; }
+            currentKanjiTab = id;
+            lsSet('n5_kanjiTab', id);
+            renderKanjiNav(); renderKanjiContent();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function kanjiProgressHtml(done, total) {
+            return `<div class="flex items-center gap-2 mb-3"><span class="text-xs font-black font-mono whitespace-nowrap">${done}/${total}</span><div class="flex-1 h-3 border-2 border-black bg-white"><div class="h-full bg-black transition-all duration-300" style="width:${total ? done / total * 100 : 0}%"></div></div></div>`;
+        }
+        function renderKanjiContent() {
+            const box = document.getElementById('kanji-content');
+            if (currentKanjiTab === 'kuis') { renderKanjiQuizSetup(); return; }
+            const bab = kjBab(currentKanjiTab) || KANJI_BAB[0];
+            const list = kjOfBab(bab.id);
+            const done = list.filter(k => kanjiDone.has(k.k)).length;
+            box.innerHTML = `
+                <h2 class="text-xl md:text-2xl font-black mb-1 uppercase border-b-4 border-black inline-block pb-0.5">Bab ${bab.id}: ${esc(bab.t)}</h2>
+                <p class="text-xs font-bold text-gray-600 mb-3">Ketuk kanji untuk melihat arti, bacaan on dan kun, serta contoh kata.</p>
+                ${kanjiProgressHtml(done, list.length)}
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 md:gap-3">
+                    ${list.map((k, i) => `
+                    <button data-i="${i}" class="kj-tile relative border-2 border-black bg-white p-2 flex flex-col items-center hover:shadow-solid-sm transition-all ${kanjiDone.has(k.k) ? 'bg-gray-100' : ''}">
+                        ${kanjiDone.has(k.k) ? '<span class="absolute top-1 right-1.5 text-xs font-black">&#10003;</span>' : ''}
+                        <span class="font-jp text-4xl md:text-5xl font-black leading-tight">${esc(k.k)}</span>
+                        <span class="text-[11px] font-bold text-gray-600 text-center leading-tight mt-1">${esc(k.m)}</span>
+                    </button>`).join('')}
+                </div>
+                <button id="kj-study" class="w-full mt-4 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Uji bab ini (Kuis)</button>`;
+            box.querySelectorAll('.kj-tile').forEach(b => b.addEventListener('click', () => openKanjiDetail(list, parseInt(b.dataset.i, 10))));
+            document.getElementById('kj-study').addEventListener('click', () => { kq.scope = bab.id; selectKanjiTab('kuis'); startKanjiQuiz(bab.id); });
+        }
+
+        // ----- Modal detail -----
+        let kjCtx = { list: [], i: 0 };
+        function openKanjiDetail(list, i) {
+            kjCtx = { list, i };
+            renderKanjiDetail();
+            const m = document.getElementById('kj-modal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeKanjiDetail() {
+            const m = document.getElementById('kj-modal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+            if (currentKanjiTab !== 'kuis' && document.getElementById('view-kanji') && !document.getElementById('view-kanji').classList.contains('hidden')) renderKanjiContent();
+        }
+        function renderKanjiDetail() {
+            const k = kjCtx.list[kjCtx.i];
+            const isDone = kanjiDone.has(k.k);
+            document.getElementById('kj-body').innerHTML = `
+                <div class="text-center">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500">${kjCtx.i + 1} / ${kjCtx.list.length}</div>
+                    <div class="font-jp text-8xl font-black leading-tight">${esc(k.k)}</div>
+                    <div class="text-2xl font-black leading-tight">${esc(k.m)}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="border-2 border-black p-2 text-center"><div class="text-[10px] font-black uppercase tracking-wider text-gray-500">On (音)</div><div class="font-jp text-base font-bold break-words">${esc(k.on === '-' ? '-' : k.on)}</div></div>
+                    <div class="border-2 border-black p-2 text-center"><div class="text-[10px] font-black uppercase tracking-wider text-gray-500">Kun (訓)</div><div class="font-jp text-base font-bold break-words">${esc(k.kun === '-' ? '-' : k.kun)}</div></div>
+                </div>
+                <div class="mt-4">
+                    <div class="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-1">Contoh kata</div>
+                    <div class="flex flex-col gap-1.5">
+                        ${k.ex.map(e => `
+                        <div class="border-2 border-black p-2 flex items-center justify-between gap-2">
+                            <span class="font-jp text-xl font-black leading-[2]">${hasKanji(e.w) ? `<ruby>${esc(e.w)}<rt>${esc(e.r)}</rt></ruby>` : esc(e.w)}</span>
+                            <span class="text-sm font-bold text-right">${esc(e.a)}</span>
+                        </div>`).join('')}
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                    <button id="kj-speak" class="border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors">&#128266; Suara</button>
+                    <button id="kj-done" class="border-2 border-black py-2 font-bold text-xs uppercase transition-colors ${isDone ? 'bg-black text-white' : 'bg-white text-black hover:bg-black hover:text-white'}">${isDone ? '&#10003; Sudah hafal' : 'Tandai hafal'}</button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button id="kj-prev" class="border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors ${kjCtx.i === 0 ? 'opacity-30 pointer-events-none' : ''}">&#9664; Sebelumnya</button>
+                    <button id="kj-next" class="border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors ${kjCtx.i >= kjCtx.list.length - 1 ? 'opacity-30 pointer-events-none' : ''}">Berikutnya &#9654;</button>
+                </div>`;
+            document.getElementById('kj-prev').addEventListener('click', () => { if (kjCtx.i > 0) { kjCtx.i--; renderKanjiDetail(); } });
+            document.getElementById('kj-next').addEventListener('click', () => { if (kjCtx.i < kjCtx.list.length - 1) { kjCtx.i++; renderKanjiDetail(); } });
+            document.getElementById('kj-done').addEventListener('click', () => { if (kanjiDone.has(k.k)) kanjiDone.delete(k.k); else kanjiDone.add(k.k); saveKanjiDone(); renderKanjiDetail(); });
+            const sp = document.getElementById('kj-speak');
+            if (!('speechSynthesis' in window)) sp.classList.add('hidden');
+            sp.addEventListener('click', () => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(k.ex[0].r); u.lang = 'ja-JP'; u.rate = 0.85; speechSynthesis.speak(u); } catch (e) {} });
+        }
+        document.getElementById('kj-close').addEventListener('click', closeKanjiDetail);
+        document.getElementById('kj-modal').addEventListener('click', (e) => { if (e.target.id === 'kj-modal') closeKanjiDetail(); });
+        document.addEventListener('keydown', (e) => {
+            const m = document.getElementById('kj-modal');
+            if (m.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeKanjiDetail();
+            else if (e.key === 'ArrowRight' && kjCtx.i < kjCtx.list.length - 1) { kjCtx.i++; renderKanjiDetail(); }
+            else if (e.key === 'ArrowLeft' && kjCtx.i > 0) { kjCtx.i--; renderKanjiDetail(); }
+        });
+
+        // ----- Kuis kanji -----
+        const kq = { scope: 'all', qs: [], i: 0, score: 0, answered: false };
+        const shuffleArr = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+        function kjPool(scope) {
+            const open = KANJI.filter(k => canOpen('kanji', k.bab));
+            return scope === 'all' ? open : open.filter(k => k.bab === scope);
+        }
+        function renderKanjiQuizSetup() {
+            const box = document.getElementById('kanji-content');
+            const opts = ['<option value="all">Semua bab yang terbuka</option>'].concat(KANJI_BAB.map(b => {
+                const lk = !canOpen('kanji', b.id);
+                return `<option value="${b.id}" ${lk ? 'disabled' : ''} ${String(kq.scope) === String(b.id) ? 'selected' : ''}>Bab ${b.id}: ${esc(b.t)}${lk ? ' \uD83D\uDD12' : ''}</option>`;
+            }));
+            box.innerHTML = `
+                <h2 class="text-xl md:text-2xl font-black mb-1 uppercase border-b-4 border-black inline-block pb-0.5">Kuis Kanji</h2>
+                <p class="text-sm font-bold text-gray-600 mb-3">10 soal acak: arti kanji, mencari kanji dari arti, dan membaca kata.</p>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Materi kuis</label>
+                <select id="kq-scope" class="w-full border-2 border-black bg-white px-2 py-2 font-bold text-sm mb-3">${opts.join('')}</select>
+                <button id="kq-start" class="w-full border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Mulai Kuis</button>
+                ${PREMIUM ? '' : '<p class="text-[11px] font-bold text-gray-500 text-center mt-3">&#128274; Versi gratis: kuis hanya memakai kanji Bab 1.</p>'}`;
+            document.getElementById('kq-scope').addEventListener('change', (e) => { kq.scope = e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10); });
+            document.getElementById('kq-start').addEventListener('click', () => startKanjiQuiz(kq.scope));
+        }
+        function makeKanjiQuestion(k, type) {
+            const others = KANJI.filter(x => x.k !== k.k);
+            if (type === 3) {
+                const withKanji = k.ex.filter(e => hasKanji(e.w));
+                if (!withKanji.length) type = 1; else {
+                    const e = withKanji[Math.floor(Math.random() * withKanji.length)];
+                    const wrong = shuffleArr(others.flatMap(x => x.ex).filter(x => x.r !== e.r && hasKanji(x.w)).map(x => x.r)).filter((r, i, a) => a.indexOf(r) === i).slice(0, 3);
+                    return { q: 'Bagaimana cara membaca kata ini?', big: e.w, opts: shuffleArr([e.r].concat(wrong)), ans: e.r, info: `${e.w} (${e.r}) = ${e.a}`, jp: true, k };
+                }
+            }
+            if (type === 2) {
+                const wrong = shuffleArr(others.filter(x => x.m !== k.m)).slice(0, 3).map(x => x.k);
+                return { q: 'Kanji mana yang berarti', big: '"' + k.m + '"', opts: shuffleArr([k.k].concat(wrong)), ans: k.k, jp: true, optJp: true, k };
+            }
+            const wrong = shuffleArr(others.filter(x => x.m !== k.m)).slice(0, 3).map(x => x.m);
+            return { q: 'Apa arti kanji ini?', big: k.k, opts: shuffleArr([k.m].concat(wrong)), ans: k.m, bigJp: true, k };
+        }
+        function startKanjiQuiz(scope) {
+            kq.scope = scope;
+            const pool = kjPool(scope);
+            if (!pool.length) { openPremiumModal(); return; }
+            const picks = shuffleArr(pool);
+            const qs = [];
+            for (let i = 0; i < 10; i++) qs.push(makeKanjiQuestion(picks[i % picks.length], 1 + Math.floor(Math.random() * 3)));
+            Object.assign(kq, { qs, i: 0, score: 0, answered: false });
+            renderKanjiQuestion();
+        }
+        function renderKanjiQuestion() {
+            const box = document.getElementById('kanji-content');
+            if (kq.i >= kq.qs.length) {
+                const total = kq.qs.length;
+                box.innerHTML = `
+                    <div class="border-2 border-black bg-white shadow-solid p-6 text-center">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Skor akhir</div>
+                        <div class="text-5xl font-black my-2">${kq.score}/${total}</div>
+                        <p class="text-sm font-bold mb-4">${kq.score >= total * 0.8 ? 'Hebat! Kanjimu sudah kuat.' : kq.score >= total * 0.5 ? 'Lumayan, ulangi kanji yang masih salah.' : 'Pelajari lagi kanjinya, lalu coba kuis lagi.'}</p>
+                        <button id="kq-again" class="w-full border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Ulangi (soal diacak)</button>
+                        <button id="kq-setup" class="w-full mt-2 border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Ganti materi</button>
+                    </div>`;
+                document.getElementById('kq-again').addEventListener('click', () => startKanjiQuiz(kq.scope));
+                document.getElementById('kq-setup').addEventListener('click', renderKanjiQuizSetup);
+                return;
+            }
+            const q = kq.qs[kq.i];
+            box.innerHTML = `
+                <div class="flex justify-between items-center mb-2 text-xs font-black uppercase"><span>Soal ${kq.i + 1} / ${kq.qs.length}</span><span>Skor: ${kq.score}</span></div>
+                <div class="w-full h-2.5 border-2 border-black bg-white mb-4"><div class="h-full bg-black" style="width:${kq.i / kq.qs.length * 100}%"></div></div>
+                <div class="border-2 border-black bg-white shadow-solid p-4 mb-3 text-center">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">${esc(q.q)}</div>
+                    <div class="${q.bigJp || q.jp && !q.optJp ? 'font-jp' : ''} ${q.bigJp ? 'text-7xl' : 'text-3xl'} font-black leading-tight break-words">${esc(q.big)}</div>
+                </div>
+                <div id="kq-opts" class="grid grid-cols-2 gap-2 mb-3">
+                    ${q.opts.map(o => `<button data-v="${esc(o)}" class="kq-opt border-2 border-black bg-white py-3 px-1 ${q.optJp || (/[\u3040-\u30ff\u4e00-\u9fff]/.test(o)) ? 'font-jp text-2xl' : 'text-sm'} font-black hover:bg-gray-200 transition-colors break-words">${esc(o)}</button>`).join('')}
+                </div>
+                <div id="kq-fb" class="hidden"></div>`;
+            kq.answered = false;
+            box.querySelectorAll('.kq-opt').forEach(btn => btn.addEventListener('click', () => {
+                if (kq.answered) return; kq.answered = true;
+                const v = btn.dataset.v, ok = v === q.ans;
+                if (ok) kq.score++;
+                box.querySelectorAll('.kq-opt').forEach(b => {
+                    if (b.dataset.v === q.ans) { b.classList.remove('bg-white'); b.classList.add('bg-black', 'text-white'); }
+                    else if (b === btn) b.classList.add('line-through', 'bg-gray-200');
+                    b.classList.remove('hover:bg-gray-200');
+                });
+                const k = q.k, fb = document.getElementById('kq-fb');
+                fb.classList.remove('hidden');
+                fb.innerHTML = `
+                    <div class="border-2 border-black bg-white p-3">
+                        <div class="font-black text-sm uppercase mb-1">${ok ? 'Benar!' : 'Kurang tepat. Jawaban: ' + esc(q.ans)}</div>
+                        <div class="text-sm font-bold text-gray-700 mb-3"><span class="font-jp text-lg font-black">${esc(k.k)}</span> = ${esc(k.m)} &middot; On: <span class="font-jp">${esc(k.on)}</span> &middot; Kun: <span class="font-jp">${esc(k.kun)}</span>${q.info ? '<br>' + esc(q.info) : ''}</div>
+                        <button id="kq-next" class="w-full border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">${kq.i + 1 >= kq.qs.length ? 'Lihat skor' : 'Berikutnya'}</button>
+                    </div>`;
+                document.getElementById('kq-next').addEventListener('click', () => { kq.i++; renderKanjiQuestion(); window.scrollTo({ top: 0 }); });
+            }));
+        }
+        let kanjiRendered = false;
+        function showKanjiView() {
+            if (!kanjiRendered) { kanjiRendered = true; renderKanjiNav(); renderKanjiContent(); }
+            else { renderKanjiNav(); if (currentKanjiTab !== 'kuis') renderKanjiContent(); }
+        }
+
+
+        function renderKanjiHome() {
+            const d = KANJI.filter(k => kanjiDone.has(k.k)).length;
+            document.getElementById('home-kanji-text').textContent = d + '/' + KANJI.length;
+            document.getElementById('home-kanji-bar').style.width = (d / KANJI.length * 100) + '%';
+        }
+        document.getElementById('home-kanji-btn').addEventListener('click', () => switchView('Kanji'));
+
+        // ==========================================
+        // MODE GELAP
+        // ==========================================
+        const themeMQ = (window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null);
+        const currentTheme = () => lsGet('n5_theme') || 'auto';
+        function applyTheme(mode) {
+            lsSet('n5_theme', mode);
+            const dark = mode === 'dark' || (mode === 'auto' && themeMQ && themeMQ.matches);
+            document.documentElement.classList.toggle('dark', !!dark);
+            const on = 'flex-1 py-2 font-black text-xs uppercase bg-black text-white', off = 'flex-1 py-2 font-black text-xs uppercase bg-white text-black hover:bg-gray-200';
+            [['light', 'th-light'], ['dark', 'th-dark'], ['auto', 'th-auto']].forEach(([m, id], i) => {
+                const b = document.getElementById(id);
+                if (b) b.className = (mode === m ? on : off) + (i ? ' border-l-2 border-black' : '');
+            });
+        }
+        function initTheme() {
+            ['light', 'dark', 'auto'].forEach(m => document.getElementById('th-' + m).addEventListener('click', () => applyTheme(m)));
+            if (themeMQ && themeMQ.addEventListener) themeMQ.addEventListener('change', () => { if (currentTheme() === 'auto') applyTheme('auto'); });
+            applyTheme(currentTheme());
+        }
+
+
         // View Switcher
         function switchView(viewName) {
             const navButtons = document.querySelectorAll('.nav-btn');
@@ -3148,6 +3613,12 @@ function analyze(r){
                 document.getElementById('view-partikel').classList.add('block');
                 showPartikelView();
                 updateItemCount(0);
+            } else if (viewName === 'Kanji') {
+                headerTitle.textContent = "N5 KANJI";
+                document.getElementById('view-kanji').classList.remove('hidden');
+                document.getElementById('view-kanji').classList.add('block');
+                showKanjiView();
+                updateItemCount(KANJI.length);
             } else if (viewName === 'Settings') {
                 headerTitle.textContent = "SETTINGS";
                 document.getElementById('view-settings').classList.remove('hidden');
@@ -3379,39 +3850,6 @@ function analyze(r){
         renderBunpou(currentBunpouCategoryId);
         
 
-        // ==========================================
-        // NAVBAR AUTO-COLLAPSE (mengecil saat tidak ada aktivitas)
-        // ==========================================
-        const mainNav = document.getElementById('main-nav');
-        const NAV_IDLE_MS = 3000;
-        let navIdleTimer = null;
-
-        function collapseNav() {
-            mainNav.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('nav-hide', !b.classList.contains('bg-black')));
-            mainNav.classList.add('collapsed');
-        }
-        function expandNav() {
-            mainNav.classList.remove('collapsed');
-            mainNav.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-hide'));
-        }
-        function resetNavTimer() {
-            clearTimeout(navIdleTimer);
-            navIdleTimer = setTimeout(collapseNav, NAV_IDLE_MS);
-        }
-        // Saat mengecil, klik pertama hanya membuka kembali navbar
-        mainNav.addEventListener('click', (e) => {
-            if (mainNav.classList.contains('collapsed')) {
-                e.stopPropagation(); e.preventDefault();
-                expandNav(); resetNavTimer();
-            }
-        }, true);
-        // Aktivitas pada navbar menjaga tetap terbuka
-        ['pointerdown', 'pointermove', 'touchstart', 'focusin'].forEach(ev =>
-            mainNav.addEventListener(ev, () => { if (!mainNav.classList.contains('collapsed')) resetNavTimer(); }, { passive: true }));
-        // Aktivitas lain di halaman (scroll/klik/tombol) hanya mereset timer
-        ['scroll', 'click', 'keydown'].forEach(ev =>
-            window.addEventListener(ev, () => { if (!mainNav.classList.contains('collapsed')) resetNavTimer(); }, { passive: true }));
-        resetNavTimer();
 
         // Scroll tombol kategori aktif ke tampilan setelah refresh
         setTimeout(() => {
@@ -3421,6 +3859,7 @@ function analyze(r){
         }, 50);
 
         // Mulai dari Home
+        initTheme();
         refreshPremiumUI();
         switchView('Home');
         startAuth();
