@@ -1,0 +1,19 @@
+    <!-- PREMIUM MODAL -->
+    <div id="premium-modal" class="hidden fixed inset-0 z-[150] items-center justify-center bg-black/60 p-4" onclick="closePremiumModal()">
+        <form id="premium-form" class="relative w-full max-w-sm max-h-[92vh] overflow-y-auto border-2 border-black bg-white shadow-solid p-6" onclick="event.stopPropagation()" autocomplete="off">
+            <button type="button" onclick="closePremiumModal()" class="absolute top-2 right-2 w-8 h-8 border-2 border-black font-black leading-none hover:bg-black hover:text-white" aria-label="Tutup">&times;</button>
+            <div class="text-center">
+                <div class="font-jp text-4xl font-black">&#128274;</div>
+                <h2 class="text-xl font-black uppercase mt-1">Buka Premium</h2>
+                <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
+            </div>
+            <p id="pm-msg" class="text-xs font-bold text-center text-gray-700 mb-3"></p>
+            <ul id="pm-benefits" class="text-sm font-bold leading-snug list-disc pl-5 mb-4 flex flex-col gap-1"></ul>
+            <input id="pm-input" type="text" placeholder="Masukkan kode premium" autocapitalize="characters" spellcheck="false" class="w-full border-2 border-black px-3 py-2 font-bold text-sm tracking-widest uppercase outline-none">
+            <p id="pm-error" class="text-xs font-bold text-red-600 mt-2 h-4"></p>
+            <button type="submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Buka Semua Materi</button>
+            <p class="text-[11px] font-bold text-gray-500 text-center mt-3">Satu akun hanya bisa memakai satu kode premium.</p>
+            <p class="text-[11px] font-bold text-gray-500 text-center mt-1"><span id="pm-contact-text"></span></p>
+            <a id="pm-contact" href="#" target="_blank" rel="noopener" class="hidden mt-2 block text-center border-2 border-black py-2 font-bold text-xs uppercase hover:bg-black hover:text-white transition-colors">Hubungi Admin</a>
+        </form>
+    </div>

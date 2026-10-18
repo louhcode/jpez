@@ -1,0 +1,16 @@
+    <!-- PASSWORD GATE -->
+    <div id="lock-screen" class="fixed inset-0 z-[300] bg-white flex items-center justify-center px-4">
+        <form id="lock-form" class="border-2 border-black bg-white shadow-solid p-6 md:p-8 w-full max-w-sm text-center" autocomplete="off">
+            <div class="font-jp text-4xl font-black mb-1">日本語</div>
+            <h1 class="text-2xl font-black uppercase tracking-widest">JPEZ</h1>
+            <div class="text-[11px] font-bold text-gray-500">Belajar Bahasa Jepang N5</div>
+            <div class="border-t-4 border-black w-12 mx-auto my-3"></div>
+            <p class="text-xs font-bold text-gray-600 mb-4">Masukkan password untuk melanjutkan.</p>
+            <div class="flex border-2 border-black">
+                <input id="lock-input" type="password" placeholder="Password" class="flex-1 min-w-0 px-3 py-2 font-bold text-sm outline-none bg-white" autofocus>
+                <button type="button" id="lock-eye" class="px-3 border-l-2 border-black text-xs font-black uppercase hover:bg-black hover:text-white">Lihat</button>
+            </div>
+            <p id="lock-error" class="text-xs font-bold text-red-600 mt-2 h-4"></p>
+            <button type="submit" class="w-full mt-2 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Masuk</button>
+        </form>
+    </div>

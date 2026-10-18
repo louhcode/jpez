@@ -1,0 +1,48 @@
+    <!-- MAIN KOTOBA VIEW -->
+    <div id="view-kotoba" class="page-view block pt-[50px]">
+        <!-- PETA BAB (gaya Duolingo) -->
+        <div id="kotoba-map-wrap" class="hidden">
+            <div class="max-w-md mx-auto px-3 pt-4 pb-28">
+                <div class="border-2 border-black bg-white shadow-solid p-3 mb-5">
+                    <div class="flex items-end justify-between mb-1">
+                        <h2 class="font-black text-lg uppercase leading-none">Peta Kotoba</h2>
+                        <span id="km-total-text" class="font-mono font-black text-xs">0/0</span>
+                    </div>
+                    <div class="w-full h-3 border-2 border-black bg-white"><div id="km-total-bar" class="h-full bg-black transition-all duration-500" style="width:0%"></div></div>
+                </div>
+                <button id="km-free-note" onclick="openPremiumModal()" class="hidden w-full text-left border-2 border-black bg-black text-white p-3 mb-5 text-xs font-bold uppercase">&#128274; Versi gratis: hanya Bab 01 yang terbuka. Ketuk untuk membuka semua bab &rarr;</button>
+                <div id="kotoba-map"></div>
+            </div>
+        </div>
+
+        <!-- DETAIL BAB -->
+        <div id="kotoba-chapter-wrap">
+        <!-- Category Nav -->
+        <div class="sticky top-[50px] w-full z-30 bg-white border-b-2 border-black py-1.5 shadow-sm">
+            <div id="category-nav" class="flex gap-2 px-3 items-center justify-between h-full">
+                <!-- Category Buttons Injected by JS -->
+            </div>
+        </div>
+
+        <main class="px-3 md:px-6 pt-4 max-w-screen-2xl mx-auto">
+            <h2 id="current-category-title" class="text-xl md:text-2xl font-black mb-3 uppercase border-b-4 border-black inline-block pb-0.5">
+                Kategori
+            </h2>
+            <div class="flex items-center gap-2 mb-3">
+                <span id="cat-progress-text" class="text-xs font-black font-mono whitespace-nowrap">0/0</span>
+                <div class="flex-1 h-3 border-2 border-black bg-white">
+                    <div id="cat-progress-bar" class="h-full bg-black transition-all duration-300" style="width:0%"></div>
+                </div>
+                <button id="cat-toggle-all" class="text-[10px] font-bold uppercase border-2 border-black px-2 py-0.5 hover:bg-black hover:text-white whitespace-nowrap">Centang semua</button>
+            </div>
+            <div class="flex border-2 border-black mb-3 w-full max-w-xs">
+                <button id="kv-flash" class="flex-1 py-1.5 font-black text-xs uppercase bg-black text-white">Kartu</button>
+                <button id="kv-list" class="flex-1 py-1.5 font-black text-xs uppercase bg-white text-black border-l-2 border-black">Daftar</button>
+            </div>
+            <div id="flash-area"></div>
+            <div id="vocab-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 md:gap-3">
+                <!-- Vocab cards injected by JS -->
+            </div>
+        </main>
+        </div>
+    </div>

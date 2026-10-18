@@ -1,0 +1,58 @@
+    <!-- MAIN HOME VIEW -->
+    <div id="view-home" class="page-view hidden pt-[50px]">
+        <main class="px-3 md:px-6 pt-4 pb-4 max-w-2xl mx-auto flex flex-col gap-4">
+            <!-- Tanggal & Jam Jepang -->
+            <section class="border-2 border-black p-4 bg-white shadow-solid text-center">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">今日 &bull; Hari ini</div>
+                <div id="jp-date" class="font-jp text-2xl md:text-3xl font-bold leading-loose"></div>
+                <div class="border-t-4 border-black w-12 mx-auto my-2"></div>
+                <div id="jp-time" class="font-jp text-xl md:text-2xl font-bold leading-loose"></div>
+                <div id="jp-clock" class="font-mono text-3xl md:text-4xl font-black tracking-widest mt-1"></div>
+            </section>
+
+            <!-- Banner versi gratis -->
+            <section id="home-premium-banner" class="hidden border-2 border-black p-4 bg-white shadow-solid">
+                <div class="font-black text-sm uppercase">&#128274; Versi Gratis</div>
+                <p class="text-xs font-bold text-gray-700 mt-1">Kamu bisa membuka 1 bab dari tiap materi (Kotoba, Bunpou, dan Partikel). Masukkan kode premium untuk membuka semuanya.</p>
+                <button onclick="openPremiumModal()" class="w-full mt-3 border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Masukkan Kode Premium</button>
+            </section>
+
+            <!-- Lanjutkan Pelajaran -->
+            <section class="border-2 border-black p-4 bg-black text-white">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-300">Lanjutkan pelajaranmu di sini</div>
+                <div class="flex items-end justify-between gap-3 mt-1">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase text-gray-400">Kotoba terakhir dibuka</div>
+                        <div id="hc-title" class="text-2xl font-black leading-tight">-</div>
+                    </div>
+                    <div id="hc-count" class="text-sm font-black font-mono whitespace-nowrap">0/0</div>
+                </div>
+                <div class="w-full h-3 border-2 border-white mt-2"><div id="hc-bar" class="h-full bg-white transition-all duration-500" style="width:0%"></div></div>
+                <button id="hc-btn" class="w-full mt-3 border-2 border-white bg-white text-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Lanjutkan belajar &rarr;</button>
+            </section>
+
+            <!-- Progress Kanji -->
+            <section class="border-2 border-black p-4 bg-white shadow-solid">
+                <div class="flex items-end justify-between mb-2">
+                    <h2 class="text-lg font-black uppercase">Penguasaan Kanji</h2>
+                    <span id="home-kanji-text" class="text-sm font-black font-mono">0/100</span>
+                </div>
+                <div class="w-full h-4 border-2 border-black bg-white"><div id="home-kanji-bar" class="h-full bg-black transition-all duration-500" style="width:0%"></div></div>
+                <button id="home-kanji-btn" class="w-full mt-3 border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Buka Kanji N5</button>
+            </section>
+
+            <!-- Progress Kotoba -->
+            <section class="border-2 border-black p-4 bg-white shadow-solid">
+                <div class="flex items-end justify-between mb-2">
+                    <h2 class="text-lg font-black uppercase">Penguasaan Kotoba</h2>
+                    <span id="home-total-text" class="text-sm font-black font-mono">0/0</span>
+                </div>
+                <div class="w-full h-6 border-2 border-black bg-white relative">
+                    <div id="home-total-bar" class="h-full bg-black transition-all duration-500" style="width:0%"></div>
+                </div>
+                <div id="home-total-percent" class="text-right text-xs font-bold mt-1">0%</div>
+                <div class="border-t-2 border-black border-dashed my-3"></div>
+                <div id="home-cat-list" class="flex flex-col gap-2"></div>
+            </section>
+        </main>
+    </div>

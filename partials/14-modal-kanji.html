@@ -1,0 +1,24 @@
+    <!-- KANJI MODAL -->
+    <div id="kanji-modal" class="fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4" onclick="closeKanjiModal(event)">
+        <div class="relative w-full max-w-sm max-h-[90vh] overflow-y-auto border-2 border-black bg-white shadow-solid p-6 text-center" onclick="event.stopPropagation()">
+            <button onclick="closeKanjiModal()" class="absolute top-2 right-2 w-8 h-8 border-2 border-black font-black leading-none hover:bg-black hover:text-white" aria-label="Tutup">&times;</button>
+            <div id="km-word" class="font-jp text-5xl md:text-6xl leading-tight pt-6 pb-3 tracking-widest break-words"></div>
+            <div class="border-t-4 border-black w-12 mx-auto mb-3"></div>
+            <div id="km-furi-wrap">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Furigana</div>
+                <div id="km-furigana" class="font-jp text-xl font-bold mb-2"></div>
+            </div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Romaji</div>
+            <div id="km-romaji" class="font-mono text-sm text-gray-600 mb-3"></div>
+            <div class="border-t-2 border-black pt-3">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Arti</div>
+                <div id="km-arti" class="text-lg font-black leading-tight"></div>
+            </div>
+            <div id="km-ex-wrap" class="hidden border-t-2 border-black border-dashed mt-3 pt-3 text-left">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 text-center">Contoh Kalimat</div>
+                <div id="km-ex-jp" class="font-jp text-lg md:text-xl leading-[2.4] text-center"></div>
+                <div id="km-ex-id" class="text-sm font-bold text-gray-700 text-center mt-1"></div>
+            </div>
+            <div id="km-note" class="hidden mt-3 p-2 bg-gray-100 border border-black text-xs text-left"></div>
+        </div>
+    </div>
