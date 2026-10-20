@@ -82,7 +82,7 @@ body.locked { overflow: hidden; }
 .map-node { transition: transform .1s, box-shadow .1s; }
 .map-node:active { transform: translate(3px,3px); box-shadow: 0 0 0 #000 !important; }
 .partikel-panel { display: none; }
-.partikel-panel.open, body.b-open-partikel #view-bunpou .partikel-panel { display: block; }
+.partikel-panel.open, body.b-open-partikel #view-bunpou .partikel-panel:not(.closed) { display: block; }
 /* ===== MODE GELAP ===== */
 :root { --ink: #000; --paper: #fff; --track: #e5e7eb; --soft: #f3f4f6; }
 html.dark { --ink: #f4f4f5; --paper: #17171a; --track: #3f3f46; --soft: #26262b; color-scheme: dark; }
@@ -304,21 +304,22 @@ body.k-nocolor #kanji-modal .cw, body.b-nocolor #view-bunpou .cw, body.b-nocolor
         <main class="px-3 md:px-6 pt-4 pb-4 max-w-2xl mx-auto flex flex-col gap-4">
             <!-- Countdown JLPT N5 -->
             <section id="jlpt-countdown" class="border-2 border-black bg-black text-white p-4 shadow-solid text-center">
-                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-300">JLPT N5 &bull; 日本語能力試験</div>
+                <div class="text-[11px] font-bold tracking-widest text-gray-300">jlpt n5 &bull; <span class="font-jp">日本語能力試験</span></div>
                 <div class="font-jp text-lg font-bold mt-1">試験まであと</div>
+                <div class="text-xs font-bold text-gray-300">tinggal sebelum ujian</div>
                 <div id="jc-run">
-                    <div class="flex items-end justify-center gap-2 leading-none mt-1">
+                    <div class="flex items-end justify-center gap-2 leading-none mt-2">
                         <span id="jc-days" class="text-7xl md:text-8xl font-black font-mono">--</span>
-                        <span class="text-xl font-black pb-2 uppercase">Hari</span>
+                        <span class="text-xl font-black pb-2">hari <span class="font-jp">日</span></span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-3">
-                        <div class="border-2 border-white py-1"><div id="jc-h" class="text-2xl font-black font-mono">00</div><div class="text-[10px] font-bold uppercase text-gray-300">Jam</div></div>
-                        <div class="border-2 border-white py-1"><div id="jc-m" class="text-2xl font-black font-mono">00</div><div class="text-[10px] font-bold uppercase text-gray-300">Menit</div></div>
-                        <div class="border-2 border-white py-1"><div id="jc-s" class="text-2xl font-black font-mono">00</div><div class="text-[10px] font-bold uppercase text-gray-300">Detik</div></div>
+                        <div class="border-2 border-white py-1"><div id="jc-h" class="text-2xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">jam <span class="font-jp">時間</span></div></div>
+                        <div class="border-2 border-white py-1"><div id="jc-m" class="text-2xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">menit <span class="font-jp">分</span></div></div>
+                        <div class="border-2 border-white py-1"><div id="jc-s" class="text-2xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">detik <span class="font-jp">秒</span></div></div>
                     </div>
                 </div>
-                <div id="jc-msg" class="hidden text-3xl font-black my-3"></div>
-                <div class="mt-3 border-t-2 border-white pt-2 text-xs font-bold uppercase tracking-wider">Minggu, 6 Desember 2026</div>
+                <div id="jc-msg" class="hidden text-2xl font-black my-3 leading-relaxed"></div>
+                <div class="mt-3 border-t-2 border-white pt-2 text-xs font-bold tracking-wider">minggu, 6 desember 2026 &bull; <span class="font-jp">2026年12月6日（日）</span></div>
             </section>
 
             <!-- Tanggal & Jam Jepang -->
@@ -2732,9 +2733,14 @@ function renderParticleBox(host, romaji) {
             </div>`).join('')}
         </div>`;
     const btn = host.querySelector('.partikel-btn'), panel = host.querySelector('.partikel-panel');
+    const arrow = btn.querySelector('.arrow');
+    const isOpen = () => getComputedStyle(panel).display !== 'none';
+    arrow.innerHTML = isOpen() ? '&#9652;' : '&#9662;';
     btn.addEventListener('click', () => {
-        const open = panel.classList.toggle('open');
-        btn.querySelector('.arrow').innerHTML = open ? '&#9652;' : '&#9662;';
+        const open = !isOpen();   // berlaku juga saat setting "buka semua partikel" aktif
+        panel.classList.toggle('open', open);
+        panel.classList.toggle('closed', !open);
+        arrow.innerHTML = open ? '&#9652;' : '&#9662;';
     });
 }
 </script>
@@ -3910,8 +3916,8 @@ startAuth();
         $('jc-msg').classList.toggle('hidden', !over);
         if (over) {
             $('jc-msg').innerHTML = now < END
-                ? '<span class="font-jp">頑張って！</span><br>Ujian hari ini!'
-                : 'Ujian sudah lewat';
+                ? '<span class="font-jp">頑張って！今日は試験日</span><br>semangat, ujian hari ini!'
+                : 'ujian sudah lewat <span class="font-jp">試験終了</span>';
             return;
         }
         $('jc-days').textContent = Math.floor(ms / 86400000);

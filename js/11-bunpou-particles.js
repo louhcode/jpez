@@ -230,8 +230,13 @@ function renderParticleBox(host, romaji) {
             </div>`).join('')}
         </div>`;
     const btn = host.querySelector('.partikel-btn'), panel = host.querySelector('.partikel-panel');
+    const arrow = btn.querySelector('.arrow');
+    const isOpen = () => getComputedStyle(panel).display !== 'none';
+    arrow.innerHTML = isOpen() ? '&#9652;' : '&#9662;';
     btn.addEventListener('click', () => {
-        const open = panel.classList.toggle('open');
-        btn.querySelector('.arrow').innerHTML = open ? '&#9652;' : '&#9662;';
+        const open = !isOpen();   // berlaku juga saat setting "buka semua partikel" aktif
+        panel.classList.toggle('open', open);
+        panel.classList.toggle('closed', !open);
+        arrow.innerHTML = open ? '&#9652;' : '&#9662;';
     });
 }

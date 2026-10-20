@@ -16,8 +16,8 @@
         $('jc-msg').classList.toggle('hidden', !over);
         if (over) {
             $('jc-msg').innerHTML = now < END
-                ? '<span class="font-jp">頑張って！</span><br>Ujian hari ini!'
-                : 'Ujian sudah lewat';
+                ? '<span class="font-jp">頑張って！今日は試験日</span><br>semangat, ujian hari ini!'
+                : 'ujian sudah lewat <span class="font-jp">試験終了</span>';
             return;
         }
         $('jc-days').textContent = Math.floor(ms / 86400000);
