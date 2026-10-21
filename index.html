@@ -118,11 +118,6 @@
                 </div>
                 <button id="cat-toggle-all" class="text-[10px] font-bold uppercase border-2 border-black px-2 py-0.5 hover:bg-black hover:text-white whitespace-nowrap">Centang semua</button>
             </div>
-            <div class="flex border-2 border-black mb-3 w-full max-w-xs">
-                <button id="kv-flash" class="flex-1 py-1.5 font-black text-xs uppercase bg-black text-white">Kartu</button>
-                <button id="kv-list" class="flex-1 py-1.5 font-black text-xs uppercase bg-white text-black border-l-2 border-black">Daftar</button>
-            </div>
-            <div id="flash-area"></div>
             <div id="vocab-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 md:gap-3">
                 <!-- Vocab cards injected by JS -->
             </div>
@@ -228,6 +223,13 @@
                 </div>
                 <div class="w-full h-3 border-2 border-white mt-2"><div id="hc-bar" class="h-full bg-white transition-all duration-500" style="width:0%"></div></div>
                 <button id="hc-btn" class="w-full mt-3 border-2 border-white bg-white text-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Lanjutkan belajar &rarr;</button>
+            </section>
+
+            <!-- Flashcard Kotoba -->
+            <section class="border-2 border-black bg-white shadow-solid p-3">
+                <h2 class="font-black text-base uppercase mb-2">Flashcard Kotoba</h2>
+                <select id="fl-cat" class="w-full border-2 border-black bg-white px-2 py-2 font-bold text-sm mb-3" aria-label="Pilih bab flashcard"></select>
+                <div id="flash-area"></div>
             </section>
 
             <!-- Progress Kanji -->
@@ -449,6 +451,42 @@
         </div>
     </div>
 
+    <!-- WELCOME MODAL: kalimat penyemangat + countdown JLPT -->
+    <div id="welcome-modal" class="hidden fixed inset-0 z-[140] items-center justify-center bg-black/60 p-4" onclick="closeWelcomeModal()">
+        <div class="relative w-full max-w-sm max-h-[92vh] overflow-y-auto border-2 border-black bg-white shadow-solid" onclick="event.stopPropagation()">
+            <button type="button" onclick="closeWelcomeModal()" class="absolute top-2 right-2 w-8 h-8 border-2 border-white text-white font-black leading-none hover:bg-white hover:text-black" aria-label="Tutup">&times;</button>
+            <div class="bg-black text-white text-center py-3 px-10">
+                <div class="font-jp text-xl font-black">ようこそ</div>
+                <div class="text-[11px] font-bold tracking-widest text-gray-300">selamat datang kembali</div>
+            </div>
+            <div class="p-5 text-center">
+                <div class="text-[11px] font-bold tracking-widest text-gray-500 mb-2">kalimat penyemangat hari ini</div>
+                <div id="wm-quote-jp" class="font-jp text-3xl font-black leading-snug"></div>
+                <div id="wm-quote-ro" class="font-mono text-xs text-gray-600 mt-1"></div>
+                <div id="wm-quote-id" class="text-sm font-bold mt-2 leading-snug"></div>
+                <div class="border-t-4 border-black w-12 mx-auto my-4"></div>
+                <div class="border-2 border-black bg-black text-white p-3">
+                    <div class="text-[11px] font-bold tracking-widest text-gray-300">jlpt n5 &bull; <span class="font-jp">日本語能力試験</span></div>
+                    <div class="font-jp text-base font-bold mt-1">試験まであと</div>
+                    <div id="wm-run">
+                        <div class="flex items-end justify-center gap-2 leading-none mt-1">
+                            <span id="wm-days" class="text-6xl font-black font-mono">--</span>
+                            <span class="text-lg font-black pb-1">hari <span class="font-jp">日</span></span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-3">
+                            <div class="border-2 border-white py-1"><div id="wm-h" class="text-xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">jam <span class="font-jp">時間</span></div></div>
+                            <div class="border-2 border-white py-1"><div id="wm-m" class="text-xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">menit <span class="font-jp">分</span></div></div>
+                            <div class="border-2 border-white py-1"><div id="wm-s" class="text-xl font-black font-mono">00</div><div class="text-[11px] font-bold text-gray-300">detik <span class="font-jp">秒</span></div></div>
+                        </div>
+                    </div>
+                    <div id="wm-msg" class="hidden text-xl font-black my-3 leading-relaxed"></div>
+                    <div class="mt-3 border-t-2 border-white pt-2 text-[11px] font-bold tracking-wider">minggu, 6 desember 2026 &bull; <span class="font-jp">2026年12月6日（日）</span></div>
+                </div>
+                <button type="button" onclick="closeWelcomeModal()" class="w-full mt-4 border-2 border-black bg-black text-white py-2 font-bold text-sm hover:bg-white hover:text-black transition-colors">mulai belajar <span class="font-jp">始めよう</span></button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/01-premium-config.js"></script>
     <script src="js/02-lock.js"></script>
     <script src="js/03-data-kotoba.js"></script>
@@ -461,10 +499,7 @@
     <script src="js/10-auth.js"></script>
     <script src="js/11-bunpou-particles.js"></script>
     <script src="js/12-color-highlight.js"></script>
-    <script src="js/13-flashcard.js"></script>
     <script src="js/14-kanji.js"></script>
-    <script src="js/15-main.js"></script>
-    <script src="js/16-countdown.js"></script>
 
 </body>
 </html>
