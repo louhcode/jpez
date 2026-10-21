@@ -3028,6 +3028,249 @@ function colorPairB(markup, idText) {
 </script>
     <script>
 // ==========================================
+// FLASHCARD KOTOBA
+// ==========================================
+let flashDir = lsGet('n5_flashDir') === 'id' ? 'id' : 'jp';
+let flashOnly = lsGet('n5_flashOnly') !== '0';
+let flashShuffle = lsGet('n5_flashShuffle') === '1';
+const FL = { cat: null, deck: [], pos: 0, flipped: false, total: 0, known: 0, again: 0, timer: null };
+
+// --- Flashcard ada di Home, terpisah dari halaman Kotoba ---
+function flashCatValid(id) { return vocabData.some(c => c.id === id) && canOpen('kotoba', id); }
+function populateFlashSelect(id) {
+    const sel = document.getElementById('fl-cat');
+    if (!sel) return;
+    sel.innerHTML = vocabData.map(c => `<option value="${c.id}">${esc(c.title)}${canOpen('kotoba', c.id) ? '' : ' \uD83D\uDD12'}</option>`).join('');
+    sel.value = String(id);
+}
+function setFlashCat(id) {
+    if (!canOpen('kotoba', id)) {
+        openPremiumModal('Bab ini hanya tersedia untuk pengguna premium.');
+        populateFlashSelect(FL.cat);
+        return false;
+    }
+    lsSet('n5_flashCat', id);
+    populateFlashSelect(id);
+    renderFlash(id, true);
+    return true;
+}
+function showHomeFlash() {
+    let id = FL.cat;
+    if (!flashCatValid(id)) {
+        const saved = parseInt(lsGet('n5_flashCat'), 10);
+        id = flashCatValid(saved) ? saved : (flashCatValid(currentKotobaCategoryId) ? currentKotobaCategoryId : vocabData[0].id);
+    }
+    populateFlashSelect(id);
+    renderFlash(id, false);
+}
+document.getElementById('fl-cat').addEventListener('change', (e) => setFlashCat(parseInt(e.target.value, 10)));
+
+function flashItem() {
+    const cat = vocabData.find(c => c.id === FL.cat);
+    const idx = FL.deck[FL.pos];
+    return { cat, idx, item: cat.items[idx], key: itemKey(cat.id, idx) };
+}
+function buildFlashDeck(catId) {
+    const cat = vocabData.find(c => c.id === catId);
+    let deck = cat.items.map((_, i) => i);
+    if (flashOnly) deck = deck.filter(i => !doneSet.has(itemKey(cat.id, i)));
+    if (flashShuffle) for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    Object.assign(FL, { cat: catId, deck, pos: 0, flipped: false, total: deck.length, known: 0, again: 0 });
+}
+
+function renderFlash(catId, reset) {
+    if (!catId) return;
+    if (reset || FL.cat !== catId) buildFlashDeck(catId);
+    const area = document.getElementById('flash-area');
+    const btn = 'border-2 border-black font-black text-xs uppercase py-2 px-2 hover:bg-black hover:text-white transition-colors';
+    area.innerHTML = `
+        <div class="max-w-md mx-auto">
+            <div class="flex items-center justify-between text-xs font-black uppercase mb-1">
+                <span id="fl-pos"></span><span id="fl-stat" class="font-mono"></span>
+            </div>
+            <div class="w-full h-2.5 border-2 border-black bg-white mb-3"><div id="fl-bar" class="h-full bg-black transition-all duration-300" style="width:0%"></div></div>
+            <div id="fl-main">
+                <div id="fl-scene" class="flash-scene">
+                    <div id="fl-card" class="flash-card">
+                        <div id="fl-front" class="flash-face"></div>
+                        <div id="fl-back" class="flash-face flash-back"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                    <button id="fl-forget" class="border-2 border-black bg-white font-black text-sm uppercase py-3 hover:bg-black hover:text-white transition-colors">&#10007; Lupa</button>
+                    <button id="fl-know" class="border-2 border-black bg-black text-white font-black text-sm uppercase py-3 hover:bg-white hover:text-black transition-colors">&#10003; Hafal</button>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mt-2">
+                    <button id="fl-prev" class="${btn}">&#9664; Prev</button>
+                    <button id="fl-dir" class="${btn}">&#8644; Arah</button>
+                    <button id="fl-speak" class="${btn}">&#128266; Suara</button>
+                    <button id="fl-next" class="${btn}">Next &#9654;</button>
+                </div>
+            </div>
+            <div id="fl-done" class="hidden"></div>
+            <div class="mt-4 flex flex-col gap-2 text-xs font-bold">
+                <label class="flex items-center justify-between cursor-pointer border-2 border-black bg-white px-3 py-2"><span>Hanya kartu yang belum hafal</span><input id="fl-only" type="checkbox" class="w-5 h-5 accent-black" ${flashOnly ? 'checked' : ''}></label>
+                <label class="flex items-center justify-between cursor-pointer border-2 border-black bg-white px-3 py-2"><span>Acak urutan kartu</span><input id="fl-shuffle" type="checkbox" class="w-5 h-5 accent-black" ${flashShuffle ? 'checked' : ''}></label>
+                <p class="text-[11px] text-gray-500 text-center leading-snug">Ketuk kartu untuk membalik. Geser kartu ke kanan = Hafal, ke kiri = Lupa. Pintasan keyboard: Spasi, &larr; &rarr;, &uarr; Hafal, &darr; Lupa.</p>
+            </div>
+        </div>`;
+    document.getElementById('fl-forget').addEventListener('click', flashForget);
+    document.getElementById('fl-know').addEventListener('click', flashKnow);
+    document.getElementById('fl-prev').addEventListener('click', () => flashMove(-1));
+    document.getElementById('fl-next').addEventListener('click', () => flashMove(1));
+    document.getElementById('fl-dir').addEventListener('click', () => { flashDir = flashDir === 'jp' ? 'id' : 'jp'; lsSet('n5_flashDir', flashDir); flashShow(true); });
+    const sp = document.getElementById('fl-speak');
+    if (!('speechSynthesis' in window)) sp.classList.add('hidden');
+    sp.addEventListener('click', flashSpeak);
+    document.getElementById('fl-only').addEventListener('change', (e) => { flashOnly = e.target.checked; lsSet('n5_flashOnly', flashOnly ? '1' : '0'); renderFlash(FL.cat, true); });
+    document.getElementById('fl-shuffle').addEventListener('change', (e) => { flashShuffle = e.target.checked; lsSet('n5_flashShuffle', flashShuffle ? '1' : '0'); renderFlash(FL.cat, true); });
+    document.getElementById('fl-scene').addEventListener('click', () => flashFlip());
+    bindFlashSwipe(document.getElementById('fl-scene'));
+    flashShow(false);
+}
+
+function flashFaces(item, cat, idx) {
+    const label = (t) => `<div class="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2">${t}</div>`;
+    const kanji = hasKanji(item.j);
+    const f = buildFurigana(item.j, item.r);
+    const wordRuby = kanji ? f.html : esc(item.j);
+    const frontJP = `${label('Bahasa Jepang')}<div class="font-jp text-4xl md:text-5xl font-black text-center break-words leading-tight">${esc(item.j)}</div><div class="mt-5 text-[11px] font-bold text-gray-400">Ketuk untuk melihat arti</div>`;
+    const frontID = `${label('Bahasa Indonesia')}<div class="text-3xl md:text-4xl font-black text-center break-words leading-tight">${esc(item.m)}</div><div class="mt-5 text-[11px] font-bold text-gray-400">Ketuk untuk melihat kata Jepang</div>`;
+    const ex = KOTOBA_EXAMPLES[cat.id + '.' + idx];
+    let exHtml = '';
+    if (ex) {
+        const cp = colorPairA(ex.j, item, ex.m);
+        exHtml = `<div class="w-full border-t-2 border-dashed border-black mt-3 pt-2 text-left">${label('Contoh kalimat')}<div class="font-jp text-base md:text-lg leading-[2.4]">${cp.jp}</div><div class="text-sm font-bold mt-1">${cp.id}</div></div>`;
+    }
+    const note = item.note ? `<div class="w-full mt-2 p-2 bg-gray-100 border border-black text-[11px] font-medium text-left leading-snug">${item.note}</div>` : '';
+    const back = `<div class="font-jp text-4xl font-black text-center break-words leading-tight pt-3">${wordRuby}</div>
+        <div class="font-mono text-sm text-gray-600 mt-2">${esc(item.r)}</div>
+        <div class="text-2xl font-black text-center mt-2 leading-tight">${esc(item.m)}</div>${exHtml}${note}`;
+    return flashDir === 'jp' ? { front: frontJP, back } : { front: frontID, back };
+}
+
+function flashShow(unflip) {
+    const card = document.getElementById('fl-card');
+    if (!card) return;
+    const main = document.getElementById('fl-main'), done = document.getElementById('fl-done');
+    const cat = vocabData.find(c => c.id === FL.cat);
+    const d = catDoneCount(cat);
+    document.getElementById('fl-stat').textContent = 'Hafal ' + d + '/' + cat.items.length;
+    document.getElementById('fl-bar').style.width = (FL.total ? (FL.total - FL.deck.length) / FL.total * 100 : 100) + '%';
+    if (!FL.deck.length) {
+        main.classList.add('hidden'); done.classList.remove('hidden');
+        document.getElementById('fl-pos').textContent = FL.total ? 'Sesi selesai' : 'Tidak ada kartu';
+        const all = d === cat.items.length;
+        const idx = vocabData.findIndex(c => c.id === FL.cat), nxt = vocabData[idx + 1];
+        done.innerHTML = `
+            <div class="border-2 border-black bg-white shadow-solid p-5 text-center">
+                <div class="text-4xl mb-1">&#127881;</div>
+                <div class="font-black text-lg uppercase">${all ? 'Semua kartu sudah hafal!' : 'Sesi selesai!'}</div>
+                <p class="text-sm font-bold text-gray-600 mt-1">${FL.total ? 'Hafal ' + FL.known + ' kartu, ' + FL.again + ' kali ditandai Lupa.' : 'Tidak ada kartu yang perlu dipelajari di bab ini.'}</p>
+                <div class="flex flex-col gap-2 mt-4">
+                    <button id="fl-redo" class="border-2 border-black bg-black text-white py-2 font-bold text-sm uppercase hover:bg-white hover:text-black transition-colors">Ulangi semua kartu</button>
+                    <button id="fl-reset" class="border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Reset hafalan bab ini</button>
+                    ${nxt ? `<button id="fl-nextcat" class="border-2 border-black py-2 font-bold text-sm uppercase hover:bg-black hover:text-white transition-colors">Bab berikutnya &rarr;</button>` : ''}
+                </div>
+            </div>`;
+        document.getElementById('fl-redo').addEventListener('click', () => { flashOnly = false; lsSet('n5_flashOnly', '0'); renderFlash(FL.cat, true); });
+        document.getElementById('fl-reset').addEventListener('click', () => {
+            if (!confirm('Hapus semua centang hafal di bab ini?')) return;
+            cat.items.forEach((_, i) => doneSet.delete(itemKey(cat.id, i)));
+            saveDone(); updateCategoryProgress(); renderFlash(cat.id, true);
+        });
+        const nb = document.getElementById('fl-nextcat'); if (nb) nb.addEventListener('click', () => setFlashCat(nxt.id));
+        return;
+    }
+    main.classList.remove('hidden'); done.classList.add('hidden');
+    const { item, idx } = flashItem();
+    document.getElementById('fl-pos').textContent = 'Kartu ' + (FL.pos + 1) + ' / ' + FL.deck.length;
+    const faces = flashFaces(item, cat, idx);
+    document.getElementById('fl-front').innerHTML = faces.front;
+    document.getElementById('fl-back').innerHTML = faces.back;
+    if (unflip) { card.classList.remove('flipped'); FL.flipped = false; }
+}
+function flashFlip() {
+    const card = document.getElementById('fl-card');
+    if (!card || !FL.deck.length) return;
+    FL.flipped = !FL.flipped;
+    card.classList.toggle('flipped', FL.flipped);
+}
+// Ganti kartu; bila sedang terbalik, putar balik dulu agar jawaban kartu baru tidak terlihat
+function flashAdvance() {
+    const card = document.getElementById('fl-card');
+    clearTimeout(FL.timer);
+    if (card && FL.flipped) {
+        card.classList.remove('flipped'); FL.flipped = false;
+        FL.timer = setTimeout(() => flashShow(false), 260);
+    } else flashShow(false);
+}
+function flashMove(step) {
+    if (FL.deck.length < 2) return;
+    FL.pos = (FL.pos + step + FL.deck.length) % FL.deck.length;
+    flashAdvance();
+}
+function flashKnow() {
+    if (!FL.deck.length) return;
+    const { key } = flashItem();
+    doneSet.add(key); saveDone(); updateCategoryProgress();
+    FL.deck.splice(FL.pos, 1); FL.known++;
+    if (FL.pos >= FL.deck.length) FL.pos = 0;
+    flashAdvance();
+}
+function flashForget() {
+    if (!FL.deck.length) return;
+    const { key } = flashItem();
+    if (doneSet.delete(key)) { saveDone(); updateCategoryProgress(); }
+    const [c] = FL.deck.splice(FL.pos, 1); FL.deck.push(c); FL.again++;
+    if (FL.pos >= FL.deck.length) FL.pos = 0;
+    flashAdvance();
+}
+function flashSpeak() {
+    if (!FL.deck.length || !('speechSynthesis' in window)) return;
+    const { item } = flashItem();
+    try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(item.j.split('、')[0].replace(/[()（）]/g, ''));
+        u.lang = 'ja-JP'; u.rate = 0.85;
+        speechSynthesis.speak(u);
+    } catch (e) {}
+}
+function bindFlashSwipe(scene) {
+    let x0 = 0, y0 = 0, dx = 0, active = false;
+    scene.addEventListener('touchstart', (e) => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; dx = 0; active = true; }, { passive: true });
+    scene.addEventListener('touchmove', (e) => {
+        if (!active) return;
+        const t = e.touches[0]; dx = t.clientX - x0; const dy = t.clientY - y0;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) scene.style.transform = `translateX(${dx * 0.5}px) rotate(${dx / 40}deg)`;
+    }, { passive: true });
+    scene.addEventListener('touchend', () => {
+        if (!active) return; active = false;
+        scene.style.transform = '';
+        if (dx > 80) { scene.dataset.swiped = '1'; flashKnow(); }
+        else if (dx < -80) { scene.dataset.swiped = '1'; flashForget(); }
+        if (scene.dataset.swiped) setTimeout(() => { delete scene.dataset.swiped; }, 350);
+    });
+    // cegah "klik" yang menyusul setelah geser agar kartu tidak ikut terbalik
+    scene.addEventListener('click', (e) => { if (scene.dataset.swiped) { e.stopImmediatePropagation(); } }, true);
+}
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('view-home').classList.contains('hidden')) return;
+    const wm = document.getElementById('welcome-modal');
+    if (wm && !wm.classList.contains('hidden')) return;
+    if (document.getElementById('kanji-modal').classList.contains('open') || !document.getElementById('premium-modal').classList.contains('hidden')) return;
+    if (document.getElementById('auth-screen') && document.getElementById('auth-screen').style.display !== 'none') return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    if (e.key === ' ') { e.preventDefault(); flashFlip(); }
+    else if (e.key === 'ArrowRight') flashMove(1);
+    else if (e.key === 'ArrowLeft') flashMove(-1);
+    else if (e.key === 'ArrowUp') { e.preventDefault(); flashKnow(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); flashForget(); }
+});
+</script>
+    <script>
+// ==========================================
 // KANJI N5 (100 huruf) + KUIS
 // ==========================================
 const KANJI_BAB = [
@@ -3392,6 +3635,393 @@ function renderKanjiHome() {
     document.getElementById('home-kanji-bar').style.width = (d / KANJI.length * 100) + '%';
 }
 document.getElementById('home-kanji-btn').addEventListener('click', () => switchView('Kanji'));
+</script>
+    <script>
+// ==========================================
+// MODE GELAP
+// ==========================================
+const themeMQ = (window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null);
+const currentTheme = () => lsGet('n5_theme') || 'auto';
+function applyTheme(mode) {
+    lsSet('n5_theme', mode);
+    const dark = mode === 'dark' || (mode === 'auto' && themeMQ && themeMQ.matches);
+    document.documentElement.classList.toggle('dark', !!dark);
+    const on = 'flex-1 py-2 font-black text-xs uppercase bg-black text-white', off = 'flex-1 py-2 font-black text-xs uppercase bg-white text-black hover:bg-gray-200';
+    [['light', 'th-light'], ['dark', 'th-dark'], ['auto', 'th-auto']].forEach(([m, id], i) => {
+        const b = document.getElementById(id);
+        if (b) b.className = (mode === m ? on : off) + (i ? ' border-l-2 border-black' : '');
+    });
+}
+function initTheme() {
+    ['light', 'dark', 'auto'].forEach(m => document.getElementById('th-' + m).addEventListener('click', () => applyTheme(m)));
+    if (themeMQ && themeMQ.addEventListener) themeMQ.addEventListener('change', () => { if (currentTheme() === 'auto') applyTheme('auto'); });
+    applyTheme(currentTheme());
+}
+
+
+// View Switcher
+function switchView(viewName) {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+        if (btn.id === `nav-${viewName}`) {
+            btn.classList.add('bg-black', 'text-white');
+            btn.classList.remove('bg-white', 'text-black');
+        } else {
+            btn.classList.remove('bg-black', 'text-white');
+            btn.classList.add('bg-white', 'text-black');
+        }
+    });
+
+    document.querySelectorAll('.page-view').forEach(view => {
+        view.classList.remove('block', 'flex');
+        view.classList.add('hidden');
+    });
+
+    if (viewName === 'Kotoba') {
+        headerTitle.textContent = "N5 KOTOBA";
+        document.getElementById('view-kotoba').classList.remove('hidden');
+        document.getElementById('view-kotoba').classList.add('block');
+        updateItemCount(vocabData.find(c => c.id === currentKotobaCategoryId).items.length);
+        if (kotobaMode === 'chapter') renderVocab(currentKotobaCategoryId);   // sinkronkan centang hafal dari flashcard
+        applyKotobaMode();
+    } else if (viewName === 'Bunpou') {
+        headerTitle.textContent = "N5 BUNPOU";
+        document.getElementById('view-bunpou').classList.remove('hidden');
+        document.getElementById('view-bunpou').classList.add('block');
+        updateItemCount(bunpouData.find(c => c.id === currentBunpouCategoryId).items.length);
+    } else if (viewName === 'Partikel') {
+        headerTitle.textContent = "N5 PARTIKEL";
+        document.getElementById('view-partikel').classList.remove('hidden');
+        document.getElementById('view-partikel').classList.add('block');
+        showPartikelView();
+        updateItemCount(0);
+    } else if (viewName === 'Kanji') {
+        headerTitle.textContent = "N5 KANJI";
+        document.getElementById('view-kanji').classList.remove('hidden');
+        document.getElementById('view-kanji').classList.add('block');
+        showKanjiView();
+        updateItemCount(KANJI.length);
+    } else if (viewName === 'Settings') {
+        headerTitle.textContent = "SETTINGS";
+        document.getElementById('view-settings').classList.remove('hidden');
+        document.getElementById('view-settings').classList.add('flex');
+        updateItemCount(0);
+    } else if (viewName === 'Home') {
+        headerTitle.textContent = "HOME";
+        document.getElementById('view-home').classList.remove('hidden');
+        document.getElementById('view-home').classList.add('block');
+        renderHome();
+        showHomeFlash();
+        updateItemCount(0);
+    } else {
+        headerTitle.textContent = "HOME";
+        document.getElementById('view-soon').classList.remove('hidden');
+        document.getElementById('view-soon').classList.add('flex');
+        document.getElementById('soon-title').textContent = viewName;
+        updateItemCount(0);
+    }
+}
+
+function updateItemCount(count) {
+    itemCount.textContent = count;
+}
+
+// --- KOTOBA LOGIC ---
+// Bar atas halaman bab: kembali ke peta, bab sebelumnya / berikutnya
+function renderKotobaCategories() {
+    categoryNav.innerHTML = '';
+    const idx = vocabData.findIndex(c => c.id === currentKotobaCategoryId);
+    const cat = vocabData[idx];
+    const mkBtn = (txt, cls, fn, disabled) => {
+        const b = document.createElement('button');
+        b.className = cls + (disabled ? ' opacity-30 pointer-events-none' : '');
+        b.innerHTML = txt; b.onclick = fn;
+        return b;
+    };
+    const base = 'border-2 border-black font-black text-xs uppercase hover:bg-black hover:text-white transition-colors';
+    categoryNav.appendChild(mkBtn('&larr; Peta', base + ' px-2 py-1 whitespace-nowrap', () => { setKotobaMode('map'); applyKotobaMode(); }));
+    const mid = document.createElement('div');
+    mid.className = 'flex items-center gap-1 flex-1 justify-end min-w-0';
+    mid.appendChild(mkBtn('&#9664;', base + ' px-2 py-1', () => selectKotobaCategory(vocabData[idx - 1].id), idx <= 0));
+    const t = document.createElement('span');
+    t.className = 'font-black text-sm truncate px-1';
+    t.textContent = cat ? cat.title : '';
+    mid.appendChild(t);
+    mid.appendChild(mkBtn('&#9654;', base + ' px-2 py-1', () => selectKotobaCategory(vocabData[idx + 1].id), idx >= vocabData.length - 1));
+    categoryNav.appendChild(mid);
+}
+
+function renderVocab(categoryId) {
+    const category = vocabData.find(c => c.id === categoryId);
+    if (!category) return;
+
+    currentCategoryTitle.textContent = category.title.replace(/[0-9]/g, '').trim(); 
+    updateItemCount(category.items.length);
+    
+    vocabGrid.innerHTML = '';
+    category.items.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'border-2 border-black p-2 bg-white flex flex-col h-full hover:shadow-solid-sm transition-all relative group';
+        
+        let noteHtml = '';
+        if (item.note) {
+            noteHtml = `
+                <div class="mt-2 pt-1 border-t-2 border-dashed border-gray-300">
+                    <label class="cursor-pointer text-[9px] font-bold text-gray-500 uppercase tracking-wider block hover:text-black transition-colors text-center w-full">
+                        <input type="checkbox" class="peer hidden note-toggle">
+                        <span>[+] Info</span>
+                        <div class="hidden peer-checked:block note-content mt-1 p-1 bg-gray-100 border border-black text-[10px] font-medium text-black normal-case leading-tight text-left">
+                            ${item.note}
+                        </div>
+                    </label>
+                </div>
+            `;
+        }
+        
+        card.innerHTML = `
+            <div class="text-2xl md:text-3xl font-jp font-normal text-center mb-1 text-black tracking-widest break-words leading-tight">
+                ${item.j}
+            </div>
+            <div class="romaji-text text-[10px] md:text-xs text-center text-gray-600 font-mono tracking-tighter mb-1.5 leading-none">
+                ${item.r}
+            </div>
+            <div class="arti-text border-t-2 border-black pt-1 text-xs md:text-sm font-bold text-center mt-auto leading-tight">
+                ${item.m}
+            </div>
+            ${noteHtml}
+        `;
+        const key = itemKey(category.id, idx);
+        const isDone = doneSet.has(key);
+        card.classList.add('pt-6');
+        if (isDone) card.classList.add('bg-gray-100');
+        card.insertAdjacentHTML('afterbegin', `<label class="absolute top-1 left-1 z-10 cursor-pointer p-0.5" title="Sudah dikuasai"><input type="checkbox" class="w-4 h-4 accent-black cursor-pointer block" ${isDone ? 'checked' : ''}></label>`);
+        const cb = card.querySelector('input[type=checkbox]');
+        const lab = cb.parentElement;
+        lab.addEventListener('click', ev => ev.stopPropagation());
+        cb.addEventListener('change', () => toggleItemDone(category.id, idx, card, cb.checked));
+        card.classList.add('kanji-card');
+        card.addEventListener('click', (ev) => {
+            if (ev.target.closest('label, input')) return;
+            openKanjiModal(item, category.id, idx);
+        });
+        vocabGrid.appendChild(card);
+    });
+    updateCategoryProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectKotobaCategory(id) {
+    if (!canOpen('kotoba', id)) { openPremiumModal('Bab ini hanya tersedia untuk pengguna premium.'); return false; }
+    currentKotobaCategoryId = id;
+    try { localStorage.setItem('n5_kotobaCategory', id); } catch (e) {}
+    setKotobaMode('chapter');
+    renderKotobaCategories();
+    renderVocab(id);
+    applyKotobaMode();
+    return true;
+}
+
+// --- BUNPOU LOGIC ---
+function renderBunpouCategories() {
+    bunpouCategoryNav.innerHTML = '';
+    bunpouData.forEach(cat => {
+        const btn = document.createElement('button');
+        const isActive = cat.id === currentBunpouCategoryId;
+        btn.className = `flex-shrink-0 px-3 py-1 border-2 border-black font-bold text-xs transition-colors ${
+            isActive ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-200'
+        }`;
+        btn.textContent = cat.title + (canOpen('bunpou', cat.id) ? '' : ' \uD83D\uDD12');
+        btn.onclick = () => {
+            selectBunpouCategory(cat.id);
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        };
+        bunpouCategoryNav.appendChild(btn);
+    });
+}
+
+function renderBunpou(categoryId) {
+    const category = bunpouData.find(c => c.id === categoryId);
+    if (!category) return;
+
+    currentBunpouCategoryTitle.textContent = category.title.replace(/[0-9]/g, '').trim(); 
+    updateItemCount(category.items.length);
+    
+    bunpouGrid.innerHTML = '';
+    category.items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'border-2 border-black p-3 bg-white hover:shadow-solid-sm transition-all flex flex-col gap-2';
+        
+        const cpB = colorPairB(item.j, item.m);
+        card.innerHTML = `
+            <div class="flex items-start gap-2">
+                <span class="font-black text-xs mt-1 min-w-[20px] text-gray-400">${index + 1}.</span>
+                <div class="w-full">
+                    <div class="text-lg md:text-xl font-jp font-medium text-black leading-loose mb-1.5 break-words">
+                        ${cpB.jp}
+                    </div>
+                    <div class="romaji-text text-xs md:text-sm text-gray-600 font-mono leading-tight mb-2">
+                        ${item.r}
+                    </div>
+                    <div class="arti-text border-t-2 border-black pt-2 text-sm md:text-base font-bold leading-tight">
+                        ${cpB.id}
+                    </div>
+                    <div class="partikel-box"></div>
+                </div>
+            </div>
+        `;
+        renderParticleBox(card.querySelector('.partikel-box'), item.r);
+        bunpouGrid.appendChild(card);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectBunpouCategory(id) {
+    if (!canOpen('bunpou', id)) { openPremiumModal('Bab Bunpou ini hanya tersedia untuk pengguna premium.'); return; }
+    currentBunpouCategoryId = id;
+    try { localStorage.setItem('n5_bunpouCategory', id); } catch (e) {}
+    renderBunpouCategories();
+    renderBunpou(id);
+}
+
+// ==========================================
+// SETTINGS & LOCAL STORAGE
+// ==========================================
+// Pengaturan terpisah: k = Kotoba, b = Bunpou
+const SETTING_DEFS = [
+    { id: 'k-romaji', key: 'n5_k_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'k-hide-romaji', invert: true },
+    { id: 'k-arti',   key: 'n5_k_showArti',   old: 'n5_showArti',   def: true,  cls: 'k-hide-arti',   invert: true },
+    { id: 'k-serif',  key: 'n5_k_useSerif',   old: 'n5_useSerif',   def: false, cls: 'k-serif',       invert: false },
+    { id: 'k-color', key: 'n5_k_color', old: 'n5_k_color', def: true, cls: 'k-nocolor', invert: true },
+    { id: 'b-romaji', key: 'n5_b_showRomaji', old: 'n5_showRomaji', def: true,  cls: 'b-hide-romaji', invert: true },
+    { id: 'b-arti',   key: 'n5_b_showArti',   old: 'n5_showArti',   def: true,  cls: 'b-hide-arti',   invert: true },
+    { id: 'b-serif',  key: 'n5_b_useSerif',   old: 'n5_useSerif',   def: false, cls: 'b-serif',       invert: false },
+    { id: 'b-color', key: 'n5_b_color', old: 'n5_b_color', def: true, cls: 'b-nocolor', invert: true },
+    { id: 'b-partikel', key: 'n5_b_openPartikel', old: 'n5_b_openPartikel', def: false, cls: 'b-open-partikel', invert: false },
+];
+
+function applySetting(d, checked) {
+    // invert: kelas dipasang saat TIDAK dicentang (hide-*); non-invert: dipasang saat dicentang
+    document.body.classList.toggle(d.cls, d.invert ? !checked : checked);
+}
+
+function loadSettings() {
+    SETTING_DEFS.forEach(d => {
+        const el = document.getElementById('toggle-' + d.id) || document.getElementById(d.id);
+        let v = null;
+        try { v = localStorage.getItem(d.key); if (v === null) v = localStorage.getItem(d.old); } catch (e) {}
+        const checked = v === null ? d.def : v === 'true';
+        el.checked = checked;
+        applySetting(d, checked);
+        el.addEventListener('change', (e) => {
+            applySetting(d, e.target.checked);
+            try { localStorage.setItem(d.key, e.target.checked); } catch (err) {}
+        });
+    });
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+loadSettings();
+
+renderKotobaCategories();
+renderVocab(currentKotobaCategoryId);
+
+renderBunpouCategories();
+renderBunpou(currentBunpouCategoryId);
+
+
+
+// Scroll tombol kategori aktif ke tampilan setelah refresh
+setTimeout(() => {
+    document.querySelectorAll('#category-nav button, #bunpou-category-nav button').forEach(b => {
+        if (b.className.includes('bg-black')) b.scrollIntoView({ inline: 'center', block: 'nearest' });
+    });
+}, 50);
+
+// Mulai dari Home
+initTheme();
+refreshPremiumUI();
+switchView('Home');
+startAuth();
+</script>
+    <script>
+// ==========================================
+// COUNTDOWN JLPT N5 (6 Desember 2026)
+// Dipakai di kartu Home (prefix "jc") dan modal sambutan (prefix "wm")
+// ==========================================
+(function () {
+    const START = new Date(2026, 11, 6, 0, 0, 0).getTime();   // bulan 11 = Desember
+    const END = START + 24 * 60 * 60 * 1000;
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2, '0');
+
+    function paint(p) {
+        if (!$(p + '-run')) return;
+        const now = Date.now();
+        const ms = START - now;
+        const over = ms <= 0;
+        $(p + '-run').classList.toggle('hidden', over);
+        $(p + '-msg').classList.toggle('hidden', !over);
+        if (over) {
+            $(p + '-msg').innerHTML = now < END
+                ? '<span class="font-jp">頑張って！今日は試験日</span><br>semangat, ujian hari ini!'
+                : 'ujian sudah lewat <span class="font-jp">試験終了</span>';
+            return;
+        }
+        $(p + '-days').textContent = Math.floor(ms / 86400000);
+        $(p + '-h').textContent = pad(Math.floor(ms % 86400000 / 3600000));
+        $(p + '-m').textContent = pad(Math.floor(ms % 3600000 / 60000));
+        $(p + '-s').textContent = pad(Math.floor(ms % 60000 / 1000));
+    }
+    function tick() { paint('jc'); paint('wm'); }
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>
+    <script>
+// ==========================================
+// MODAL SAMBUTAN: kalimat penyemangat + countdown JLPT N5
+// Tampil sekali tiap membuka website (per sesi), setelah login/kunci terbuka
+// ==========================================
+const WELCOME_QUOTES = [
+    { jp: '七転び八起き', ro: 'nana korobi ya oki', id: 'jatuh tujuh kali, bangkit delapan kali. jangan menyerah.' },
+    { jp: '継続は力なり', ro: 'keizoku wa chikara nari', id: 'konsisten itu kekuatan. belajar sedikit tiap hari, hasilnya besar.' },
+    { jp: '千里の道も一歩から', ro: 'senri no michi mo ippo kara', id: 'perjalanan sejauh apa pun dimulai dari satu langkah.' },
+    { jp: '塵も積もれば山となる', ro: 'chiri mo tsumoreba yama to naru', id: 'debu yang menumpuk pun jadi gunung. kosakata kecil lama-lama jadi banyak.' },
+    { jp: '習うより慣れよ', ro: 'narau yori narero', id: 'membiasakan diri lebih baik daripada hanya mempelajari.' },
+    { jp: '失敗は成功のもと', ro: 'shippai wa seikou no moto', id: 'kegagalan adalah awal dari keberhasilan.' },
+    { jp: '石の上にも三年', ro: 'ishi no ue ni mo san nen', id: 'sabar dan tekun, pada waktunya hasilnya akan datang.' },
+    { jp: '好きこそものの上手なれ', ro: 'suki koso mono no jouzu nare', id: 'apa yang kita sukai akan jadi keahlian kita.' },
+    { jp: '為せば成る', ro: 'naseba naru', id: 'kalau dikerjakan, pasti bisa terwujud.' },
+    { jp: '急がば回れ', ro: 'isogaba maware', id: 'pelan tapi pasti, tidak perlu terburu-buru.' },
+    { jp: '初心忘るべからず', ro: 'shoshin wasuru bekarazu', id: 'jangan lupakan semangat saat pertama kali memulai.' }
+];
+let welcomeSeen = false;
+function pickWelcomeQuote() {
+    const day = Math.floor(Date.now() / 86400000);          // ganti tiap hari
+    return WELCOME_QUOTES[(day + Math.floor(Math.random() * 3)) % WELCOME_QUOTES.length];
+}
+function closeWelcomeModal() {
+    const m = document.getElementById('welcome-modal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
+function maybeShowWelcome() {
+    if (welcomeSeen || document.body.classList.contains('locked')) return;
+    try { if (sessionStorage.getItem('n5_welcome_seen') === '1') { welcomeSeen = true; return; } } catch (e) {}
+    welcomeSeen = true;
+    try { sessionStorage.setItem('n5_welcome_seen', '1'); } catch (e) {}
+    const q = pickWelcomeQuote();
+    document.getElementById('wm-quote-jp').textContent = q.jp;
+    document.getElementById('wm-quote-ro').textContent = q.ro;
+    document.getElementById('wm-quote-id').textContent = q.id;
+    const m = document.getElementById('welcome-modal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWelcomeModal(); });
+// buka saat gerbang login/kunci terbuka (class "locked" dilepas dari body)
+new MutationObserver(maybeShowWelcome).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+maybeShowWelcome();
 </script>
 
 </body>
