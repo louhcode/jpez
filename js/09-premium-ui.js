@@ -37,6 +37,7 @@ function refreshPremiumUI() {
     renderBunpouCategories();
     if (partikelRendered) { renderPartikelNav(); renderPartikelContent(); }
     if (kanjiRendered) { renderKanjiNav(); if (currentKanjiTab !== 'kuis') renderKanjiContent(); }
+    if (typeof bacaanRendered !== 'undefined' && bacaanRendered) { renderBacaanNav(); renderBacaanContent(); }
     // render ulang halaman yang sedang tampil
     const names = ['Home', 'Kotoba', 'Bunpou', 'Partikel', 'Settings'];
     const cur = names.find(n => !document.getElementById('view-' + n.toLowerCase()).classList.contains('hidden'));

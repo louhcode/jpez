@@ -62,6 +62,12 @@ function switchView(viewName) {
         document.getElementById('view-kanji').classList.add('block');
         showKanjiView();
         updateItemCount(KANJI.length);
+    } else if (viewName === 'Bacaan') {
+        headerTitle.textContent = "N5 BACAAN";
+        document.getElementById('view-bacaan').classList.remove('hidden');
+        document.getElementById('view-bacaan').classList.add('block');
+        showBacaanView();
+        updateItemCount(BACAAN.length);
     } else if (viewName === 'Settings') {
         headerTitle.textContent = "SETTINGS";
         document.getElementById('view-settings').classList.remove('hidden');
